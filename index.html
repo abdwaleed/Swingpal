@@ -98,7 +98,7 @@
         <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 flex-grow flex flex-col min-h-[200px] transition-colors duration-300">
             <div class="flex justify-between items-center mb-3">
                 <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Live Feed</span>
-                <span id="record-count" class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-600 dark:text-gray-300 font-medium">0 lines</span>
+                <span id="record-count" class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-600 dark:text-gray-300 font-medium">0 swings</span>
             </div>
             <div id="log-container" class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 font-mono text-xs text-gray-600 dark:text-green-400 overflow-y-auto flex-grow h-0 transition-colors duration-300 border border-gray-100 dark:border-gray-700/50">
                 <div class="text-gray-400 italic p-2 text-center mt-10">Waiting for connection...</div>
@@ -133,6 +133,7 @@
         let isConnected = false;
         let wakeLock = null;
         let csvData = [];
+        let swingCount = 0;
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- DOM Elements ---
@@ -322,6 +323,10 @@
             ui.btnStop.disabled = true;
             ui.btnStart.disabled = false;
 
+            // Increment Swing Count
+            swingCount++;
+            ui.count.innerText = `${swingCount} swings`;
+
             saveFile();
         });
 
@@ -337,10 +342,8 @@
                 const dataLine = `${timeStr},${rawLine}`;
                 csvData.push(dataLine);
                 
-                ui.count.innerText = `${csvData.length - 1} lines`;
-                
-                // Just log raw data for speed, but kept clean
-                logLine(rawLine);
+                // Removed line count update to keep UI clean
+                // Removed logLine(rawLine) to keep feed clean
             }
         }
 
