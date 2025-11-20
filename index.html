@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IMU Data Logger</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Custom Scrollbar for Log */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+    </style>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4 font-sans">
+
+    <!-- Header -->
+    <header class="w-full max-w-md mb-6 flex justify-between items-center border-b border-gray-700 pb-4">
+        <div>
+            <h1 class="text-xl font-bold text-blue-400">IMU Logger</h1>
+            <p class="text-xs text-gray-400">Bluetooth Low Energy</p>
+        </div>
+        <div id="battery-level" class="text-sm text-gray-500"></div>
+    </header>
+
+    <!-- Main Controls -->
+    <main class="w-full max-w-md flex-grow flex flex-col gap-4">
+
+        <!-- Status Card -->
+        <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-400 text-sm uppercase tracking-wider">Status</span>
+                <span id="status-indicator" class="h-3 w-3 rounded-full bg-red-500 animate-pulse"></span>
+            </div>
+            <div id="status-text" class="text-lg font-medium">Disconnected</div>
+            <div id="device-name" class="text-sm text-gray-500 mt-1 h-5"></div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="grid grid-cols-1 gap-3">
+            <button id="btn-connect" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Connect to Sensor
+            </button>
+
+            <div class="grid grid-cols-2 gap-3">
+                <button id="btn-start" disabled class="bg-green-600 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-green-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95">
+                    Start (S)
+                </button>
+                <button id="btn-stop" disabled class="bg-red-600 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95">
+                    Stop (P)
+                </button>
+            </div>
+        </div>
+
+        <!-- Data Preview -->
+        <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700 flex-grow flex flex-col min-h-[200px]">
+            <div class="flex justify-between items-center mb-2">
+                <span class="text-gray-400 text-sm uppercase tracking-wider">Data Stream</span>
+                <span id="record-count" class="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">0 records</span>
+            </div>
+            <div id="log-container" class="bg-gray-900 rounded-lg p-2 font-mono text-xs text-green-400 overflow-y-auto flex-grow h-0">
+                <div class="text-gray-600 italic p-2">Waiting for connection...</div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full max-w-md mt-6 text-center text-gray-600 text-xs">
+        <p>Files save to "Downloads"</p>
+    </footer>
+
+    <script>
+        // --- Configuration ---
+        // Must match your Arduino UUIDs exactly
+        const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+        const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
+        const DEVICE_NAME_PREFIX = "IMU_SENSOR";
+
+        // --- State ---
+        let device, server, characteristic;
+        let isRecording = false;
+        let wakeLock = null;
+        let csvData = [];
+        const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
+
+        // --- DOM Elements ---
+        const ui = {
+            statusText: document.getElementById('status-text'),
+            statusIndicator: document.getElementById('status-indicator'),
+            deviceName: document.getElementById('device-name'),
+            btnConnect: document.getElementById('btn-connect'),
+            btnStart: document.getElementById('btn-start'),
+            btnStop: document.getElementById('btn-stop'),
+            log: document.getElementById('log-container'),
+            count: document.getElementById('record-count')
+        };
+
+        // --- Utility Functions ---
+        function updateStatus(text, colorClass) {
+            ui.statusText.innerText = text;
+            ui.statusIndicator.className = `h-3 w-3 rounded-full animate-pulse ${colorClass}`;
+        }
+
+        function logLine(text) {
+            const div = document.createElement('div');
+            div.innerText = text;
+            ui.log.insertBefore(div, ui.log.firstChild);
+            // Keep DOM light
+            if (ui.log.children.length > 50) ui.log.lastChild.remove();
+        }
+
+        async function requestWakeLock() {
+            try {
+                if ('wakeLock' in navigator) {
+                    wakeLock = await navigator.wakeLock.request('screen');
+                }
+            } catch (err) {
+                console.log("Wake Lock error:", err);
+            }
+        }
+
+        // --- Bluetooth Logic ---
+        ui.btnConnect.addEventListener('click', async () => {
+            try {
+                updateStatus("Scanning...", "bg-yellow-500");
+                
+                // Request Device
+                device = await navigator.bluetooth.requestDevice({
+                    filters: [{ name: DEVICE_NAME_PREFIX }],
+                    optionalServices: [SERVICE_UUID]
+                });
+
+                ui.deviceName.innerText = `Device: ${device.name}`;
+                updateStatus("Connecting...", "bg-blue-500");
+
+                device.addEventListener('gattserverdisconnected', onDisconnected);
+
+                // Connect to GATT
+                server = await device.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID);
+                characteristic = await service.getCharacteristic(CHAR_UUID);
+
+                // Start Notifications
+                await characteristic.startNotifications();
+                characteristic.addEventListener('characteristicvaluechanged', handleData);
+
+                // UI Updates
+                updateStatus("Connected & Ready", "bg-green-500");
+                ui.btnConnect.style.display = 'none'; // Hide connect button
+                ui.btnStart.disabled = false;
+                ui.log.innerHTML = '<div class="text-gray-500">Stream active. Press Start to record.</div>';
+                
+                // Prevent screen from sleeping while connected
+                requestWakeLock();
+
+            } catch (error) {
+                console.error(error);
+                updateStatus("Connection Failed", "bg-red-500");
+                alert("Error: " + error.message);
+            }
+        });
+
+        function onDisconnected() {
+            updateStatus("Disconnected", "bg-red-500");
+            ui.btnConnect.style.display = 'flex';
+            ui.btnConnect.innerText = "Reconnect";
+            ui.btnStart.disabled = true;
+            ui.btnStop.disabled = true;
+            isRecording = false;
+            if (wakeLock) wakeLock.release();
+        }
+
+        // --- Recording Logic ---
+        ui.btnStart.addEventListener('click', startSequence);
+        
+        // Logic to start recording (Timer + Flag)
+        function startSequence() {
+            ui.btnStart.disabled = true;
+            let count = 5;
+
+            // 5-second countdown visual
+            const timer = setInterval(() => {
+                updateStatus(`Starting in ${count}...`, "bg-purple-500");
+                count--;
+
+                if (count < 0) {
+                    clearInterval(timer);
+                    beginRecording();
+                }
+            }, 1000);
+        }
+
+        function beginRecording() {
+            csvData = [CSV_HEADER]; // Reset CSV
+            isRecording = true;
+            
+            updateStatus("RECORDING", "bg-red-600 animate-pulse");
+            ui.btnStop.disabled = false;
+            ui.log.innerHTML = ""; // Clear previous logs
+        }
+
+        // --- Stop & Save Logic ---
+        ui.btnStop.addEventListener('click', () => {
+            isRecording = false;
+            updateStatus("Saved!", "bg-blue-500");
+            ui.btnStop.disabled = true;
+            ui.btnStart.disabled = false;
+
+            saveFile();
+        });
+
+        function handleData(event) {
+            const value = event.target.value;
+            const decoder = new TextDecoder('utf-8');
+            const rawLine = decoder.decode(value).trim();
+
+            if (isRecording) {
+                // Add Timestamp JS-side (Format: YYYY-MM-DD HH:MM:SS.ms)
+                const now = new Date();
+                const timeStr = now.toISOString().replace('T', ' ').replace('Z', '');
+                
+                const dataLine = `${timeStr},${rawLine}`;
+                csvData.push(dataLine);
+                
+                // Update UI
+                ui.count.innerText = `${csvData.length - 1} records`; // -1 for header
+                logLine(rawLine);
+            }
+        }
+
+        function saveFile() {
+            const blob = new Blob([csvData.join("\n")], { type: 'text/csv' });
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
+            a.href = url;
+            a.download = `imu_log_${timestamp}.csv`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            
+            logLine("--- FILE SAVED TO DOWNLOADS ---");
+        }
+
+        // --- Touch/Keyboard Support ---
+        // Allow "s" and "p" keys if a physical keyboard is attached (e.g. Bluetooth keyboard)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 's' && !ui.btnStart.disabled) startSequence();
+            if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click();
+        });
+
+    </script>
+</body>
+</html>
