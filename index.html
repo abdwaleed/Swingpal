@@ -38,17 +38,17 @@
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300">
 
     <!-- Header / Title Section -->
     <header class="w-full max-w-md mb-8 flex justify-between items-end">
         <div>
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">SwingPal</h1>
-            <p class="text-sm text-gray-500 font-medium mt-1">Intuitive Tennis Coaching</p>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
         </div>
         
         <!-- Theme Toggle -->
-        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm hover:shadow-md transition-all focus:outline-none">
+        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
             <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -83,13 +83,13 @@
                     <div class="flex flex-col justify-center">
                         <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
                         <div id="status-text" class="text-lg font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
-                        <div id="device-name" class="text-xs text-gray-500 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
+                        <div id="device-name" class="text-xs text-gray-500 dark:text-gray-400 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
                     </div>
                 </div>
 
                 <!-- Right: Status Dot -->
                 <div class="flex items-center pr-2">
-                     <span id="status-indicator" class="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span>
+                     <span id="status-indicator" class="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300 shadow-inner"></span>
                 </div>
             </div>
         </button>
@@ -101,7 +101,7 @@
                 <span id="record-count" class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-600 dark:text-gray-300 font-medium">0 swings</span>
             </div>
             <div id="log-container" class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 font-mono text-xs text-gray-600 dark:text-green-400 overflow-y-auto flex-grow h-0 transition-colors duration-300 border border-gray-100 dark:border-gray-700/50">
-                <div class="text-gray-400 italic p-2 text-center mt-10">Waiting for connection...</div>
+                <div class="text-gray-400 dark:text-gray-500 italic p-2 text-center mt-10">Waiting for connection...</div>
             </div>
         </div>
 
@@ -109,12 +109,12 @@
         <div class="grid grid-cols-1 gap-3 mt-auto">
             <div class="grid grid-cols-2 gap-3">
                 <!-- Start Button (Solid Green, No Icon) -->
-                <button id="btn-start" disabled class="group w-full rounded-2xl bg-emerald-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-emerald-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50">
+                <button id="btn-start" disabled class="group w-full rounded-2xl bg-emerald-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-emerald-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 dark:disabled:text-gray-500 outline-none focus:ring-2 focus:ring-emerald-500/50">
                     <div class="font-bold text-lg text-center">Start</div>
                 </button>
                 
                 <!-- Stop Button (Solid Red, No Icon) -->
-                <button id="btn-stop" disabled class="group w-full rounded-2xl bg-rose-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-rose-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50">
+                <button id="btn-stop" disabled class="group w-full rounded-2xl bg-rose-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-rose-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 dark:disabled:text-gray-500 outline-none focus:ring-2 focus:ring-rose-500/50">
                     <div class="font-bold text-lg text-center">Stop</div>
                 </button>
             </div>
@@ -176,7 +176,7 @@
                 ui.deviceName.style.height = "0px";
                 ui.deviceName.style.marginTop = "0px";
                 ui.deviceName.style.opacity = "0";
-                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300";
+                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300";
                 isConnected = false;
             } 
             else if (state === 'connecting') {
