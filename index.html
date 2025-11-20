@@ -3,79 +3,126 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IMU Data Logger</title>
+    <title>SwingPal</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font: Inter (Apple-like standard font) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                fontFamily: {
+                    sans: ['Inter', 'sans-serif'],
+                }
+            }
+        }
+
+        // Initialize theme based on system preference or local storage
+        if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    </script>
     <style>
+        body { font-family: 'Inter', sans-serif; }
+        
         /* Custom Scrollbar for Log */
         ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: #1f2937; }
-        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
         ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
     </style>
 </head>
-<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center p-4 font-sans">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-white min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300">
 
-    <!-- Header -->
-    <header class="w-full max-w-md mb-6 flex justify-between items-center border-b border-gray-700 pb-4">
+    <!-- Header / Title Section -->
+    <header class="w-full max-w-md mb-8 flex justify-between items-end">
         <div>
-            <h1 class="text-xl font-bold text-blue-400">IMU Logger</h1>
-            <p class="text-xs text-gray-400">Bluetooth Low Energy</p>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">SwingPal</h1>
+            <p class="text-sm text-gray-500 font-medium mt-1">Intuitive Tennis Coaching</p>
         </div>
-        <div id="battery-level" class="text-sm text-gray-500"></div>
+        
+        <!-- Theme Toggle -->
+        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm hover:shadow-md transition-all focus:outline-none">
+            <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
     </header>
 
     <!-- Main Controls -->
-    <main class="w-full max-w-md flex-grow flex flex-col gap-4">
+    <main class="w-full max-w-md flex-grow flex flex-col gap-5">
 
-        <!-- Status Card -->
-        <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-gray-400 text-sm uppercase tracking-wider">Status</span>
-                <span id="status-indicator" class="h-3 w-3 rounded-full bg-red-500 animate-pulse"></span>
+        <!-- FUSED CONNECTION CARD -->
+        <!-- This acts as both the Connect Button AND the Status Display -->
+        <button id="connection-trigger" class="group w-full relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-1.5 transition-all duration-300 hover:shadow-md active:scale-[0.98] text-left outline-none focus:ring-2 focus:ring-blue-500/50">
+            
+            <div class="relative flex items-center justify-between p-3">
+                <!-- Left: Icon & Main Text -->
+                <div class="flex items-center gap-4">
+                    <!-- Icon Container -->
+                    <div id="connection-icon-bg" class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500">
+                        <!-- Bluetooth Icon -->
+                        <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <!-- Checkmark Icon (Hidden by default) -->
+                        <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                        </svg>
+                    </div>
+                    
+                    <div class="flex flex-col justify-center">
+                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
+                        <div id="status-text" class="text-lg font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
+                        <div id="device-name" class="text-xs text-gray-500 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
+                    </div>
+                </div>
+
+                <!-- Right: Status Dot -->
+                <div class="flex items-center pr-2">
+                     <span id="status-indicator" class="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span>
+                </div>
             </div>
-            <div id="status-text" class="text-lg font-medium">Disconnected</div>
-            <div id="device-name" class="text-sm text-gray-500 mt-1 h-5"></div>
+        </button>
+
+        <!-- Data Preview -->
+        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 flex-grow flex flex-col min-h-[200px] transition-colors duration-300">
+            <div class="flex justify-between items-center mb-3">
+                <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Live Feed</span>
+                <span id="record-count" class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-600 dark:text-gray-300 font-medium">0 lines</span>
+            </div>
+            <div id="log-container" class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 font-mono text-xs text-gray-600 dark:text-green-400 overflow-y-auto flex-grow h-0 transition-colors duration-300 border border-gray-100 dark:border-gray-700/50">
+                <div class="text-gray-400 italic p-2 text-center mt-10">Waiting for connection...</div>
+            </div>
         </div>
 
         <!-- Action Buttons -->
-        <div class="grid grid-cols-1 gap-3">
-            <button id="btn-connect" class="bg-blue-600 hover:bg-blue-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95 flex items-center justify-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                </svg>
-                Connect to Sensor
-            </button>
-
+        <div class="grid grid-cols-1 gap-3 mt-auto">
             <div class="grid grid-cols-2 gap-3">
-                <button id="btn-start" disabled class="bg-green-600 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-green-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95">
-                    Start (S)
+                <!-- Start Button (Solid Green, No Icon) -->
+                <button id="btn-start" disabled class="group w-full rounded-2xl bg-emerald-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-emerald-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50">
+                    <div class="font-bold text-lg text-center">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="bg-red-600 disabled:bg-gray-700 disabled:text-gray-500 disabled:cursor-not-allowed hover:bg-red-500 text-white font-bold py-4 px-6 rounded-xl shadow-lg transition-all active:scale-95">
-                    Stop (P)
+                
+                <!-- Stop Button (Solid Red, No Icon) -->
+                <button id="btn-stop" disabled class="group w-full rounded-2xl bg-rose-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-rose-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50">
+                    <div class="font-bold text-lg text-center">Stop</div>
                 </button>
-            </div>
-        </div>
-
-        <!-- Data Preview -->
-        <div class="bg-gray-800 rounded-xl p-4 shadow-lg border border-gray-700 flex-grow flex flex-col min-h-[200px]">
-            <div class="flex justify-between items-center mb-2">
-                <span class="text-gray-400 text-sm uppercase tracking-wider">Data Stream</span>
-                <span id="record-count" class="text-xs bg-gray-700 px-2 py-1 rounded text-gray-300">0 records</span>
-            </div>
-            <div id="log-container" class="bg-gray-900 rounded-lg p-2 font-mono text-xs text-green-400 overflow-y-auto flex-grow h-0">
-                <div class="text-gray-600 italic p-2">Waiting for connection...</div>
             </div>
         </div>
     </main>
 
-    <!-- Footer -->
-    <footer class="w-full max-w-md mt-6 text-center text-gray-600 text-xs">
-        <p>Files save to "Downloads"</p>
-    </footer>
-
     <script>
         // --- Configuration ---
-        // Must match your Arduino UUIDs exactly
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
@@ -83,33 +130,88 @@
         // --- State ---
         let device, server, characteristic;
         let isRecording = false;
+        let isConnected = false;
         let wakeLock = null;
         let csvData = [];
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- DOM Elements ---
         const ui = {
+            connectTrigger: document.getElementById('connection-trigger'),
+            iconBg: document.getElementById('connection-icon-bg'),
+            btIcon: document.getElementById('bt-icon'),
+            checkIcon: document.getElementById('check-icon'),
             statusText: document.getElementById('status-text'),
-            statusIndicator: document.getElementById('status-indicator'),
             deviceName: document.getElementById('device-name'),
-            btnConnect: document.getElementById('btn-connect'),
+            statusIndicator: document.getElementById('status-indicator'),
+            
             btnStart: document.getElementById('btn-start'),
             btnStop: document.getElementById('btn-stop'),
             log: document.getElementById('log-container'),
-            count: document.getElementById('record-count')
+            count: document.getElementById('record-count'),
+            btnTheme: document.getElementById('btn-theme'),
+            html: document.documentElement
         };
 
+        // --- Theme Toggle ---
+        ui.btnTheme.addEventListener('click', () => {
+            if (ui.html.classList.contains('dark')) {
+                ui.html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
+            } else {
+                ui.html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
+            }
+        });
+
         // --- Utility Functions ---
-        function updateStatus(text, colorClass) {
-            ui.statusText.innerText = text;
-            ui.statusIndicator.className = `h-3 w-3 rounded-full animate-pulse ${colorClass}`;
+        function setConnectionState(state, message = "") {
+            if (state === 'disconnected') {
+                ui.connectTrigger.disabled = false;
+                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
+                ui.btIcon.classList.remove('hidden');
+                ui.checkIcon.classList.add('hidden');
+                ui.statusText.innerText = "Tap to Connect";
+                ui.deviceName.style.height = "0px";
+                ui.deviceName.style.marginTop = "0px";
+                ui.deviceName.style.opacity = "0";
+                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300";
+                isConnected = false;
+            } 
+            else if (state === 'connecting') {
+                ui.connectTrigger.disabled = true;
+                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
+                ui.statusText.innerText = "Searching...";
+                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-yellow-400 animate-pulse";
+            } 
+            else if (state === 'connected') {
+                ui.connectTrigger.disabled = true; // Prevent re-clicking
+                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
+                ui.btIcon.classList.add('hidden');
+                ui.checkIcon.classList.remove('hidden');
+                
+                ui.statusText.innerText = "Sensor Ready";
+                ui.deviceName.innerText = `Connected to: ${message}`;
+                // Animate device name appearance
+                ui.deviceName.style.height = "auto";
+                ui.deviceName.style.marginTop = "2px";
+                ui.deviceName.style.opacity = "1";
+                
+                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
+                isConnected = true;
+            }
         }
 
         function logLine(text) {
+            // Remove placeholder if it exists
+            if (ui.log.children.length === 1 && ui.log.children[0].classList.contains('text-center')) {
+                ui.log.innerHTML = '';
+            }
+
             const div = document.createElement('div');
             div.innerText = text;
+            div.className = "mb-1.5 border-b border-gray-200 dark:border-gray-800 pb-1.5 last:border-0 leading-relaxed";
             ui.log.insertBefore(div, ui.log.firstChild);
-            // Keep DOM light
             if (ui.log.children.length > 50) ui.log.lastChild.remove();
         }
 
@@ -124,67 +226,67 @@
         }
 
         // --- Bluetooth Logic ---
-        ui.btnConnect.addEventListener('click', async () => {
+        ui.connectTrigger.addEventListener('click', async () => {
+            if (isConnected) return; // Should not happen due to disabled attr, but safety check
+
             try {
-                updateStatus("Scanning...", "bg-yellow-500");
+                setConnectionState('connecting');
                 
-                // Request Device
                 device = await navigator.bluetooth.requestDevice({
                     filters: [{ name: DEVICE_NAME_PREFIX }],
                     optionalServices: [SERVICE_UUID]
                 });
 
-                ui.deviceName.innerText = `Device: ${device.name}`;
-                updateStatus("Connecting...", "bg-blue-500");
-
+                logLine(`Found device: ${device.name}`);
+                
                 device.addEventListener('gattserverdisconnected', onDisconnected);
 
-                // Connect to GATT
                 server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 characteristic = await service.getCharacteristic(CHAR_UUID);
 
-                // Start Notifications
                 await characteristic.startNotifications();
                 characteristic.addEventListener('characteristicvaluechanged', handleData);
 
-                // UI Updates
-                updateStatus("Connected & Ready", "bg-green-500");
-                ui.btnConnect.style.display = 'none'; // Hide connect button
-                ui.btnStart.disabled = false;
-                ui.log.innerHTML = '<div class="text-gray-500">Stream active. Press Start to record.</div>';
+                setConnectionState('connected', device.name);
                 
-                // Prevent screen from sleeping while connected
+                ui.btnStart.disabled = false;
+                ui.log.innerHTML = "";
+                logLine("✓ Connection established. Ready to record.");
+                
                 requestWakeLock();
 
             } catch (error) {
                 console.error(error);
-                updateStatus("Connection Failed", "bg-red-500");
-                alert("Error: " + error.message);
+                setConnectionState('disconnected');
+                // Only alert if it wasn't a user cancellation
+                if (!error.message.includes("User cancelled")) {
+                    alert("Could not connect: " + error.message);
+                }
             }
         });
 
         function onDisconnected() {
-            updateStatus("Disconnected", "bg-red-500");
-            ui.btnConnect.style.display = 'flex';
-            ui.btnConnect.innerText = "Reconnect";
+            setConnectionState('disconnected');
             ui.btnStart.disabled = true;
             ui.btnStop.disabled = true;
             isRecording = false;
+            logLine("! Sensor disconnected.");
             if (wakeLock) wakeLock.release();
         }
 
         // --- Recording Logic ---
         ui.btnStart.addEventListener('click', startSequence);
         
-        // Logic to start recording (Timer + Flag)
         function startSequence() {
             ui.btnStart.disabled = true;
             let count = 5;
+            
+            logLine(`Preparing to record in 5 seconds...`);
 
-            // 5-second countdown visual
             const timer = setInterval(() => {
-                updateStatus(`Starting in ${count}...`, "bg-purple-500");
+                ui.statusText.innerText = `Starting in ${count}...`;
+                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
                 count--;
 
                 if (count < 0) {
@@ -195,18 +297,28 @@
         }
 
         function beginRecording() {
-            csvData = [CSV_HEADER]; // Reset CSV
+            csvData = [CSV_HEADER]; 
             isRecording = true;
             
-            updateStatus("RECORDING", "bg-red-600 animate-pulse");
+            // Update UI for recording state
+            ui.statusText.innerText = "Recording Data...";
+            ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce"; // Bouncing icon
+            ui.statusIndicator.className = "h-3 w-3 rounded-full bg-rose-600 animate-pulse";
+            
             ui.btnStop.disabled = false;
-            ui.log.innerHTML = ""; // Clear previous logs
+            ui.log.innerHTML = ""; 
+            logLine("● Recording started. Listening for data...");
         }
 
         // --- Stop & Save Logic ---
         ui.btnStop.addEventListener('click', () => {
             isRecording = false;
-            updateStatus("Saved!", "bg-blue-500");
+            
+            // Reset UI to connected state
+            if (isConnected && device) {
+                setConnectionState('connected', device.name);
+            }
+
             ui.btnStop.disabled = true;
             ui.btnStart.disabled = false;
 
@@ -219,15 +331,15 @@
             const rawLine = decoder.decode(value).trim();
 
             if (isRecording) {
-                // Add Timestamp JS-side (Format: YYYY-MM-DD HH:MM:SS.ms)
                 const now = new Date();
                 const timeStr = now.toISOString().replace('T', ' ').replace('Z', '');
                 
                 const dataLine = `${timeStr},${rawLine}`;
                 csvData.push(dataLine);
                 
-                // Update UI
-                ui.count.innerText = `${csvData.length - 1} records`; // -1 for header
+                ui.count.innerText = `${csvData.length - 1} lines`;
+                
+                // Just log raw data for speed, but kept clean
                 logLine(rawLine);
             }
         }
@@ -238,17 +350,19 @@
             const a = document.createElement('a');
             
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
+            const fileName = `swingpal_log_${timestamp}.csv`;
+            
             a.href = url;
-            a.download = `imu_log_${timestamp}.csv`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
             
-            logLine("--- FILE SAVED TO DOWNLOADS ---");
+            // Natural language message with "path" context
+            logLine(`✓ Session saved as "${fileName}". Check your Downloads folder.`);
         }
 
-        // --- Touch/Keyboard Support ---
-        // Allow "s" and "p" keys if a physical keyboard is attached (e.g. Bluetooth keyboard)
+        // --- Keyboard Support ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 's' && !ui.btnStart.disabled) startSequence();
             if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click();
