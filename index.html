@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>SwingPal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -40,12 +40,22 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .animate-number { animation: pulse-scale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
+
+        /* Hide Scrollbar but allow scrolling */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300 relative overflow-hidden">
+<!-- Updated Body: h-[100dvh] ensures it fits mobile screens perfectly without browser bar issues -->
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center p-4 sm:p-6 font-sans transition-colors duration-300 overflow-hidden">
 
-    <!-- Header -->
-    <header class="w-full max-w-md mb-6 pb-4 border-b border-gray-200/60 dark:border-gray-800">
+    <!-- Header (Fixed at Top) -->
+    <header class="w-full max-w-md mb-4 flex-shrink-0 border-b border-gray-200/60 dark:border-gray-800 pb-4">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             
@@ -71,11 +81,11 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
     </header>
 
-    <!-- Main Content Area -->
-    <main class="w-full max-w-md flex-grow flex flex-col gap-4">
+    <!-- Main Scrollable Area (Middle - Flex Grow) -->
+    <main class="w-full max-w-md flex-1 overflow-y-auto no-scrollbar flex flex-col gap-4 relative pb-4">
 
-        <!-- Analysis Dashboard (Middle Area) -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
+        <!-- Analysis Dashboard -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex flex-col justify-between min-h-[360px]">
             
             <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
             <div class="relative z-30 flex items-center justify-between mb-6">
@@ -104,7 +114,7 @@
             </div>
 
             <!-- 2. COUNTDOWN OVERLAY (Hidden by default) -->
-            <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300">
+            <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300 rounded-3xl">
                 <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
                 <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">
                     5
@@ -199,8 +209,11 @@
 
         </div>
 
-        <!-- UNIFIED COMMAND CENTER (Bottom - Separated) -->
-        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
+    </main>
+
+    <!-- UNIFIED COMMAND CENTER (Bottom - Fixed) -->
+    <div class="w-full max-w-md mt-auto mb-6 flex-shrink-0 z-40">
+        <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
             
             <!-- Top Half: Connection Trigger -->
             <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
@@ -242,13 +255,13 @@
                 </button>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <!-- Toast -->
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-none border border-white/10">
-        <span id="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>
-        <span id="toast-message" class="text-sm font-semibold tracking-wide text-center leading-snug">Notification</span>
+        <!-- Icon Container (Content injected by JS) -->
+        <span id="toast-icon"></span>
+        <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
 
     <!-- HELP MODAL (Updated for Smooth Transitions) -->
