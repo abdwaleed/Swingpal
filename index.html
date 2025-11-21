@@ -220,10 +220,10 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
@@ -243,13 +243,18 @@
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
         const MAX_RECORDING_TIME_MS = 10 * 60 * 1000; // 10 minutes max safety
+        const CHUNK_SIZE = 500; // Limit RAM usage by chunking
 
         // --- State ---
         let device, server, characteristic;
         let isRecording = false;
         let isConnected = false;
         let wakeLock = null;
-        let dataBuffer = []; // Efficient Array Storage
+        
+        // MEMORY OPTIMIZATION:
+        let currentChunk = []; // Small RAM buffer
+        let chunkBlobs = [];   // Disk-backed storage (Blobs)
+        
         let swingCount = 0;
         let toastTimeout;
         let safetyTimer;
@@ -322,7 +327,6 @@
         }
 
         function generateFeedback(acc, wrist, form) {
-            // Find the weakest link
             const scores = [
                 { name: 'acceleration', val: acc },
                 { name: 'wrist', val: wrist },
@@ -346,24 +350,17 @@
         }
 
         function showAnalysis(accScore, wristScore, formScore, overall) {
-            // 1. Hide Overlay
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
-
-            // 2. Update Overall Score
             ui.scoreOverall.innerText = overall;
             const badge = getBadgeInfo(overall);
             ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
             ui.scoreBadge.innerText = badge.text;
-
-            // 3. Update Feedback
             ui.coachFeedback.innerText = generateFeedback(accScore, wristScore, formScore);
 
-            // 4. Reset circles for animation
             resetCircle(ui.circleAcc);
             resetCircle(ui.circleWrist);
             resetCircle(ui.circleForm);
 
-            // 5. Animate Circles
             setTimeout(() => {
                 updateCircle(ui.circleAcc, ui.valAcc, accScore);
                 updateCircle(ui.circleWrist, ui.valWrist, wristScore);
@@ -372,7 +369,7 @@
         }
 
         function resetCircle(circle) {
-            circle.style.strokeDashoffset = 251.2; // Full circumference
+            circle.style.strokeDashoffset = 251.2; 
             circle.setAttribute('class', 'text-gray-300 dark:text-gray-600 stroke-current circle-progress');
         }
 
@@ -380,17 +377,10 @@
             const circumference = 251.2;
             const offset = circumference - (score / 100) * circumference;
             const colorClass = getScoreColor(score);
-            
-            // Apply color
             circle.setAttribute('class', `${colorClass} stroke-current circle-progress`);
-            
-            // Animate Fill
             circle.style.strokeDashoffset = offset;
-            
-            // Update Text
             textEl.innerText = `${score}%`;
             
-            // Update Text Color
             if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400";
             else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400";
             else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400";
@@ -398,7 +388,6 @@
         }
 
         function resetAnalysisView() {
-            // Show Overlay (Grey out)
             ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
         }
 
@@ -488,6 +477,23 @@
             if (wakeLock) wakeLock.release();
         }
 
+        // --- Memory Optimization Logic: Flush Chunk ---
+        function flushChunk() {
+            if (currentChunk.length === 0) return;
+            
+            // Convert buffer to string
+            const chunkStr = currentChunk.map(row => {
+                const iso = new Date(row.t).toISOString().replace('T', ' ').replace('Z', '');
+                return `${iso},${row.d}`;
+            }).join("\n");
+            
+            // Create Blob for this chunk and store it
+            chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
+            
+            // Clear RAM buffer
+            currentChunk = [];
+        }
+
         // --- Start/Stop Logic ---
         ui.btnStart.addEventListener('click', startSequence);
         
@@ -507,7 +513,6 @@
                 return;
             }
 
-            // 2. UI Updates
             resetAnalysisView(); 
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
             ui.countdownOverlay.classList.remove('hidden');
@@ -534,10 +539,12 @@
         }
 
         function beginRecording() {
-            dataBuffer = []; // RAM Optimized: clear previous data
+            // Reset Buffers for Memory Safety
+            currentChunk = [];
+            chunkBlobs = [];
+            
             isRecording = true;
             
-            // Safety Limit (Auto-stop after 10 mins)
             if (safetyTimer) clearTimeout(safetyTimer);
             safetyTimer = setTimeout(() => {
                 if (isRecording) {
@@ -557,7 +564,6 @@
             isRecording = false;
             if (safetyTimer) clearTimeout(safetyTimer);
 
-            // Stop Stream (Battery Save)
             try {
                 if (characteristic) {
                     await characteristic.stopNotifications();
@@ -579,48 +585,48 @@
             if (overall > 20) {
                 swingCount++;
                 ui.count.innerText = swingCount;
-                saveFile(); // Saves and clears memory
+                saveFile(); // Consolidate chunks and save
                 showToast("Session Saved!");
             } else {
                 showToast("False Start Detected (Ignored)");
-                dataBuffer = []; // Clear memory even if ignored
+                // Clean up chunks anyway
+                chunkBlobs = [];
+                currentChunk = [];
             }
             
             showAnalysis(accScore, wristScore, formScore, overall); 
         });
 
         function handleData(event) {
-            // RAM Optimization: Store raw values (numbers) instead of massive strings
             const value = event.target.value;
             const decoder = new TextDecoder('utf-8');
             const rawLine = decoder.decode(value).trim();
             
-            // Only store if valid data
             if (isRecording && rawLine.length > 0) {
-                // Store simple object or array to keep memory low until save
-                dataBuffer.push({
-                    t: Date.now(), // Timestamp
-                    d: rawLine     // Data
+                // Add to small buffer
+                currentChunk.push({
+                    t: Date.now(), 
+                    d: rawLine     
                 });
+
+                // Flush if buffer full (Chunking Strategy)
+                if (currentChunk.length >= CHUNK_SIZE) {
+                    flushChunk();
+                }
             }
         }
 
         function saveFile() {
-            if (dataBuffer.length === 0) return;
+            // Flush any remaining data in currentChunk
+            flushChunk();
 
-            // Convert buffer to CSV string just in time
-            let csvContent = CSV_HEADER + "\n";
+            if (chunkBlobs.length === 0) return;
+
+            // Create final Blob from Header + All Chunks
+            // The browser handles memory mapping for this efficiently
+            const finalBlob = new Blob([CSV_HEADER + "\n", ...chunkBlobs], { type: 'text/csv' });
             
-            // Efficient string building
-            csvContent += dataBuffer.map(row => {
-                // Convert JS timestamp to ISO string
-                const iso = new Date(row.t).toISOString().replace('T', ' ').replace('Z', '');
-                return `${iso},${row.d}`;
-            }).join("\n");
-
-            // Create Blob
-            const blob = new Blob([csvContent], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(blob);
+            const url = window.URL.createObjectURL(finalBlob);
             const a = document.createElement('a');
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
             const fileName = `swingpal_log_${timestamp}.csv`;
@@ -631,10 +637,10 @@
             a.click();
             document.body.removeChild(a);
             
-            // MEMORY SAFETY: Revoke URL immediately to free RAM
+            // Clean up ASAP
             setTimeout(() => {
                 window.URL.revokeObjectURL(url);
-                dataBuffer = []; // Clear the buffer
+                chunkBlobs = []; // Free chunk memory
             }, 100);
         }
 
