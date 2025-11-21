@@ -68,8 +68,14 @@
         <!-- Analysis Dashboard (Middle Area) -->
         <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
             
+            <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
+            <div class="relative z-30 flex items-center gap-2 mb-6">
+                <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+                <span class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Swing Analysis</span>
+            </div>
+
             <!-- 1. GREY OUT OVERLAY (Initial State) -->
-            <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
+            <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 pt-16 transition-all duration-500">
                 <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
@@ -89,7 +95,7 @@
             </div>
 
             <!-- TOP SECTION: DATA & VISUALS -->
-            <div class="flex flex-col gap-6 mb-auto">
+            <div class="flex flex-col gap-6 mb-auto relative z-10">
                 
                 <!-- Header & Overall Score -->
                 <div class="border-b border-gray-100 dark:border-gray-700/50 pb-4">
@@ -148,7 +154,7 @@
                     <div class="flex flex-col items-center">
                         <div class="relative w-16 h-16">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
-                                <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                <circle class="text-gray-100 dark:text-gray-700 stroke-width="10" stroke-current" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
@@ -161,7 +167,7 @@
             </div>
 
             <!-- BOTTOM SECTION: TEXTUAL FEEDBACK -->
-            <div class="mt-6">
+            <div class="mt-6 relative z-10">
                 <div class="flex items-center gap-2 mb-2">
                     <div class="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-600 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
