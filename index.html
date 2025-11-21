@@ -44,7 +44,7 @@
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300 relative overflow-hidden">
 
-    <!-- Header (Separated with Border & Padding) -->
+    <!-- Header -->
     <header class="w-full max-w-md mb-6 pb-4 border-b border-gray-200/60 dark:border-gray-800">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
@@ -186,7 +186,7 @@
         </div>
 
         <!-- UNIFIED COMMAND CENTER (Bottom) -->
-        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
             
             <!-- Top Half: Connection Trigger -->
             <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50 z-10">
@@ -220,10 +220,11 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <!-- Added pb-safe (pb-8) for touch targets on phones with home bars -->
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
@@ -258,6 +259,8 @@
         let swingCount = 0;
         let toastTimeout;
         let safetyTimer;
+        let recordingStartTime; // Track start time
+        let recordingTimerInterval; // Interval ID for the UI timer
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- Elements ---
@@ -327,6 +330,7 @@
         }
 
         function generateFeedback(acc, wrist, form) {
+            // Find the weakest link
             const scores = [
                 { name: 'acceleration', val: acc },
                 { name: 'wrist', val: wrist },
@@ -350,17 +354,24 @@
         }
 
         function showAnalysis(accScore, wristScore, formScore, overall) {
+            // 1. Hide Overlay
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
+
+            // 2. Update Overall Score
             ui.scoreOverall.innerText = overall;
             const badge = getBadgeInfo(overall);
             ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
             ui.scoreBadge.innerText = badge.text;
+
+            // 3. Update Feedback
             ui.coachFeedback.innerText = generateFeedback(accScore, wristScore, formScore);
 
+            // 4. Reset circles for animation
             resetCircle(ui.circleAcc);
             resetCircle(ui.circleWrist);
             resetCircle(ui.circleForm);
 
+            // 5. Animate Circles
             setTimeout(() => {
                 updateCircle(ui.circleAcc, ui.valAcc, accScore);
                 updateCircle(ui.circleWrist, ui.valWrist, wristScore);
@@ -369,7 +380,7 @@
         }
 
         function resetCircle(circle) {
-            circle.style.strokeDashoffset = 251.2; 
+            circle.style.strokeDashoffset = 251.2; // Full circumference
             circle.setAttribute('class', 'text-gray-300 dark:text-gray-600 stroke-current circle-progress');
         }
 
@@ -377,10 +388,17 @@
             const circumference = 251.2;
             const offset = circumference - (score / 100) * circumference;
             const colorClass = getScoreColor(score);
+            
+            // Apply color
             circle.setAttribute('class', `${colorClass} stroke-current circle-progress`);
+            
+            // Animate Fill
             circle.style.strokeDashoffset = offset;
+            
+            // Update Text
             textEl.innerText = `${score}%`;
             
+            // Update Text Color
             if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400";
             else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400";
             else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400";
@@ -388,6 +406,7 @@
         }
 
         function resetAnalysisView() {
+            // Show Overlay (Grey out)
             ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
         }
 
@@ -464,7 +483,10 @@
             } catch (error) {
                 console.error(error);
                 setConnectionState('disconnected');
-                if (!error.message.includes("User cancelled")) alert("Error: " + error.message);
+                // UX Fix: Use Toast instead of Alert
+                if (!error.message.includes("User cancelled")) {
+                    showToast("Connection Failed: " + error.message);
+                }
             }
         });
 
@@ -513,12 +535,15 @@
                 return;
             }
 
+            // 2. UI Updates
             resetAnalysisView(); 
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
             ui.countdownOverlay.classList.remove('hidden');
             
             let count = 5;
             ui.countdownNumber.innerText = count;
+            
+            // Trigger initial animation
             ui.countdownNumber.classList.remove('animate-number');
             void ui.countdownNumber.offsetWidth; 
             ui.countdownNumber.classList.add('animate-number');
@@ -531,6 +556,7 @@
                     beginRecording();
                 } else {
                     ui.countdownNumber.innerText = count;
+                    // Re-trigger animation
                     ui.countdownNumber.classList.remove('animate-number');
                     void ui.countdownNumber.offsetWidth;
                     ui.countdownNumber.classList.add('animate-number');
@@ -544,6 +570,17 @@
             chunkBlobs = [];
             
             isRecording = true;
+            recordingStartTime = Date.now();
+            
+            // Start UI Timer
+            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
+            ui.statusText.innerText = "Recording: 0.0s";
+            ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse'); // Visual feedback
+            
+            recordingTimerInterval = setInterval(() => {
+                const elapsed = (Date.now() - recordingStartTime) / 1000;
+                ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`;
+            }, 100);
             
             if (safetyTimer) clearTimeout(safetyTimer);
             safetyTimer = setTimeout(() => {
@@ -553,7 +590,6 @@
                 }
             }, MAX_RECORDING_TIME_MS);
 
-            ui.statusText.innerText = "Recording Data...";
             ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
             ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false;
@@ -563,6 +599,11 @@
         ui.btnStop.addEventListener('click', async () => {
             isRecording = false;
             if (safetyTimer) clearTimeout(safetyTimer);
+            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
+            
+            // Reset Status Text
+            ui.statusText.innerText = "Sensor Ready";
+            ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
 
             try {
                 if (characteristic) {
@@ -598,6 +639,7 @@
         });
 
         function handleData(event) {
+            // RAM Optimization: Store raw values (numbers) instead of massive strings
             const value = event.target.value;
             const decoder = new TextDecoder('utf-8');
             const rawLine = decoder.decode(value).trim();
