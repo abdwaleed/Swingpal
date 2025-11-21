@@ -509,6 +509,19 @@
 
         ui.connectTrigger.addEventListener('click', async () => {
             if (isConnected) return;
+
+            // 1. Check if Browser Supports Bluetooth
+            if (!navigator.bluetooth) {
+                // Specific hint for iOS users since Safari blocks Web Bluetooth
+                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                if (isIOS) {
+                    showToast("Bluetooth unavailable in Safari. Please use the 'Bluefy' app.");
+                } else {
+                    showToast("This browser doesn't support Bluetooth. Try Chrome.");
+                }
+                return;
+            }
+
             try {
                 setConnectionState('connecting');
                 device = await navigator.bluetooth.requestDevice({
@@ -528,9 +541,39 @@
             } catch (error) {
                 console.error(error);
                 setConnectionState('disconnected');
-                // UX Fix: Use Toast instead of Alert
-                if (!error.message.includes("User cancelled")) {
-                    showToast("Connection Failed: " + error.message);
+                
+                // Comprehensive Natural Language Error Handling
+                if (error.message.includes("User cancelled")) {
+                    // User closed the popup deliberately
+                    return; 
+                }
+                
+                switch(error.name) {
+                    case 'NotFoundError':
+                        showToast("No SwingPal sensor found. Is it powered on?");
+                        break;
+                    case 'NotSupportedError':
+                        showToast("Bluetooth appears disabled. Please turn it on in Settings.");
+                        break;
+                    case 'SecurityError':
+                        showToast("Security block. Try tapping the screen again.");
+                        break;
+                    case 'NetworkError':
+                        showToast("Connection lost. Try moving closer to the sensor.");
+                        break;
+                    case 'NotAllowedError':
+                        showToast("Bluetooth permission denied. Please allow access.");
+                        break;
+                    case 'InvalidStateError':
+                        showToast("Bluetooth is busy. Try restarting the app.");
+                        break;
+                    default:
+                        // Fallback for other specific messages
+                        if (error.message.includes("Connection failed")) {
+                            showToast("Connection failed. Is another app using the sensor?");
+                        } else {
+                            showToast("Oops! Connection error. Please try again.");
+                        }
                 }
             }
         });
@@ -540,7 +583,7 @@
             ui.btnStart.disabled = true;
             ui.btnStop.disabled = true;
             isRecording = false;
-            showToast("Sensor Disconnected");
+            showToast("Sensor disconnected. Please reconnect.");
             if (wakeLock) wakeLock.release();
         }
 
@@ -575,7 +618,11 @@
                 }
             } catch (e) {
                 console.error("Stream Error", e);
-                showToast("Sensor Error");
+                if (e.name === 'NotSupportedError') {
+                    showToast("Sensor error: Data stream not supported.");
+                } else {
+                    showToast("Could not wake sensor. Try reconnecting.");
+                }
                 ui.btnStart.disabled = false;
                 return;
             }
