@@ -244,7 +244,8 @@
         </div>
 
     </main>
-    <!-- Toast (Updated for Dynamic Icons) -->
+
+    <!-- Toast -->
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
         <!-- Icon Container (Content injected by JS) -->
         <span id="toast-icon"></span>
@@ -252,305 +253,92 @@
     </div>
 
     <!-- HELP MODAL (Updated for Smooth Transitions) -->
-        function resetAnalysisView() {
-            // Show Overlay (Grey out)
-            ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
-        }
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 ease-out">
+        <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800">
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2>
+                <button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                </button>
+            </div>
+            <div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div>
+            <button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button>
+        </div>
+    </div>
 
-        // --- Toast (Updated for Error/Success types) ---
-        function showToast(message, type = 'success') {
-            if (toastTimeout) clearTimeout(toastTimeout);
-            
-            ui.toastMessage.innerText = message;
-            
-            // Define Icons
-            const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
-            
-            const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 dark:text-rose-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`;
+    <script>
+        // --- Config ---
+        const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
+        const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
+        const DEVICE_NAME_PREFIX = "IMU_SENSOR";
+        const MAX_RECORDING_TIME_MS = 10 * 60 * 1000; // 10 minutes max safety
+        const CHUNK_SIZE = 500; // Limit RAM usage by chunking
 
-            // Set Icon based on type
-            if (type === 'error') {
-                ui.toastIcon.innerHTML = errorIcon;
+        // --- State ---
+        let device, server, characteristic;
+        let isRecording = false;
+        let isConnected = false;
+        let wakeLock = null;
+        let currentChunk = []; 
+        let chunkBlobs = [];   
+        let swingCount = 0;
+        let toastTimeout;
+        let safetyTimer;
+        let recordingStartTime; 
+        let recordingTimerInterval;
+        const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
+
+        // --- Elements ---
+        const ui = {
+            connectTrigger: document.getElementById('connection-trigger'),
+            iconBg: document.getElementById('connection-icon-bg'),
+            btIcon: document.getElementById('bt-icon'),
+            checkIcon: document.getElementById('check-icon'),
+            statusText: document.getElementById('status-text'),
+            deviceName: document.getElementById('device-name'),
+            statusIndicator: document.getElementById('status-indicator'),
+            btnStart: document.getElementById('btn-start'),
+            btnStop: document.getElementById('btn-stop'),
+            count: document.getElementById('record-count'),
+            btnTheme: document.getElementById('btn-theme'),
+            btnHelp: document.getElementById('btn-help'),
+            html: document.documentElement,
+            analysisOverlay: document.getElementById('analysis-overlay'),
+            countdownOverlay: document.getElementById('countdown-overlay'),
+            countdownNumber: document.getElementById('countdown-number'),
+            scoreOverall: document.getElementById('score-overall'),
+            scoreBadge: document.getElementById('score-badge'),
+            coachFeedback: document.getElementById('coach-feedback'),
+            feedbackContainer: document.getElementById('feedback-container'), 
+            feedbackIconBg: document.getElementById('feedback-icon-bg'),     
+            feedbackIcon: document.getElementById('feedback-icon'),          
+            circleAcc: document.getElementById('circle-acc'),
+            valAcc: document.getElementById('val-acc'),
+            circleWrist: document.getElementById('circle-wrist'),
+            valWrist: document.getElementById('val-wrist'),
+            circleForm: document.getElementById('circle-form'),
+            valForm: document.getElementById('val-form'),
+            toast: document.getElementById('toast'),
+            toastMessage: document.getElementById('toast-message'),
+            toastIcon: document.getElementById('toast-icon'),
+            helpModal: document.getElementById('help-modal'),
+            helpCard: document.getElementById('help-card'),
+            helpContent: document.getElementById('help-content'),
+            helpBackdrop: document.getElementById('help-backdrop'),
+            btnCloseHelp: document.getElementById('btn-close-help'),
+            btnOkHelp: document.getElementById('btn-ok-help')
+        };
+
+        // --- Theme ---
+        ui.btnTheme.addEventListener('click', () => {
+            if (ui.html.classList.contains('dark')) {
+                ui.html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
             } else {
-                ui.toastIcon.innerHTML = successIcon;
+                ui.html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
             }
-
-            ui.toast.classList.remove('-translate-y-20', 'opacity-0');
-            toastTimeout = setTimeout(() => {
-                ui.toast.classList.add('-translate-y-20', 'opacity-0');
-            }, 3000);
-        }
-
-        // --- Connection Logic ---
-        function setConnectionState(state, message = "") {
-            if (state === 'disconnected') {
-                ui.connectTrigger.disabled = false;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
-                ui.btIcon.classList.remove('hidden');
-                ui.checkIcon.classList.add('hidden');
-                ui.statusText.innerText = "Tap to Connect";
-                ui.deviceName.style.height = "0px";
-                ui.deviceName.style.opacity = "0";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300";
-                isConnected = false;
-            } 
-            else if (state === 'connecting') {
-                ui.connectTrigger.disabled = true;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
-                ui.statusText.innerText = "Searching...";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
-            } 
-            else if (state === 'connected') {
-                ui.connectTrigger.disabled = true;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
-                ui.btIcon.classList.add('hidden');
-                ui.checkIcon.classList.remove('hidden');
-                ui.statusText.innerText = "Sensor Ready";
-                ui.deviceName.innerText = `Connected to: ${message}`;
-                ui.deviceName.style.height = "auto";
-                ui.deviceName.style.opacity = "1";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
-                showToast("Connected successfully!", 'success');
-                isConnected = true;
-            }
-        }
-
-        async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) { console.log(err); }
-        }
-
-        ui.connectTrigger.addEventListener('click', async () => {
-            if (isConnected) return;
-
-            // 1. Check if Browser Supports Bluetooth
-            if (!navigator.bluetooth) {
-                // Specific hint for iOS users since Safari blocks Web Bluetooth
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS) {
-                    showToast("Bluetooth unavailable in Safari. Please use the 'Bluefy' app.", 'error');
-                } else {
-                    showToast("This browser doesn't support Bluetooth. Try Chrome.", 'error');
-                }
-                return;
-            }
-
-            // 2. Check if Bluetooth Adapter is Available/Enabled
-            const isAvailable = await navigator.bluetooth.getAvailability();
-            if (!isAvailable) {
-                showToast("Bluetooth is off or no adapter found.", 'error');
-                return;
-            }
-
-            try {
-                setConnectionState('connecting');
-                device = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: DEVICE_NAME_PREFIX }],
-                    optionalServices: [SERVICE_UUID]
-                });
-                device.addEventListener('gattserverdisconnected', onDisconnected);
-                server = await device.gatt.connect();
-                
-                const service = await server.getPrimaryService(SERVICE_UUID);
-                characteristic = await service.getCharacteristic(CHAR_UUID);
-                // DO NOT Start Notifications yet to save battery
-                
-                setConnectionState('connected', device.name);
-                ui.btnStart.disabled = false;
-                requestWakeLock();
-            } catch (error) {
-                console.error(error);
-                setConnectionState('disconnected');
-                
-                // Comprehensive Natural Language Error Handling
-                if (error.message.includes("User cancelled")) {
-                    // User closed the popup deliberately
-                    return; 
-                }
-                
-                switch(error.name) {
-                    case 'NotFoundError':
-                        showToast("No SwingPal sensor found. Is it powered on?", 'error');
-                        break;
-                    case 'NotSupportedError':
-                        showToast("Bluetooth appears disabled. Please turn it on in Settings.", 'error');
-                        break;
-                    case 'SecurityError':
-                        showToast("Security block. Try tapping the screen again.", 'error');
-                        break;
-                    case 'NetworkError':
-                        showToast("Connection lost. Try moving closer to the sensor.", 'error');
-                        break;
-                    case 'NotAllowedError':
-                        showToast("Bluetooth permission denied. Please allow access.", 'error');
-                        break;
-                    case 'InvalidStateError':
-                        showToast("Bluetooth is busy. Try restarting the app.", 'error');
-                        break;
-                    default:
-                        // Fallback for other specific messages
-                        if (error.message.includes("Connection failed")) {
-                            showToast("Connection failed. Is another app using the sensor?", 'error');
-                        } else {
-                            showToast("Oops! Connection error. Please try again.", 'error');
-                        }
-                }
-            }
-        });
-
-        function onDisconnected() {
-            setConnectionState('disconnected');
-            ui.btnStart.disabled = true;
-            ui.btnStop.disabled = true;
-            isRecording = false;
-            showToast("Sensor disconnected. Please reconnect.", 'error');
-            if (wakeLock) wakeLock.release();
-        }
-
-        // --- Memory Optimization Logic: Flush Chunk ---
-        function flushChunk() {
-            if (currentChunk.length === 0) return;
-            
-            // Convert buffer to string
-            const chunkStr = currentChunk.map(row => {
-                const iso = new Date(row.t).toISOString().replace('T', ' ').replace('Z', '');
-                return `${iso},${row.d}`;
-            }).join("\n");
-            
-            // Create Blob for this chunk and store it
-            chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
-            
-            // Clear RAM buffer
-            currentChunk = [];
-        }
-
-        // --- Start/Stop Logic ---
-        ui.btnStart.addEventListener('click', startSequence);
-        
-        async function startSequence() {
-            ui.btnStart.disabled = true;
-            
-            // 1. Start Stream
-            try {
-                if (characteristic) {
-                    await characteristic.startNotifications();
-                    characteristic.addEventListener('characteristicvaluechanged', handleData);
-                }
-            } catch (e) {
-                console.error("Stream Error", e);
-                if (e.name === 'NotSupportedError') {
-                    showToast("Sensor error: Data stream not supported.", 'error');
-                } else {
-                    showToast("Could not wake sensor. Try reconnecting.", 'error');
-                }
-                ui.btnStart.disabled = false;
-                return;
-            }
-
-            // 2. UI Updates
-            resetAnalysisView(); 
-            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
-            ui.countdownOverlay.classList.remove('hidden');
-            
-            let count = 5;
-            ui.countdownNumber.innerText = count;
-            
-            // Trigger initial animation
-            ui.countdownNumber.classList.remove('animate-number');
-            void ui.countdownNumber.offsetWidth; 
-            ui.countdownNumber.classList.add('animate-number');
-
-            const timer = setInterval(() => {
-                count--;
-                if (count < 0) {
-                    clearInterval(timer);
-                    ui.countdownOverlay.classList.add('hidden'); 
-                    beginRecording();
-                } else {
-                    ui.countdownNumber.innerText = count;
-                    // Re-trigger animation
-                    ui.countdownNumber.classList.remove('animate-number');
-                    void ui.countdownNumber.offsetWidth;
-                    ui.countdownNumber.classList.add('animate-number');
-                }
-            }, 1000);
-        }
-
-        function beginRecording() {
-            // Reset Buffers for Memory Safety
-            currentChunk = [];
-            chunkBlobs = [];
-            
-            isRecording = true;
-            recordingStartTime = Date.now();
-            
-            // Start UI Timer
-            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-            ui.statusText.innerText = "Recording: 0.0s";
-            ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse'); // Visual feedback
-            
-            recordingTimerInterval = setInterval(() => {
-                const elapsed = (Date.now() - recordingStartTime) / 1000;
-                ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`;
-            }, 100);
-            
-            if (safetyTimer) clearTimeout(safetyTimer);
-            safetyTimer = setTimeout(() => {
-                if (isRecording) {
-                    ui.btnStop.click();
-                    showToast("Auto-stopped (Time Limit)", 'error');
-                }
-            }, MAX_RECORDING_TIME_MS);
-
-            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
-            ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
-            ui.btnStop.disabled = false;
-            showToast("Recording Started", 'success');
-        }
-
-        ui.btnStop.addEventListener('click', async () => {
-            isRecording = false;
-            if (safetyTimer) clearTimeout(safetyTimer);
-            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-            
-            // Reset Status Text
-            ui.statusText.innerText = "Sensor Ready";
-            ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
-
-            try {
-                if (characteristic) {
-                    await characteristic.stopNotifications();
-                    characteristic.removeEventListener('characteristicvaluechanged', handleData);
-                }
-            } catch (e) { console.error(e); }
-
-            if (isConnected && device) setConnectionState('connected', device.name);
-            
-            ui.btnStop.disabled = true;
-            ui.btnStart.disabled = false;
-            
-            // Mock Analysis
-            const accScore = Math.floor(Math.random() * 100);
-            const wristScore = Math.floor(Math.random() * 100);
-            const formScore = Math.floor(Math.random() * 100);
-            const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
-
-            if (overall > 20) {
-                swingCount++;
-                ui.count.innerText = swingCount;
-                saveFile(); // Consolidate chunks and save
-                showToast("Session Saved!", 'success');
-            } else {
-                showToast("False Start Detected (Ignored)", 'error');
-                // Clean up chunks anyway
-                chunkBlobs = [];
-                currentChunk = [];
-            }
-            
-            showAnalysis(accScore, wristScore, formScore, overall); 
         });
 
         // --- HELP MODAL LOGIC ---
@@ -661,9 +449,21 @@
         }
 
         function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
-        function showToast(message) {
+        
+        function showToast(message, type = 'success') {
             if (toastTimeout) clearTimeout(toastTimeout);
+            
             ui.toastMessage.innerText = message;
+            
+            const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
+            const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 dark:text-rose-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`;
+
+            if (type === 'error') {
+                ui.toastIcon.innerHTML = errorIcon;
+            } else {
+                ui.toastIcon.innerHTML = successIcon;
+            }
+
             ui.toast.classList.remove('-translate-y-20', 'opacity-0');
             toastTimeout = setTimeout(() => { ui.toast.classList.add('-translate-y-20', 'opacity-0'); }, 3000);
         }
@@ -690,7 +490,7 @@
                 ui.deviceName.innerText = `Connected to: ${message}`;
                 ui.deviceName.style.height = "auto"; ui.deviceName.style.opacity = "1";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
-                showToast("Connected successfully!");
+                showToast("Connected successfully!", 'success');
                 isConnected = true;
             }
         }
@@ -703,11 +503,11 @@
             if (isConnected) return;
             if (!navigator.bluetooth) {
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                showToast(isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome.");
+                showToast(isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome.", 'error');
                 return;
             }
             const isAvailable = await navigator.bluetooth.getAvailability();
-            if (!isAvailable) { showToast("Bluetooth is off or no adapter found."); return; }
+            if (!isAvailable) { showToast("Bluetooth is off or no adapter found.", 'error'); return; }
             try {
                 setConnectionState('connecting');
                 device = await navigator.bluetooth.requestDevice({ filters: [{ name: DEVICE_NAME_PREFIX }], optionalServices: [SERVICE_UUID] });
@@ -723,13 +523,13 @@
                 setConnectionState('disconnected');
                 if (error.message.includes("User cancelled")) return;
                 switch(error.name) {
-                    case 'NotFoundError': showToast("No SwingPal sensor found. Is it powered on?"); break;
-                    case 'NotSupportedError': showToast("Bluetooth appears disabled. Please turn it on in Settings."); break;
-                    case 'SecurityError': showToast("Security block. Try tapping the screen again."); break;
-                    case 'NetworkError': showToast("Connection lost. Try moving closer to the sensor."); break;
-                    case 'NotAllowedError': showToast("Bluetooth permission denied. Please allow access."); break;
-                    case 'InvalidStateError': showToast("Bluetooth is busy. Try restarting the app."); break;
-                    default: showToast(error.message.includes("Connection failed") ? "Connection failed. Is another app using the sensor?" : "Oops! Connection error. Please try again.");
+                    case 'NotFoundError': showToast("No SwingPal sensor found. Is it powered on?", 'error'); break;
+                    case 'NotSupportedError': showToast("Bluetooth appears disabled. Please turn it on in Settings.", 'error'); break;
+                    case 'SecurityError': showToast("Security block. Try tapping the screen again.", 'error'); break;
+                    case 'NetworkError': showToast("Connection lost. Try moving closer to the sensor.", 'error'); break;
+                    case 'NotAllowedError': showToast("Bluetooth permission denied. Please allow access.", 'error'); break;
+                    case 'InvalidStateError': showToast("Bluetooth is busy. Try restarting the app.", 'error'); break;
+                    default: showToast(error.message.includes("Connection failed") ? "Connection failed. Is another app using the sensor?" : "Oops! Connection error. Please try again.", 'error');
                 }
             }
         });
@@ -737,7 +537,7 @@
         function onDisconnected() {
             setConnectionState('disconnected');
             ui.btnStart.disabled = true; ui.btnStop.disabled = true; isRecording = false;
-            showToast("Sensor disconnected. Please reconnect.");
+            showToast("Sensor disconnected. Please reconnect.", 'error');
             if (wakeLock) wakeLock.release();
         }
 
@@ -757,7 +557,7 @@
                 }
             } catch (e) {
                 console.error("Stream Error", e);
-                showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.");
+                showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.", 'error');
                 ui.btnStart.disabled = false;
                 return;
             }
@@ -795,11 +595,11 @@
                 ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`;
             }, 100);
             if (safetyTimer) clearTimeout(safetyTimer);
-            safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)"); } }, MAX_RECORDING_TIME_MS);
+            safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)", 'error'); } }, MAX_RECORDING_TIME_MS);
             ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
             ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false;
-            showToast("Recording Started");
+            showToast("Recording Started", 'success');
         }
 
         ui.btnStop.addEventListener('click', async () => {
@@ -822,9 +622,9 @@
             const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
             if (overall > 20) {
                 swingCount++; ui.count.innerText = swingCount;
-                saveFile(); showToast("Session Saved!");
+                saveFile(); showToast("Session Saved!", 'success');
             } else {
-                showToast("False Start Detected (Ignored)");
+                showToast("False Start Detected (Ignored)", 'error');
                 chunkBlobs = []; currentChunk = [];
             }
             showAnalysis(accScore, wristScore, formScore, overall);
