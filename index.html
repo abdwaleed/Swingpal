@@ -9,7 +9,7 @@
     <!-- Font: Inter (Apple-like standard font) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <script>
         tailwind.config = {
@@ -49,15 +49,24 @@
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             
-            <!-- Theme Toggle -->
-            <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
-                <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            </button>
+            <div class="flex items-center gap-3">
+                <!-- Help Button (Updated Style) -->
+                <button id="btn-help" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700" aria-label="Setup Guide">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </button>
+
+                <!-- Theme Toggle -->
+                <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
+                    <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                    </svg>
+                </button>
+            </div>
         </div>
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
     </header>
@@ -243,6 +252,36 @@
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
 
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
+        <!-- Backdrop -->
+        <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+        
+        <!-- Content Card -->
+        <div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all scale-100 border border-gray-100 dark:border-gray-800">
+            
+            <!-- Header -->
+            <div class="flex justify-between items-center mb-4">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2>
+                <button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Dynamic Instructions -->
+            <div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
+                <!-- JS will inject specific text here -->
+            </div>
+
+            <!-- Footer Action -->
+            <button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">
+                Got it
+            </button>
+        </div>
+    </div>
+
     <script>
         // --- Config ---
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
@@ -281,6 +320,7 @@
             btnStop: document.getElementById('btn-stop'),
             count: document.getElementById('record-count'),
             btnTheme: document.getElementById('btn-theme'),
+            btnHelp: document.getElementById('btn-help'), // New
             html: document.documentElement,
             
             // Dashboard Overlay
@@ -308,7 +348,14 @@
 
             // Toast
             toast: document.getElementById('toast'),
-            toastMessage: document.getElementById('toast-message')
+            toastMessage: document.getElementById('toast-message'),
+
+            // Help Modal
+            helpModal: document.getElementById('help-modal'),
+            helpContent: document.getElementById('help-content'),
+            helpBackdrop: document.getElementById('help-backdrop'),
+            btnCloseHelp: document.getElementById('btn-close-help'),
+            btnOkHelp: document.getElementById('btn-ok-help')
         };
 
         // --- Theme ---
@@ -321,6 +368,66 @@
                 localStorage.setItem('theme', 'dark');
             }
         });
+
+        // --- HELP MODAL LOGIC ---
+        function openHelp() {
+            // Detect Platform
+            const ua = navigator.userAgent || navigator.vendor || window.opera;
+            let content = "";
+            let icon = "";
+
+            // Simple detection
+            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+            const isAndroid = /android/i.test(ua);
+            const isMac = /Macintosh/i.test(ua);
+            const isWindows = /Windows/i.test(ua);
+
+            if (isIOS) {
+                content = `
+                    <p class="font-bold text-blue-600 dark:text-blue-400">📱 You are on iOS</p>
+                    <p><strong>Critical:</strong> Safari and Chrome on iOS <span class="text-red-500">do not</span> support Bluetooth.</p>
+                    <ol class="list-decimal pl-5 space-y-2 mt-2">
+                        <li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li>
+                        <li>Open this website inside Bluefy.</li>
+                        <li>Tap "Connect" to find your sensor.</li>
+                    </ol>
+                `;
+            } else if (isAndroid) {
+                content = `
+                    <p class="font-bold text-green-600 dark:text-green-400">🤖 You are on Android</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li>
+                        <li>Ensure <strong>Bluetooth</strong> and <strong>Location Services</strong> are enabled in your Quick Settings (Android requirement).</li>
+                    </ul>
+                `;
+            } else if (isMac || isWindows) {
+                content = `
+                    <p class="font-bold text-purple-600 dark:text-purple-400">💻 You are on Desktop</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Use <strong>Google Chrome</strong>, <strong>Edge</strong>, or <strong>Opera</strong>.</li>
+                        <li>Ensure your computer has Bluetooth hardware.</li>
+                        <li>Click "Connect" and select your device from the popup list.</li>
+                    </ul>
+                `;
+            } else {
+                content = `<p>Please use a device with Bluetooth 4.0+ support and the Google Chrome browser.</p>`;
+            }
+
+            ui.helpContent.innerHTML = content;
+            ui.helpModal.classList.remove('hidden');
+            ui.helpModal.classList.add('flex');
+        }
+
+        function closeHelp() {
+            ui.helpModal.classList.add('hidden');
+            ui.helpModal.classList.remove('flex');
+        }
+
+        ui.btnHelp.addEventListener('click', openHelp);
+        ui.helpBackdrop.addEventListener('click', closeHelp);
+        ui.btnCloseHelp.addEventListener('click', closeHelp);
+        ui.btnOkHelp.addEventListener('click', closeHelp);
+
 
         // --- Analysis Logic (Colors & Mock Data) ---
         function getScoreColor(score) {
