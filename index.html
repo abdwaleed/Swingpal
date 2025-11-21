@@ -51,14 +51,14 @@
             
             <div class="flex items-center gap-3">
                 <!-- Help Button -->
-                <button id="btn-help" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700" aria-label="Setup Guide">
+                <button id="btn-help" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600" aria-label="Setup Guide">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </button>
 
                 <!-- Theme Toggle -->
-                <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
+                <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600">
                     <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
@@ -203,7 +203,7 @@
         <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
             
             <!-- Top Half: Connection Trigger -->
-            <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50 z-10">
+            <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
                 <div class="flex items-center justify-between p-3">
                     <div class="flex items-center gap-4">
                         <!-- Icon -->
@@ -234,10 +234,10 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-colors duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-colors duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
@@ -251,11 +251,9 @@
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
 
-    <!-- HELP MODAL -->
+    <!-- HELP MODAL (Updated for Smooth Transitions) -->
     <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 ease-out">
-        <!-- Backdrop -->
         <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <!-- Content Card -->
         <div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800">
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2>
@@ -347,7 +345,6 @@
             let content = "";
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
             const isAndroid = /android/i.test(ua);
-            
             if (isIOS) {
                 content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p>Safari does not support Bluetooth. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> browser app.</li><li>Open this page inside Bluefy.</li><li>Tap the <strong>"Tap to Connect"</strong> card below.</li></ol>`;
             } else if (isAndroid) {
