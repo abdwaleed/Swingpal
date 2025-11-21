@@ -50,7 +50,7 @@
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             
             <div class="flex items-center gap-3">
-                <!-- Help Button (Updated Style) -->
+                <!-- Help Button -->
                 <button id="btn-help" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700" aria-label="Setup Guide">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
@@ -197,7 +197,7 @@
                 </div>
             </div>
 
-        </div> <!-- CLOSES Analysis Dashboard Div -->
+        </div>
 
         <!-- UNIFIED COMMAND CENTER (Bottom - Separated) -->
         <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
@@ -234,47 +234,37 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <!-- Added pb-safe (pb-8) for touch targets on phones with home bars -->
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-colors duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-colors duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
         </div>
 
     </main>
-    <!-- HELP MODAL (Updated for Smooth Transitions) -->
-    <!-- Base state: opacity-0, pointer-events-none (Hidden but animatable) -->
+
+    <!-- Toast -->
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
+        <span id="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>
+        <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
+    </div>
+
+    <!-- HELP MODAL -->
     <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 ease-out">
-        
         <!-- Backdrop -->
         <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        
-        <!-- Content Card (Added ID for scale animation) -->
-        <!-- Base state: scale-95 (Zoomed out slightly) -->
+        <!-- Content Card -->
         <div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800">
-            
-            <!-- Header -->
             <div class="flex justify-between items-center mb-4">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2>
                 <button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
                 </button>
             </div>
-
-            <!-- Dynamic Instructions -->
-            <div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed">
-                <!-- JS will inject specific text here -->
-            </div>
-
-            <!-- Footer Action -->
-            <button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">
-                Got it
-            </button>
+            <div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div>
+            <button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button>
         </div>
     </div>
 
@@ -291,16 +281,13 @@
         let isRecording = false;
         let isConnected = false;
         let wakeLock = null;
-        
-        // MEMORY OPTIMIZATION:
-        let currentChunk = []; // Small RAM buffer
-        let chunkBlobs = [];   // Disk-backed storage (Blobs)
-        
+        let currentChunk = []; 
+        let chunkBlobs = [];   
         let swingCount = 0;
         let toastTimeout;
         let safetyTimer;
-        let recordingStartTime; // Track start time
-        let recordingTimerInterval; // Interval ID for the UI timer
+        let recordingStartTime; 
+        let recordingTimerInterval;
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- Elements ---
@@ -316,39 +303,27 @@
             btnStop: document.getElementById('btn-stop'),
             count: document.getElementById('record-count'),
             btnTheme: document.getElementById('btn-theme'),
-            btnHelp: document.getElementById('btn-help'), // New
+            btnHelp: document.getElementById('btn-help'),
             html: document.documentElement,
-            
-            // Dashboard Overlay
             analysisOverlay: document.getElementById('analysis-overlay'),
             countdownOverlay: document.getElementById('countdown-overlay'),
             countdownNumber: document.getElementById('countdown-number'),
-            
-            // Analysis UI
             scoreOverall: document.getElementById('score-overall'),
             scoreBadge: document.getElementById('score-badge'),
             coachFeedback: document.getElementById('coach-feedback'),
             feedbackContainer: document.getElementById('feedback-container'), 
             feedbackIconBg: document.getElementById('feedback-icon-bg'),     
             feedbackIcon: document.getElementById('feedback-icon'),          
-            
-            // Circles (SVG + Text)
             circleAcc: document.getElementById('circle-acc'),
             valAcc: document.getElementById('val-acc'),
-            
             circleWrist: document.getElementById('circle-wrist'),
             valWrist: document.getElementById('val-wrist'),
-            
             circleForm: document.getElementById('circle-form'),
             valForm: document.getElementById('val-form'),
-
-            // Toast
             toast: document.getElementById('toast'),
             toastMessage: document.getElementById('toast-message'),
-
-            // Help Modal (Updated Elements)
             helpModal: document.getElementById('help-modal'),
-            helpCard: document.getElementById('help-card'), // Added for scale animation
+            helpCard: document.getElementById('help-card'),
             helpContent: document.getElementById('help-content'),
             helpBackdrop: document.getElementById('help-backdrop'),
             btnCloseHelp: document.getElementById('btn-close-help'),
@@ -366,58 +341,27 @@
             }
         });
 
-        // --- HELP MODAL LOGIC (Updated for Transitions) ---
+        // --- HELP MODAL LOGIC ---
         function openHelp() {
-            // Detect Platform
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
-
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
             const isAndroid = /android/i.test(ua);
-            const isMac = /Macintosh/i.test(ua);
-            const isWindows = /Windows/i.test(ua);
-
-            // Matches button labels "Tap to Connect" and "Start"
-            if (isIOS) {
-                content = `
-                    <p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p>
-                    <p>Safari does not support Bluetooth. You must:</p>
-                    <ol class="list-decimal pl-5 space-y-2 mt-2">
-                        <li>Download the free <strong>"Bluefy"</strong> browser app.</li>
-                        <li>Open this page inside Bluefy.</li>
-                        <li>Tap the <strong>"Tap to Connect"</strong> card below.</li>
-                    </ol>
-                `;
-            } else if (isAndroid) {
-                content = `
-                    <p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Use <strong>Chrome</strong> or <strong>Samsung Internet</strong>.</li>
-                        <li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li>
-                        <li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li>
-                    </ul>
-                `;
-            } else {
-                content = `
-                    <p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Use <strong>Chrome</strong> or <strong>Edge</strong>.</li>
-                        <li>Click the <strong>"Tap to Connect"</strong> card.</li>
-                        <li>Select your sensor from the popup list.</li>
-                    </ul>
-                `;
-            }
-
-            ui.helpContent.innerHTML = content;
             
-            // ANIMATION: Open
+            if (isIOS) {
+                content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p>Safari does not support Bluetooth. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> browser app.</li><li>Open this page inside Bluefy.</li><li>Tap the <strong>"Tap to Connect"</strong> card below.</li></ol>`;
+            } else if (isAndroid) {
+                content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
+            } else {
+                content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li><li>Select your sensor from the popup list.</li></ul>`;
+            }
+            ui.helpContent.innerHTML = content;
             ui.helpModal.classList.remove('opacity-0', 'pointer-events-none');
             ui.helpCard.classList.remove('scale-95');
             ui.helpCard.classList.add('scale-100');
         }
 
         function closeHelp() {
-            // ANIMATION: Close
             ui.helpModal.classList.add('opacity-0', 'pointer-events-none');
             ui.helpCard.classList.remove('scale-100');
             ui.helpCard.classList.add('scale-95');
@@ -428,8 +372,7 @@
         ui.btnCloseHelp.addEventListener('click', closeHelp);
         ui.btnOkHelp.addEventListener('click', closeHelp);
 
-
-        // --- Analysis Logic (Colors & Mock Data) ---
+        // --- Analysis Logic ---
         function getScoreColor(score) {
             if (score >= 90) return 'text-emerald-500'; 
             if (score >= 70) return 'text-yellow-400'; 
@@ -445,85 +388,42 @@
         }
 
         function generateFeedback(acc, wrist, form) {
-            const scores = [
-                { name: 'acceleration', val: acc },
-                { name: 'wrist', val: wrist },
-                { name: 'form', val: form }
-            ];
+            const scores = [{ name: 'acceleration', val: acc }, { name: 'wrist', val: wrist }, { name: 'form', val: form }];
             scores.sort((a, b) => a.val - b.val);
             const lowest = scores[0];
-
-            // Return object with text AND sentiment color
-            if (lowest.val >= 90) return { 
-                text: "Outstanding swing! Your form and power are perfectly balanced. Keep maintaining this consistency.",
-                sentiment: 'emerald'
-            };
-            
+            if (lowest.val >= 90) return { text: "Outstanding swing! Your form and power are perfectly balanced. Keep maintaining this consistency.", sentiment: 'emerald' };
             switch(lowest.name) {
-                case 'acceleration':
-                    return { 
-                        text: "Your swing speed is a bit slow. Try engaging your core earlier and accelerating through the contact point.",
-                        sentiment: 'rose' // Red for warning
-                    };
-                case 'wrist':
-                    return { 
-                        text: "Your wrist seems too stiff. Relax your grip slightly to allow for a natural whip-like motion on impact.",
-                        sentiment: 'amber' // Yellow/Orange for caution
-                    };
-                case 'form':
-                    return { 
-                        text: "Your body form needs adjustment. Ensure your feet are planted and follow through completely over your shoulder.",
-                        sentiment: 'rose'
-                    };
-                default:
-                    return { text: "Good effort. Focus on smooth, continuous motion.", sentiment: 'blue' };
+                case 'acceleration': return { text: "Your swing speed is a bit slow. Try engaging your core earlier and accelerating through the contact point.", sentiment: 'rose' };
+                case 'wrist': return { text: "Your wrist seems too stiff. Relax your grip slightly to allow for a natural whip-like motion on impact.", sentiment: 'amber' };
+                case 'form': return { text: "Your body form needs adjustment. Ensure your feet are planted and follow through completely over your shoulder.", sentiment: 'rose' };
+                default: return { text: "Good effort. Focus on smooth, continuous motion.", sentiment: 'blue' };
             }
         }
 
         function showAnalysis(accScore, wristScore, formScore, overall) {
-            // 1. Hide Overlay
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
-
-            // 2. Update Overall Score (With Gradient!)
             ui.scoreOverall.innerText = overall;
-            
-            // Gradient logic based on score
-            let gradientClass = "from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400"; // Default
+            let gradientClass = "from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400";
             if (overall >= 90) gradientClass = "from-emerald-400 to-teal-600";
             else if (overall >= 70) gradientClass = "from-yellow-400 to-amber-600";
             else if (overall < 50) gradientClass = "from-rose-400 to-red-600";
-            
             ui.scoreOverall.className = `text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r ${gradientClass} tracking-tight`;
-
             const badge = getBadgeInfo(overall);
             ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
             ui.scoreBadge.innerText = badge.text;
-
-            // 3. Update Feedback with Dynamic Styling
             const feedback = generateFeedback(accScore, wristScore, formScore);
             ui.coachFeedback.innerText = feedback.text;
-            
-            // Apply Sentiment Colors to Box & Icon
             const sentimentColors = {
                 'emerald': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/50', iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' },
-                'amber':   { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/50', iconBg: 'bg-amber-100 dark:bg-amber-900/30', iconText: 'text-amber-600 dark:text-amber-400' },
-                'rose':    { bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-100 dark:border-rose-800/50', iconBg: 'bg-rose-100 dark:bg-rose-900/30', iconText: 'text-rose-600 dark:text-rose-400' },
-                'blue':    { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/50', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconText: 'text-blue-600 dark:text-blue-400' }
+                'amber': { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/50', iconBg: 'bg-amber-100 dark:bg-amber-900/30', iconText: 'text-amber-600 dark:text-amber-400' },
+                'rose': { bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-100 dark:border-rose-800/50', iconBg: 'bg-rose-100 dark:bg-rose-900/30', iconText: 'text-rose-600 dark:text-rose-400' },
+                'blue': { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/50', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconText: 'text-blue-600 dark:text-blue-400' }
             };
-            
             const style = sentimentColors[feedback.sentiment] || sentimentColors['blue'];
-            
             ui.feedbackContainer.className = `${style.bg} ${style.border} rounded-xl p-4 border transition-all duration-500`;
             ui.feedbackIconBg.className = `${style.iconBg} p-1 rounded-full transition-colors duration-500`;
             ui.feedbackIcon.className = `h-3 w-3 ${style.iconText} transition-colors duration-500`;
-
-
-            // 4. Reset circles for animation
-            resetCircle(ui.circleAcc);
-            resetCircle(ui.circleWrist);
-            resetCircle(ui.circleForm);
-
-            // 5. Animate Circles
+            resetCircle(ui.circleAcc); resetCircle(ui.circleWrist); resetCircle(ui.circleForm);
             setTimeout(() => {
                 updateCircle(ui.circleAcc, ui.valAcc, accScore);
                 updateCircle(ui.circleWrist, ui.valWrist, wristScore);
@@ -532,7 +432,7 @@
         }
 
         function resetCircle(circle) {
-            circle.style.strokeDashoffset = 251.2; // Full circumference
+            circle.style.strokeDashoffset = 251.2;
             circle.setAttribute('class', 'text-gray-300 dark:text-gray-600 stroke-current circle-progress');
         }
 
@@ -540,66 +440,44 @@
             const circumference = 251.2;
             const offset = circumference - (score / 100) * circumference;
             const colorClass = getScoreColor(score);
-            
-            // Apply color
             circle.setAttribute('class', `${colorClass} stroke-current circle-progress`);
-            
-            // Animate Fill
             circle.style.strokeDashoffset = offset;
-            
-            // Update Text
             textEl.innerText = `${score}%`;
-            
-            // Update Text Color
             if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400";
             else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400";
             else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400";
             else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
         }
 
-        function resetAnalysisView() {
-            // Show Overlay (Grey out)
-            ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
-        }
-
-        // --- Toast ---
+        function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
         function showToast(message) {
             if (toastTimeout) clearTimeout(toastTimeout);
             ui.toastMessage.innerText = message;
             ui.toast.classList.remove('-translate-y-20', 'opacity-0');
-            toastTimeout = setTimeout(() => {
-                ui.toast.classList.add('-translate-y-20', 'opacity-0');
-            }, 3000);
+            toastTimeout = setTimeout(() => { ui.toast.classList.add('-translate-y-20', 'opacity-0'); }, 3000);
         }
 
-        // --- Connection Logic ---
         function setConnectionState(state, message = "") {
             if (state === 'disconnected') {
                 ui.connectTrigger.disabled = false;
                 ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
-                ui.btIcon.classList.remove('hidden');
-                ui.checkIcon.classList.add('hidden');
+                ui.btIcon.classList.remove('hidden'); ui.checkIcon.classList.add('hidden');
                 ui.statusText.innerText = "Tap to Connect";
-                ui.deviceName.style.height = "0px";
-                ui.deviceName.style.opacity = "0";
+                ui.deviceName.style.height = "0px"; ui.deviceName.style.opacity = "0";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300";
                 isConnected = false;
-            } 
-            else if (state === 'connecting') {
+            } else if (state === 'connecting') {
                 ui.connectTrigger.disabled = true;
                 ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
                 ui.statusText.innerText = "Searching...";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
-            } 
-            else if (state === 'connected') {
+            } else if (state === 'connected') {
                 ui.connectTrigger.disabled = true;
                 ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
-                ui.btIcon.classList.add('hidden');
-                ui.checkIcon.classList.remove('hidden');
+                ui.btIcon.classList.add('hidden'); ui.checkIcon.classList.remove('hidden');
                 ui.statusText.innerText = "Sensor Ready";
                 ui.deviceName.innerText = `Connected to: ${message}`;
-                ui.deviceName.style.height = "auto";
-                ui.deviceName.style.opacity = "1";
+                ui.deviceName.style.height = "auto"; ui.deviceName.style.opacity = "1";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
                 showToast("Connected successfully!");
                 isConnected = true;
@@ -607,124 +485,60 @@
         }
 
         async function requestWakeLock() {
-            try {
-                if ('wakeLock' in navigator) {
-                    wakeLock = await navigator.wakeLock.request('screen');
-                }
-            } catch (err) { console.log(err); }
+            try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); }
         }
 
         ui.connectTrigger.addEventListener('click', async () => {
             if (isConnected) return;
-
-            // 1. Check if Browser Supports Bluetooth
             if (!navigator.bluetooth) {
-                // Specific hint for iOS users since Safari blocks Web Bluetooth
                 const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
-                if (isIOS) {
-                    showToast("Bluetooth unavailable in Safari. Please use the 'Bluefy' app.");
-                } else {
-                    showToast("This browser doesn't support Bluetooth. Try Chrome.");
-                }
+                showToast(isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome.");
                 return;
             }
-
-            // 2. Check if Bluetooth Adapter is Available/Enabled
             const isAvailable = await navigator.bluetooth.getAvailability();
-            if (!isAvailable) {
-                showToast("Bluetooth is off or no adapter found.");
-                return;
-            }
-
+            if (!isAvailable) { showToast("Bluetooth is off or no adapter found."); return; }
             try {
                 setConnectionState('connecting');
-                device = await navigator.bluetooth.requestDevice({
-                    filters: [{ name: DEVICE_NAME_PREFIX }],
-                    optionalServices: [SERVICE_UUID]
-                });
+                device = await navigator.bluetooth.requestDevice({ filters: [{ name: DEVICE_NAME_PREFIX }], optionalServices: [SERVICE_UUID] });
                 device.addEventListener('gattserverdisconnected', onDisconnected);
                 server = await device.gatt.connect();
-                
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 characteristic = await service.getCharacteristic(CHAR_UUID);
-                // DO NOT Start Notifications yet to save battery
-                
                 setConnectionState('connected', device.name);
                 ui.btnStart.disabled = false;
                 requestWakeLock();
             } catch (error) {
                 console.error(error);
                 setConnectionState('disconnected');
-                
-                // Comprehensive Natural Language Error Handling
-                if (error.message.includes("User cancelled")) {
-                    // User closed the popup deliberately
-                    return; 
-                }
-                
+                if (error.message.includes("User cancelled")) return;
                 switch(error.name) {
-                    case 'NotFoundError':
-                        showToast("No SwingPal sensor found. Is it powered on?");
-                        break;
-                    case 'NotSupportedError':
-                        showToast("Bluetooth appears disabled. Please turn it on in Settings.");
-                        break;
-                    case 'SecurityError':
-                        showToast("Security block. Try tapping the screen again.");
-                        break;
-                    case 'NetworkError':
-                        showToast("Connection lost. Try moving closer to the sensor.");
-                        break;
-                    case 'NotAllowedError':
-                        showToast("Bluetooth permission denied. Please allow access.");
-                        break;
-                    case 'InvalidStateError':
-                        showToast("Bluetooth is busy. Try restarting the app.");
-                        break;
-                    default:
-                        // Fallback for other specific messages
-                        if (error.message.includes("Connection failed")) {
-                            showToast("Connection failed. Is another app using the sensor?");
-                        } else {
-                            showToast("Oops! Connection error. Please try again.");
-                        }
+                    case 'NotFoundError': showToast("No SwingPal sensor found. Is it powered on?"); break;
+                    case 'NotSupportedError': showToast("Bluetooth appears disabled. Please turn it on in Settings."); break;
+                    case 'SecurityError': showToast("Security block. Try tapping the screen again."); break;
+                    case 'NetworkError': showToast("Connection lost. Try moving closer to the sensor."); break;
+                    case 'NotAllowedError': showToast("Bluetooth permission denied. Please allow access."); break;
+                    case 'InvalidStateError': showToast("Bluetooth is busy. Try restarting the app."); break;
+                    default: showToast(error.message.includes("Connection failed") ? "Connection failed. Is another app using the sensor?" : "Oops! Connection error. Please try again.");
                 }
             }
         });
 
         function onDisconnected() {
             setConnectionState('disconnected');
-            ui.btnStart.disabled = true;
-            ui.btnStop.disabled = true;
-            isRecording = false;
+            ui.btnStart.disabled = true; ui.btnStop.disabled = true; isRecording = false;
             showToast("Sensor disconnected. Please reconnect.");
             if (wakeLock) wakeLock.release();
         }
 
-        // --- Memory Optimization Logic: Flush Chunk ---
         function flushChunk() {
             if (currentChunk.length === 0) return;
-            
-            // Convert buffer to string
-            const chunkStr = currentChunk.map(row => {
-                const iso = new Date(row.t).toISOString().replace('T', ' ').replace('Z', '');
-                return `${iso},${row.d}`;
-            }).join("\n");
-            
-            // Create Blob for this chunk and store it
+            const chunkStr = currentChunk.map(row => `${new Date(row.t).toISOString().replace('T', ' ').replace('Z', '')},${row.d}`).join("\n");
             chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
-            
-            // Clear RAM buffer
             currentChunk = [];
         }
 
-        // --- Start/Stop Logic ---
-        ui.btnStart.addEventListener('click', startSequence);
-        
-        async function startSequence() {
+        ui.btnStart.addEventListener('click', async () => {
             ui.btnStart.disabled = true;
-            
-            // 1. Start Stream
             try {
                 if (characteristic) {
                     await characteristic.startNotifications();
@@ -732,70 +546,45 @@
                 }
             } catch (e) {
                 console.error("Stream Error", e);
-                if (e.name === 'NotSupportedError') {
-                    showToast("Sensor error: Data stream not supported.");
-                } else {
-                    showToast("Could not wake sensor. Try reconnecting.");
-                }
+                showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.");
                 ui.btnStart.disabled = false;
                 return;
             }
-
-            // 2. UI Updates
-            resetAnalysisView(); 
+            resetAnalysisView();
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
             ui.countdownOverlay.classList.remove('hidden');
-            
             let count = 5;
             ui.countdownNumber.innerText = count;
-            
-            // Trigger initial animation
             ui.countdownNumber.classList.remove('animate-number');
-            void ui.countdownNumber.offsetWidth; 
+            void ui.countdownNumber.offsetWidth;
             ui.countdownNumber.classList.add('animate-number');
-
             const timer = setInterval(() => {
                 count--;
                 if (count < 0) {
                     clearInterval(timer);
-                    ui.countdownOverlay.classList.add('hidden'); 
+                    ui.countdownOverlay.classList.add('hidden');
                     beginRecording();
                 } else {
                     ui.countdownNumber.innerText = count;
-                    // Re-trigger animation
                     ui.countdownNumber.classList.remove('animate-number');
                     void ui.countdownNumber.offsetWidth;
                     ui.countdownNumber.classList.add('animate-number');
                 }
             }, 1000);
-        }
+        });
 
         function beginRecording() {
-            // Reset Buffers for Memory Safety
-            currentChunk = [];
-            chunkBlobs = [];
-            
-            isRecording = true;
-            recordingStartTime = Date.now();
-            
-            // Start UI Timer
+            currentChunk = []; chunkBlobs = [];
+            isRecording = true; recordingStartTime = Date.now();
             if (recordingTimerInterval) clearInterval(recordingTimerInterval);
             ui.statusText.innerText = "Recording: 0.0s";
-            ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse'); // Visual feedback
-            
+            ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse');
             recordingTimerInterval = setInterval(() => {
                 const elapsed = (Date.now() - recordingStartTime) / 1000;
                 ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`;
             }, 100);
-            
             if (safetyTimer) clearTimeout(safetyTimer);
-            safetyTimer = setTimeout(() => {
-                if (isRecording) {
-                    ui.btnStop.click();
-                    showToast("Auto-stopped (Time Limit)");
-                }
-            }, MAX_RECORDING_TIME_MS);
-
+            safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)"); } }, MAX_RECORDING_TIME_MS);
             ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
             ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false;
@@ -806,94 +595,55 @@
             isRecording = false;
             if (safetyTimer) clearTimeout(safetyTimer);
             if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-            
-            // Reset Status Text
             ui.statusText.innerText = "Sensor Ready";
             ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
-
             try {
                 if (characteristic) {
                     await characteristic.stopNotifications();
                     characteristic.removeEventListener('characteristicvaluechanged', handleData);
                 }
             } catch (e) { console.error(e); }
-
             if (isConnected && device) setConnectionState('connected', device.name);
-            
-            ui.btnStop.disabled = true;
-            ui.btnStart.disabled = false;
-            
-            // Mock Analysis
+            ui.btnStop.disabled = true; ui.btnStart.disabled = false;
             const accScore = Math.floor(Math.random() * 100);
             const wristScore = Math.floor(Math.random() * 100);
             const formScore = Math.floor(Math.random() * 100);
             const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
-
             if (overall > 20) {
-                swingCount++;
-                ui.count.innerText = swingCount;
-                saveFile(); // Consolidate chunks and save
-                showToast("Session Saved!");
+                swingCount++; ui.count.innerText = swingCount;
+                saveFile(); showToast("Session Saved!");
             } else {
                 showToast("False Start Detected (Ignored)");
-                // Clean up chunks anyway
-                chunkBlobs = [];
-                currentChunk = [];
+                chunkBlobs = []; currentChunk = [];
             }
-            
-            showAnalysis(accScore, wristScore, formScore, overall); 
+            showAnalysis(accScore, wristScore, formScore, overall);
         });
 
         function handleData(event) {
-            // RAM Optimization: Store raw values (numbers) instead of massive strings
             const value = event.target.value;
             const decoder = new TextDecoder('utf-8');
             const rawLine = decoder.decode(value).trim();
-            
             if (isRecording && rawLine.length > 0) {
-                // Add to small buffer
-                currentChunk.push({
-                    t: Date.now(), 
-                    d: rawLine     
-                });
-
-                // Flush if buffer full (Chunking Strategy)
-                if (currentChunk.length >= CHUNK_SIZE) {
-                    flushChunk();
-                }
+                currentChunk.push({ t: Date.now(), d: rawLine });
+                if (currentChunk.length >= CHUNK_SIZE) flushChunk();
             }
         }
 
         function saveFile() {
-            // Flush any remaining data in currentChunk
             flushChunk();
-
             if (chunkBlobs.length === 0) return;
-
-            // Create final Blob from Header + All Chunks
-            // The browser handles memory mapping for this efficiently
             const finalBlob = new Blob([CSV_HEADER + "\n", ...chunkBlobs], { type: 'text/csv' });
-            
             const url = window.URL.createObjectURL(finalBlob);
             const a = document.createElement('a');
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
             const fileName = `swingpal_log_${timestamp}.csv`;
-            
-            a.href = url;
-            a.download = fileName;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            
-            // Clean up ASAP
-            setTimeout(() => {
-                window.URL.revokeObjectURL(url);
-                chunkBlobs = []; // Free chunk memory
-            }, 100);
+            a.href = url; a.download = fileName;
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+            setTimeout(() => { window.URL.revokeObjectURL(url); chunkBlobs = []; }, 100);
         }
 
         document.addEventListener('keydown', (e) => {
-            if (e.key === 's' && !ui.btnStart.disabled) startSequence();
+            if (e.key === 's' && !ui.btnStart.disabled) ui.btnStart.click();
             if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click();
         });
     </script>
