@@ -233,7 +233,7 @@
     </main>
 
     <!-- Toast -->
-    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
         <span id="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
@@ -405,9 +405,9 @@
         function showToast(message) {
             if (toastTimeout) clearTimeout(toastTimeout);
             ui.toastMessage.innerText = message;
-            ui.toast.classList.remove('translate-y-20', 'opacity-0');
+            ui.toast.classList.remove('-translate-y-20', 'opacity-0');
             toastTimeout = setTimeout(() => {
-                ui.toast.classList.add('translate-y-20', 'opacity-0');
+                ui.toast.classList.add('-translate-y-20', 'opacity-0');
             }, 3000);
         }
 
