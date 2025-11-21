@@ -110,12 +110,13 @@
                     <div>
                         <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1">Mastery</h2>
                         <div class="flex items-baseline">
-                            <span id="score-overall" class="text-5xl font-black text-gray-900 dark:text-white tracking-tight">--</span>
+                            <!-- Gradient Text -->
+                            <span id="score-overall" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400 tracking-tight">--</span>
                             <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                         </div>
                     </div>
                     <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
-                        PENDING
+                        READY
                     </div>
                 </div>
 
@@ -167,25 +168,29 @@
 
             <!-- BOTTOM SECTION: TEXTUAL FEEDBACK (Compact) -->
             <div class="mt-8 relative z-10">
-                <div class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50">
+                <!-- Feedback Container (Dynamic ID) -->
+                <div id="feedback-container" class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 transition-all duration-500">
                     <!-- Header Inside the Box -->
-                    <div class="flex items-center gap-2 mb-2 opacity-70">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-500 dark:text-blue-400" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
-                        </svg>
+                    <div class="flex items-center gap-2 mb-2 opacity-90">
+                        <!-- Icon Container -->
+                        <div id="feedback-icon-bg" class="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full transition-colors duration-500">
+                            <svg id="feedback-icon" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-600 dark:text-blue-400 transition-colors duration-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                            </svg>
+                        </div>
                         <span class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Insights</span>
                     </div>
                     
                     <!-- Feedback Text -->
-                    <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-6">
+                    <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500">
                         Analysis pending...
                     </p>
                 </div>
             </div>
 
-        </div>
+        </div> <!-- CLOSES Analysis Dashboard Div -->
 
-        <!-- UNIFIED COMMAND CENTER (Bottom) -->
+        <!-- UNIFIED COMMAND CENTER (Bottom - Separated) -->
         <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
             
             <!-- Top Half: Connection Trigger -->
@@ -287,6 +292,9 @@
             scoreOverall: document.getElementById('score-overall'),
             scoreBadge: document.getElementById('score-badge'),
             coachFeedback: document.getElementById('coach-feedback'),
+            feedbackContainer: document.getElementById('feedback-container'), 
+            feedbackIconBg: document.getElementById('feedback-icon-bg'),     
+            feedbackIcon: document.getElementById('feedback-icon'),          
             
             // Circles (SVG + Text)
             circleAcc: document.getElementById('circle-acc'),
@@ -316,10 +324,10 @@
 
         // --- Analysis Logic (Colors & Mock Data) ---
         function getScoreColor(score) {
-            if (score >= 90) return 'text-emerald-500'; // Excellent
-            if (score >= 70) return 'text-yellow-400';  // Good
-            if (score >= 50) return 'text-orange-500';  // Average
-            return 'text-red-500';                      // Poor
+            if (score >= 90) return 'text-emerald-500'; 
+            if (score >= 70) return 'text-yellow-400'; 
+            if (score >= 50) return 'text-orange-500'; 
+            return 'text-red-500';                      
         }
 
         function getBadgeInfo(score) {
@@ -330,7 +338,6 @@
         }
 
         function generateFeedback(acc, wrist, form) {
-            // Find the weakest link
             const scores = [
                 { name: 'acceleration', val: acc },
                 { name: 'wrist', val: wrist },
@@ -339,17 +346,30 @@
             scores.sort((a, b) => a.val - b.val);
             const lowest = scores[0];
 
-            if (lowest.val >= 90) return "Outstanding swing! Your form and power are perfectly balanced. Keep maintaining this consistency.";
+            // Return object with text AND sentiment color
+            if (lowest.val >= 90) return { 
+                text: "Outstanding swing! Your form and power are perfectly balanced. Keep maintaining this consistency.",
+                sentiment: 'emerald'
+            };
             
             switch(lowest.name) {
                 case 'acceleration':
-                    return "Your swing speed is a bit slow. Try engaging your core earlier and accelerating through the contact point.";
+                    return { 
+                        text: "Your swing speed is a bit slow. Try engaging your core earlier and accelerating through the contact point.",
+                        sentiment: 'rose' // Red for warning
+                    };
                 case 'wrist':
-                    return "Your wrist seems too stiff. Relax your grip slightly to allow for a natural whip-like motion on impact.";
+                    return { 
+                        text: "Your wrist seems too stiff. Relax your grip slightly to allow for a natural whip-like motion on impact.",
+                        sentiment: 'amber' // Yellow/Orange for caution
+                    };
                 case 'form':
-                    return "Your body form needs adjustment. Ensure your feet are planted and follow through completely over your shoulder.";
+                    return { 
+                        text: "Your body form needs adjustment. Ensure your feet are planted and follow through completely over your shoulder.",
+                        sentiment: 'rose'
+                    };
                 default:
-                    return "Good effort. Focus on smooth, continuous motion.";
+                    return { text: "Good effort. Focus on smooth, continuous motion.", sentiment: 'blue' };
             }
         }
 
@@ -357,14 +377,39 @@
             // 1. Hide Overlay
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
 
-            // 2. Update Overall Score
+            // 2. Update Overall Score (With Gradient!)
             ui.scoreOverall.innerText = overall;
+            
+            // Gradient logic based on score
+            let gradientClass = "from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400"; // Default
+            if (overall >= 90) gradientClass = "from-emerald-400 to-teal-600";
+            else if (overall >= 70) gradientClass = "from-yellow-400 to-amber-600";
+            else if (overall < 50) gradientClass = "from-rose-400 to-red-600";
+            
+            ui.scoreOverall.className = `text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r ${gradientClass} tracking-tight`;
+
             const badge = getBadgeInfo(overall);
             ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
             ui.scoreBadge.innerText = badge.text;
 
-            // 3. Update Feedback
-            ui.coachFeedback.innerText = generateFeedback(accScore, wristScore, formScore);
+            // 3. Update Feedback with Dynamic Styling
+            const feedback = generateFeedback(accScore, wristScore, formScore);
+            ui.coachFeedback.innerText = feedback.text;
+            
+            // Apply Sentiment Colors to Box & Icon
+            const sentimentColors = {
+                'emerald': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/50', iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' },
+                'amber':   { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/50', iconBg: 'bg-amber-100 dark:bg-amber-900/30', iconText: 'text-amber-600 dark:text-amber-400' },
+                'rose':    { bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-100 dark:border-rose-800/50', iconBg: 'bg-rose-100 dark:bg-rose-900/30', iconText: 'text-rose-600 dark:text-rose-400' },
+                'blue':    { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/50', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconText: 'text-blue-600 dark:text-blue-400' }
+            };
+            
+            const style = sentimentColors[feedback.sentiment] || sentimentColors['blue'];
+            
+            ui.feedbackContainer.className = `${style.bg} ${style.border} rounded-xl p-4 border transition-all duration-500`;
+            ui.feedbackIconBg.className = `${style.iconBg} p-1 rounded-full transition-colors duration-500`;
+            ui.feedbackIcon.className = `h-3 w-3 ${style.iconText} transition-colors duration-500`;
+
 
             // 4. Reset circles for animation
             resetCircle(ui.circleAcc);
