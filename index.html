@@ -32,26 +32,34 @@
         body { font-family: 'Inter', sans-serif; }
         /* Smooth rotation for the circle fill */
         .circle-progress { transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
+        
+        /* Countdown Pulse Animation */
+        @keyframes pulse-scale {
+            0% { transform: scale(0.8); opacity: 0; }
+            50% { transform: scale(1.2); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-number { animation: pulse-scale 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300 relative overflow-hidden">
 
     <!-- Header -->
-    <header class="w-full max-w-md mb-2">
-        <div class="flex justify-between items-center">
+    <header class="w-full max-w-md mb-2 flex justify-between items-end">
+        <div>
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
-            
-            <!-- Theme Toggle -->
-            <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
-                <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
-                </svg>
-                <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
-                </svg>
-            </button>
+            <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
         </div>
-        <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
+        
+        <!-- Theme Toggle -->
+        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
+            <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+            </svg>
+            <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+            </svg>
+        </button>
     </header>
 
     <!-- Main Content Area -->
@@ -68,7 +76,7 @@
         <!-- Analysis Dashboard (Middle Area) -->
         <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
             
-            <!-- GREY OUT OVERLAY -->
+            <!-- 1. GREY OUT OVERLAY (Initial State) -->
             <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
                 <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -80,24 +88,32 @@
                 <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
             </div>
 
+            <!-- 2. COUNTDOWN OVERLAY (Hidden by default) -->
+            <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300">
+                <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
+                <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">
+                    5
+                </div>
+            </div>
+
             <!-- TOP SECTION: DATA & VISUALS -->
             <div class="flex flex-col gap-6 mb-auto">
                 
                 <!-- Header & Overall Score -->
-            <div class="flex justify-between items-start mb-8 border-b border-gray-100 dark:border-gray-700/50 pb-4">
-                <div>
-                    <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Mastery</h2>
-                    <div class="flex items-baseline">
-                        <span id="score-overall" class="text-5xl font-black text-gray-900 dark:text-white tracking-tight">--</span>
-                        <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
+                <div class="flex justify-between items-start border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                    <div>
+                        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Mastery</h2>
+                        <div class="flex items-baseline">
+                            <span id="score-overall" class="text-5xl font-black text-gray-900 dark:text-white tracking-tight">--</span>
+                            <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
+                        </div>
+                    </div>
+                    <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
+                        PENDING
                     </div>
                 </div>
-                <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
-                    PENDING
-                </div>
-            </div>
 
-            <!-- CIRCULAR BENCHMARKS GRID -->
+                <!-- CIRCULAR BENCHMARKS GRID -->
                 <div class="grid grid-cols-3 gap-2">
                     <!-- Acceleration Circle -->
                     <div class="flex flex-col items-center">
@@ -248,6 +264,8 @@
             
             // Dashboard Overlay
             analysisOverlay: document.getElementById('analysis-overlay'),
+            countdownOverlay: document.getElementById('countdown-overlay'),
+            countdownNumber: document.getElementById('countdown-number'),
             
             // Analysis UI
             scoreOverall: document.getElementById('score-overall'),
@@ -474,16 +492,33 @@
         
         function startSequence() {
             ui.btnStart.disabled = true;
-            resetAnalysisView(); // Grey out dashboard while recording
+            
+            // 1. Hide Analysis Overlay ("Complete a swing")
+            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
+            
+            // 2. Show Countdown Overlay
+            ui.countdownOverlay.classList.remove('hidden');
             
             let count = 5;
+            ui.countdownNumber.innerText = count;
+            
+            // Trigger initial animation
+            ui.countdownNumber.classList.remove('animate-number');
+            void ui.countdownNumber.offsetWidth; // reflow
+            ui.countdownNumber.classList.add('animate-number');
+
             const timer = setInterval(() => {
-                ui.statusText.innerText = `Starting in ${count}...`;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
                 count--;
                 if (count < 0) {
                     clearInterval(timer);
+                    ui.countdownOverlay.classList.add('hidden'); // Hide countdown
                     beginRecording();
+                } else {
+                    ui.countdownNumber.innerText = count;
+                    // Re-trigger animation
+                    ui.countdownNumber.classList.remove('animate-number');
+                    void ui.countdownNumber.offsetWidth;
+                    ui.countdownNumber.classList.add('animate-number');
                 }
             }, 1000);
         }
