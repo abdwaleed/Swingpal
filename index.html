@@ -99,7 +99,7 @@
                 
                 <!-- Header & Overall Score -->
                 <div class="border-b border-gray-100 dark:border-gray-700/50 pb-4">
-                    <!-- Top Row: Title and Swings -->
+                    <!-- Top Row: Title and Swings (INTEGRATED HERE) -->
                     <div class="flex justify-between items-center mb-2">
                         <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Mastery</h2>
                         <div class="flex items-center gap-1.5">
@@ -221,10 +221,10 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
@@ -344,33 +344,25 @@
             }
         }
 
-        function showAnalysis() {
+        function showAnalysis(accScore, wristScore, formScore, overall) {
             // 1. Hide Overlay
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
 
-            // 2. Generate Mock Data (Replace with ML logic)
-            const accScore = Math.floor(Math.random() * (99 - 50) + 50);
-            const wristScore = Math.floor(Math.random() * (99 - 50) + 50);
-            const formScore = Math.floor(Math.random() * (99 - 50) + 50);
-            
-            // Weighted Average
-            const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
-
-            // 3. Update Overall Score
+            // 2. Update Overall Score
             ui.scoreOverall.innerText = overall;
             const badge = getBadgeInfo(overall);
             ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
             ui.scoreBadge.innerText = badge.text;
 
-            // 4. Update Feedback
+            // 3. Update Feedback
             ui.coachFeedback.innerText = generateFeedback(accScore, wristScore, formScore);
 
-            // 5. Reset circles for animation
+            // 4. Reset circles for animation
             resetCircle(ui.circleAcc);
             resetCircle(ui.circleWrist);
             resetCircle(ui.circleForm);
 
-            // 6. Animate Circles
+            // 5. Animate Circles
             setTimeout(() => {
                 updateCircle(ui.circleAcc, ui.valAcc, accScore);
                 updateCircle(ui.circleWrist, ui.valWrist, wristScore);
@@ -499,33 +491,16 @@
         
         function startSequence() {
             ui.btnStart.disabled = true;
-            
-            // 1. Hide Analysis Overlay ("Complete a swing")
-            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
-            
-            // 2. Show Countdown Overlay
-            ui.countdownOverlay.classList.remove('hidden');
+            resetAnalysisView(); // Grey out dashboard while recording
             
             let count = 5;
-            ui.countdownNumber.innerText = count;
-            
-            // Trigger initial animation
-            ui.countdownNumber.classList.remove('animate-number');
-            void ui.countdownNumber.offsetWidth; // reflow
-            ui.countdownNumber.classList.add('animate-number');
-
             const timer = setInterval(() => {
+                ui.statusText.innerText = `Starting in ${count}...`;
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
                 count--;
                 if (count < 0) {
                     clearInterval(timer);
-                    ui.countdownOverlay.classList.add('hidden'); // Hide countdown
                     beginRecording();
-                } else {
-                    ui.countdownNumber.innerText = count;
-                    // Re-trigger animation
-                    ui.countdownNumber.classList.remove('animate-number');
-                    void ui.countdownNumber.offsetWidth;
-                    ui.countdownNumber.classList.add('animate-number');
                 }
             }, 1000);
         }
@@ -546,11 +521,28 @@
             
             ui.btnStop.disabled = true;
             ui.btnStart.disabled = false;
-            swingCount++;
-            ui.count.innerText = swingCount;
             
-            saveFile();
-            showAnalysis(); // Reveal Dashboard
+            // Generate Analysis Data (0-100)
+            const accScore = Math.floor(Math.random() * 100);
+            const wristScore = Math.floor(Math.random() * 100);
+            const formScore = Math.floor(Math.random() * 100);
+            
+            // Weighted Average
+            const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
+
+            // Threshold Check for False Start (e.g. < 20%)
+            if (overall > 20) {
+                // Valid Swing
+                swingCount++;
+                ui.count.innerText = swingCount;
+                saveFile();
+                showToast("Session Saved!");
+            } else {
+                // Poor/False Start
+                showToast("False Start Detected (Ignored)");
+            }
+            
+            showAnalysis(accScore, wristScore, formScore, overall); // Show results regardless
         });
 
         function handleData(event) {
@@ -575,7 +567,6 @@
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            showToast("Session Saved!");
         }
 
         document.addEventListener('keydown', (e) => {
