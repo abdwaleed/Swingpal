@@ -242,15 +242,17 @@
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
+        const MAX_RECORDING_TIME_MS = 10 * 60 * 1000; // 10 minutes max safety
 
         // --- State ---
         let device, server, characteristic;
         let isRecording = false;
         let isConnected = false;
         let wakeLock = null;
-        let csvData = [];
+        let dataBuffer = []; // Efficient Array Storage
         let swingCount = 0;
         let toastTimeout;
+        let safetyTimer;
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- Elements ---
@@ -462,10 +464,11 @@
                 });
                 device.addEventListener('gattserverdisconnected', onDisconnected);
                 server = await device.gatt.connect();
+                
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 characteristic = await service.getCharacteristic(CHAR_UUID);
-                await characteristic.startNotifications();
-                characteristic.addEventListener('characteristicvaluechanged', handleData);
+                // DO NOT Start Notifications yet to save battery
+                
                 setConnectionState('connected', device.name);
                 ui.btnStart.disabled = false;
                 requestWakeLock();
@@ -488,25 +491,61 @@
         // --- Start/Stop Logic ---
         ui.btnStart.addEventListener('click', startSequence);
         
-        function startSequence() {
+        async function startSequence() {
             ui.btnStart.disabled = true;
-            resetAnalysisView(); // Grey out dashboard while recording
+            
+            // 1. Start Stream
+            try {
+                if (characteristic) {
+                    await characteristic.startNotifications();
+                    characteristic.addEventListener('characteristicvaluechanged', handleData);
+                }
+            } catch (e) {
+                console.error("Stream Error", e);
+                showToast("Sensor Error");
+                ui.btnStart.disabled = false;
+                return;
+            }
+
+            // 2. UI Updates
+            resetAnalysisView(); 
+            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
+            ui.countdownOverlay.classList.remove('hidden');
             
             let count = 5;
+            ui.countdownNumber.innerText = count;
+            ui.countdownNumber.classList.remove('animate-number');
+            void ui.countdownNumber.offsetWidth; 
+            ui.countdownNumber.classList.add('animate-number');
+
             const timer = setInterval(() => {
-                ui.statusText.innerText = `Starting in ${count}...`;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
                 count--;
                 if (count < 0) {
                     clearInterval(timer);
+                    ui.countdownOverlay.classList.add('hidden'); 
                     beginRecording();
+                } else {
+                    ui.countdownNumber.innerText = count;
+                    ui.countdownNumber.classList.remove('animate-number');
+                    void ui.countdownNumber.offsetWidth;
+                    ui.countdownNumber.classList.add('animate-number');
                 }
             }, 1000);
         }
 
         function beginRecording() {
-            csvData = [CSV_HEADER]; 
+            dataBuffer = []; // RAM Optimized: clear previous data
             isRecording = true;
+            
+            // Safety Limit (Auto-stop after 10 mins)
+            if (safetyTimer) clearTimeout(safetyTimer);
+            safetyTimer = setTimeout(() => {
+                if (isRecording) {
+                    ui.btnStop.click();
+                    showToast("Auto-stopped (Time Limit)");
+                }
+            }, MAX_RECORDING_TIME_MS);
+
             ui.statusText.innerText = "Recording Data...";
             ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
             ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
@@ -514,58 +553,89 @@
             showToast("Recording Started");
         }
 
-        ui.btnStop.addEventListener('click', () => {
+        ui.btnStop.addEventListener('click', async () => {
             isRecording = false;
+            if (safetyTimer) clearTimeout(safetyTimer);
+
+            // Stop Stream (Battery Save)
+            try {
+                if (characteristic) {
+                    await characteristic.stopNotifications();
+                    characteristic.removeEventListener('characteristicvaluechanged', handleData);
+                }
+            } catch (e) { console.error(e); }
+
             if (isConnected && device) setConnectionState('connected', device.name);
             
             ui.btnStop.disabled = true;
             ui.btnStart.disabled = false;
             
-            // Generate Analysis Data (0-100)
+            // Mock Analysis
             const accScore = Math.floor(Math.random() * 100);
             const wristScore = Math.floor(Math.random() * 100);
             const formScore = Math.floor(Math.random() * 100);
-            
-            // Weighted Average
             const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
 
-            // Threshold Check for False Start (e.g. < 20%)
             if (overall > 20) {
-                // Valid Swing
                 swingCount++;
                 ui.count.innerText = swingCount;
-                saveFile();
+                saveFile(); // Saves and clears memory
                 showToast("Session Saved!");
             } else {
-                // Poor/False Start
                 showToast("False Start Detected (Ignored)");
+                dataBuffer = []; // Clear memory even if ignored
             }
             
-            showAnalysis(accScore, wristScore, formScore, overall); // Show results regardless
+            showAnalysis(accScore, wristScore, formScore, overall); 
         });
 
         function handleData(event) {
+            // RAM Optimization: Store raw values (numbers) instead of massive strings
             const value = event.target.value;
             const decoder = new TextDecoder('utf-8');
             const rawLine = decoder.decode(value).trim();
-            if (isRecording) {
-                const now = new Date();
-                const timeStr = now.toISOString().replace('T', ' ').replace('Z', '');
-                csvData.push(`${timeStr},${rawLine}`);
+            
+            // Only store if valid data
+            if (isRecording && rawLine.length > 0) {
+                // Store simple object or array to keep memory low until save
+                dataBuffer.push({
+                    t: Date.now(), // Timestamp
+                    d: rawLine     // Data
+                });
             }
         }
 
         function saveFile() {
-            const blob = new Blob([csvData.join("\n")], { type: 'text/csv' });
+            if (dataBuffer.length === 0) return;
+
+            // Convert buffer to CSV string just in time
+            let csvContent = CSV_HEADER + "\n";
+            
+            // Efficient string building
+            csvContent += dataBuffer.map(row => {
+                // Convert JS timestamp to ISO string
+                const iso = new Date(row.t).toISOString().replace('T', ' ').replace('Z', '');
+                return `${iso},${row.d}`;
+            }).join("\n");
+
+            // Create Blob
+            const blob = new Blob([csvContent], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
             const fileName = `swingpal_log_${timestamp}.csv`;
+            
             a.href = url;
             a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
+            
+            // MEMORY SAFETY: Revoke URL immediately to free RAM
+            setTimeout(() => {
+                window.URL.revokeObjectURL(url);
+                dataBuffer = []; // Clear the buffer
+            }, 100);
         }
 
         document.addEventListener('keydown', (e) => {
