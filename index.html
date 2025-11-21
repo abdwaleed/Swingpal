@@ -66,12 +66,20 @@
     <main class="w-full max-w-md flex-grow flex flex-col gap-4">
 
         <!-- Analysis Dashboard (Middle Area) -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col justify-center min-h-[380px]">
             
             <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
-            <div class="relative z-30 flex items-center gap-2 mb-6">
-                <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
-                <span class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Swing Analysis</span>
+            <div class="relative z-30 flex items-center justify-between mb-6">
+                <div class="flex items-center gap-2">
+                    <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
+                    <span class="text-xs font-black uppercase tracking-widest text-gray-400 dark:text-gray-500">Swing Analysis</span>
+                </div>
+                
+                <!-- Integrated Session Swings Counter -->
+                <div class="flex items-center gap-1.5 opacity-90">
+                    <span id="record-count" class="text-sm font-bold text-gray-900 dark:text-white">0</span>
+                    <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Swings</span>
+                </div>
             </div>
 
             <!-- 1. GREY OUT OVERLAY (Initial State) -->
@@ -95,28 +103,19 @@
             </div>
 
             <!-- TOP SECTION: DATA & VISUALS -->
-            <div class="flex flex-col gap-6 mb-auto relative z-10">
+            <div class="flex flex-col gap-6 relative z-10">
                 
                 <!-- Header & Overall Score -->
-                <div class="border-b border-gray-100 dark:border-gray-700/50 pb-4">
-                    <!-- Top Row: Title and Swings (INTEGRATED HERE) -->
-                    <div class="flex justify-between items-center mb-2">
-                        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest">Mastery</h2>
-                        <div class="flex items-center gap-1.5">
-                            <span id="record-count" class="text-sm font-bold text-gray-900 dark:text-white">0</span>
-                            <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Swings</span>
-                        </div>
-                    </div>
-                    
-                    <!-- Bottom Row: Score and Badge -->
-                    <div class="flex justify-between items-end">
+                <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                    <div>
+                        <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Mastery Score</h2>
                         <div class="flex items-baseline">
                             <span id="score-overall" class="text-5xl font-black text-gray-900 dark:text-white tracking-tight">--</span>
                             <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                         </div>
-                        <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
-                            PENDING
-                        </div>
+                    </div>
+                    <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
+                        PENDING
                     </div>
                 </div>
 
@@ -150,11 +149,11 @@
                         <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
                     </div>
 
-                    <!-- Form Circle -->
+                    <!-- Form Circle (Fixed Visibility) -->
                     <div class="flex flex-col items-center">
                         <div class="relative w-16 h-16">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
-                                <circle class="text-gray-100 dark:text-gray-700 stroke-width="10" stroke-current" cx="50" cy="50" r="40" fill="transparent"></circle>
+                                <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
@@ -221,10 +220,10 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-colors duration-300 hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
