@@ -66,7 +66,7 @@
     <main class="w-full max-w-md flex-grow flex flex-col gap-4">
 
         <!-- Analysis Dashboard (Middle Area) -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col justify-center min-h-[380px]">
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col justify-start min-h-[380px]">
             
             <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
             <div class="relative z-30 flex items-center justify-between mb-6">
@@ -123,44 +123,44 @@
                 <div class="grid grid-cols-3 gap-2">
                     <!-- Acceleration Circle -->
                     <div class="flex flex-col items-center">
-                        <div class="relative w-16 h-16">
+                        <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="val-acc" class="text-xs font-bold text-gray-400">--</span>
+                                <span id="val-acc" class="text-xl font-bold text-gray-400">--</span>
                             </div>
                         </div>
-                        <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
+                        <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
                     </div>
 
                     <!-- Wrist Circle -->
                     <div class="flex flex-col items-center">
-                        <div class="relative w-16 h-16">
+                        <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="val-wrist" class="text-xs font-bold text-gray-400">--</span>
+                                <span id="val-wrist" class="text-xl font-bold text-gray-400">--</span>
                             </div>
                         </div>
-                        <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
+                        <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
                     </div>
 
-                    <!-- Form Circle (Fixed Visibility) -->
+                    <!-- Form Circle -->
                     <div class="flex flex-col items-center">
-                        <div class="relative w-16 h-16">
+                        <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
                             <div class="absolute inset-0 flex items-center justify-center">
-                                <span id="val-form" class="text-xs font-bold text-gray-400">--</span>
+                                <span id="val-form" class="text-xl font-bold text-gray-400">--</span>
                             </div>
                         </div>
-                        <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
+                        <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
                     </div>
                 </div>
             </div>
@@ -389,10 +389,10 @@
             textEl.innerText = `${score}%`;
             
             // Update Text Color
-            if (score >= 90) textEl.className = "text-xs font-bold text-emerald-600 dark:text-emerald-400";
-            else if (score >= 70) textEl.className = "text-xs font-bold text-yellow-600 dark:text-yellow-400";
-            else if (score >= 50) textEl.className = "text-xs font-bold text-orange-600 dark:text-orange-400";
-            else textEl.className = "text-xs font-bold text-red-600 dark:text-red-400";
+            if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400";
+            else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400";
+            else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400";
+            else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
         }
 
         function resetAnalysisView() {
