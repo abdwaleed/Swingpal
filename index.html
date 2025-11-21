@@ -245,20 +245,16 @@
         </div>
 
     </main>
-
-    <!-- Toast -->
-    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
-        <span id="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>
-        <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
-    </div>
-
-    <!-- HELP MODAL -->
-    <div id="help-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4">
-        <!-- Backdrop -->
-        <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity"></div>
+    <!-- HELP MODAL (Updated for Smooth Transitions) -->
+    <!-- Base state: opacity-0, pointer-events-none (Hidden but animatable) -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 ease-out">
         
-        <!-- Content Card -->
-        <div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all scale-100 border border-gray-100 dark:border-gray-800">
+        <!-- Backdrop -->
+        <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        
+        <!-- Content Card (Added ID for scale animation) -->
+        <!-- Base state: scale-95 (Zoomed out slightly) -->
+        <div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800">
             
             <!-- Header -->
             <div class="flex justify-between items-center mb-4">
@@ -350,8 +346,9 @@
             toast: document.getElementById('toast'),
             toastMessage: document.getElementById('toast-message'),
 
-            // Help Modal
+            // Help Modal (Updated Elements)
             helpModal: document.getElementById('help-modal'),
+            helpCard: document.getElementById('help-card'), // Added for scale animation
             helpContent: document.getElementById('help-content'),
             helpBackdrop: document.getElementById('help-backdrop'),
             btnCloseHelp: document.getElementById('btn-close-help'),
@@ -369,58 +366,61 @@
             }
         });
 
-        // --- HELP MODAL LOGIC ---
+        // --- HELP MODAL LOGIC (Updated for Transitions) ---
         function openHelp() {
             // Detect Platform
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
-            let icon = "";
 
-            // Simple detection
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
             const isAndroid = /android/i.test(ua);
             const isMac = /Macintosh/i.test(ua);
             const isWindows = /Windows/i.test(ua);
 
+            // Matches button labels "Tap to Connect" and "Start"
             if (isIOS) {
                 content = `
-                    <p class="font-bold text-blue-600 dark:text-blue-400">📱 You are on iOS</p>
-                    <p><strong>Critical:</strong> Safari and Chrome on iOS <span class="text-red-500">do not</span> support Bluetooth.</p>
+                    <p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p>
+                    <p>Safari does not support Bluetooth. You must:</p>
                     <ol class="list-decimal pl-5 space-y-2 mt-2">
-                        <li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li>
-                        <li>Open this website inside Bluefy.</li>
-                        <li>Tap "Connect" to find your sensor.</li>
+                        <li>Download the free <strong>"Bluefy"</strong> browser app.</li>
+                        <li>Open this page inside Bluefy.</li>
+                        <li>Tap the <strong>"Tap to Connect"</strong> card below.</li>
                     </ol>
                 `;
             } else if (isAndroid) {
                 content = `
-                    <p class="font-bold text-green-600 dark:text-green-400">🤖 You are on Android</p>
+                    <p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p>
                     <ul class="list-disc pl-5 space-y-2">
-                        <li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li>
-                        <li>Ensure <strong>Bluetooth</strong> and <strong>Location Services</strong> are enabled in your Quick Settings (Android requirement).</li>
-                    </ul>
-                `;
-            } else if (isMac || isWindows) {
-                content = `
-                    <p class="font-bold text-purple-600 dark:text-purple-400">💻 You are on Desktop</p>
-                    <ul class="list-disc pl-5 space-y-2">
-                        <li>Use <strong>Google Chrome</strong>, <strong>Edge</strong>, or <strong>Opera</strong>.</li>
-                        <li>Ensure your computer has Bluetooth hardware.</li>
-                        <li>Click "Connect" and select your device from the popup list.</li>
+                        <li>Use <strong>Chrome</strong> or <strong>Samsung Internet</strong>.</li>
+                        <li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li>
+                        <li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li>
                     </ul>
                 `;
             } else {
-                content = `<p>Please use a device with Bluetooth 4.0+ support and the Google Chrome browser.</p>`;
+                content = `
+                    <p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Use <strong>Chrome</strong> or <strong>Edge</strong>.</li>
+                        <li>Click the <strong>"Tap to Connect"</strong> card.</li>
+                        <li>Select your sensor from the popup list.</li>
+                    </ul>
+                `;
             }
 
             ui.helpContent.innerHTML = content;
-            ui.helpModal.classList.remove('hidden');
-            ui.helpModal.classList.add('flex');
+            
+            // ANIMATION: Open
+            ui.helpModal.classList.remove('opacity-0', 'pointer-events-none');
+            ui.helpCard.classList.remove('scale-95');
+            ui.helpCard.classList.add('scale-100');
         }
 
         function closeHelp() {
-            ui.helpModal.classList.add('hidden');
-            ui.helpModal.classList.remove('flex');
+            // ANIMATION: Close
+            ui.helpModal.classList.add('opacity-0', 'pointer-events-none');
+            ui.helpCard.classList.remove('scale-100');
+            ui.helpCard.classList.add('scale-95');
         }
 
         ui.btnHelp.addEventListener('click', openHelp);
