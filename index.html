@@ -522,6 +522,13 @@
                 return;
             }
 
+            // 2. Check if Bluetooth Adapter is Available/Enabled
+            const isAvailable = await navigator.bluetooth.getAvailability();
+            if (!isAvailable) {
+                showToast("Bluetooth is off or no adapter found.");
+                return;
+            }
+
             try {
                 setConnectionState('connecting');
                 device = await navigator.bluetooth.requestDevice({
