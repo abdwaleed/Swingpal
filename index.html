@@ -21,7 +21,7 @@
             }
         }
 
-        // Initialize theme based on system preference or local storage
+        // Initialize theme
         if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
             document.documentElement.classList.add('dark');
         } else {
@@ -30,25 +30,21 @@
     </script>
     <style>
         body { font-family: 'Inter', sans-serif; }
-        
-        /* Custom Scrollbar for Log */
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: #9ca3af; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        /* Smooth rotation for the circle fill */
+        .circle-progress { transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 min-h-screen flex flex-col items-center p-6 font-sans transition-colors duration-300 relative overflow-hidden">
 
-    <!-- Header / Title Section -->
-    <header class="w-full max-w-md mb-8 flex justify-between items-end">
+    <!-- Header -->
+    <header class="w-full max-w-md mb-2 flex justify-between items-end">
         <div>
-            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white">SwingPal</h1>
+            <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
         </div>
         
         <!-- Theme Toggle -->
-        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
+        <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] hover:shadow-md transition-all focus:outline-none ring-1 ring-transparent dark:ring-gray-700">
             <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
             </svg>
@@ -58,71 +54,152 @@
         </button>
     </header>
 
-    <!-- Main Controls -->
-    <main class="w-full max-w-md flex-grow flex flex-col gap-5">
+    <!-- Main Content Area -->
+    <main class="w-full max-w-md flex-grow flex flex-col gap-4">
 
-        <!-- FUSED CONNECTION CARD -->
-        <!-- This acts as both the Connect Button AND the Status Display -->
-        <button id="connection-trigger" class="group w-full relative overflow-hidden rounded-2xl bg-white dark:bg-gray-800 shadow-sm border border-gray-200 dark:border-gray-700 p-1.5 transition-all duration-300 hover:shadow-md active:scale-[0.98] text-left outline-none focus:ring-2 focus:ring-blue-500/50">
+        <!-- Swing Counter (Moved to Top) -->
+        <div class="flex justify-center py-2">
+            <div class="flex items-baseline gap-2 opacity-80 hover:opacity-100 transition-opacity bg-white dark:bg-gray-800 px-4 py-2 rounded-full shadow-sm dark:shadow-[0_4px_10px_rgba(0,0,0,0.4)] border border-gray-100 dark:border-gray-700">
+                <span class="text-[10px] font-bold tracking-widest text-gray-500 dark:text-gray-400 uppercase">Total Swings</span>
+                <span id="record-count" class="text-xl font-black text-gray-900 dark:text-white leading-none">0</span>
+            </div>
+        </div>
+
+        <!-- Analysis Dashboard (Middle Area) -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col justify-center min-h-[300px]">
             
-            <div class="relative flex items-center justify-between p-3">
-                <!-- Left: Icon & Main Text -->
-                <div class="flex items-center gap-4">
-                    <!-- Icon Container -->
-                    <div id="connection-icon-bg" class="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500">
-                        <!-- Bluetooth Icon -->
-                        <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 transition-transform duration-300 group-hover:scale-110" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                        </svg>
-                        <!-- Checkmark Icon (Hidden by default) -->
-                        <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                        </svg>
-                    </div>
-                    
-                    <div class="flex flex-col justify-center">
-                        <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
-                        <div id="status-text" class="text-lg font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
-                        <div id="device-name" class="text-xs text-gray-500 dark:text-gray-400 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
+            <!-- GREY OUT OVERLAY -->
+            <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Complete a swing to unlock insights</p>
+                <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
+            </div>
+
+            <!-- Header & Overall Score -->
+            <div class="flex justify-between items-start mb-8 border-b border-gray-100 dark:border-gray-700/50 pb-4">
+                <div>
+                    <h2 class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-1">Forehand Match</h2>
+                    <div class="flex items-baseline">
+                        <span id="score-overall" class="text-5xl font-black text-gray-900 dark:text-white tracking-tight">--</span>
+                        <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                     </div>
                 </div>
-
-                <!-- Right: Status Dot -->
-                <div class="flex items-center pr-2">
-                     <span id="status-indicator" class="h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300 shadow-inner"></span>
+                <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
+                    PENDING
                 </div>
             </div>
-        </button>
 
-        <!-- Data Preview -->
-        <div class="bg-white dark:bg-gray-800 rounded-2xl p-5 shadow-sm border border-gray-200 dark:border-gray-700 flex-grow flex flex-col min-h-[200px] transition-colors duration-300">
-            <div class="flex justify-between items-center mb-3">
-                <span class="text-gray-500 dark:text-gray-400 text-xs font-semibold uppercase tracking-wider">Live Feed</span>
-                <span id="record-count" class="text-xs bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-md text-gray-600 dark:text-gray-300 font-medium">0 swings</span>
-            </div>
-            <div id="log-container" class="bg-gray-50 dark:bg-gray-900 rounded-xl p-3 font-mono text-xs text-gray-600 dark:text-green-400 overflow-y-auto flex-grow h-0 transition-colors duration-300 border border-gray-100 dark:border-gray-700/50">
-                <div class="text-gray-400 dark:text-gray-500 italic p-2 text-center mt-10">Waiting for connection...</div>
-            </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div class="grid grid-cols-1 gap-3 mt-auto">
-            <div class="grid grid-cols-2 gap-3">
-                <!-- Start Button (Solid Green, No Icon) -->
-                <button id="btn-start" disabled class="group w-full rounded-2xl bg-emerald-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-emerald-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 dark:disabled:text-gray-500 outline-none focus:ring-2 focus:ring-emerald-500/50">
-                    <div class="font-bold text-lg text-center">Start</div>
-                </button>
+            <!-- CIRCULAR BENCHMARKS -->
+            <div class="grid grid-cols-3 gap-2">
                 
-                <!-- Stop Button (Solid Red, No Icon) -->
-                <button id="btn-stop" disabled class="group w-full rounded-2xl bg-rose-600 text-white shadow-sm border border-transparent p-4 transition-all duration-300 hover:bg-rose-500 hover:shadow-md active:scale-[0.98] disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed dark:disabled:bg-gray-700 dark:disabled:text-gray-500 outline-none focus:ring-2 focus:ring-rose-500/50">
-                    <div class="font-bold text-lg text-center">Stop</div>
+                <!-- Acceleration Circle -->
+                <div class="flex flex-col items-center">
+                    <div class="relative w-20 h-20">
+                        <!-- SVG Ring -->
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <!-- Background Circle -->
+                            <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                            <!-- Progress Circle -->
+                            <circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                        </svg>
+                        <!-- Center Text -->
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="val-acc" class="text-sm font-bold text-gray-400">--</span>
+                        </div>
+                    </div>
+                    <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
+                </div>
+
+                <!-- Wrist Circle -->
+                <div class="flex flex-col items-center">
+                    <div class="relative w-20 h-20">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                            <circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="val-wrist" class="text-sm font-bold text-gray-400">--</span>
+                        </div>
+                    </div>
+                    <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
+                </div>
+
+                <!-- Form Circle -->
+                <div class="flex flex-col items-center">
+                    <div class="relative w-20 h-20">
+                        <svg class="w-full h-full" viewBox="0 0 100 100">
+                            <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="8" cx="50" cy="50" r="40" fill="transparent"></circle>
+                            <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="8" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
+                        </svg>
+                        <div class="absolute inset-0 flex items-center justify-center">
+                            <span id="val-form" class="text-sm font-bold text-gray-400">--</span>
+                        </div>
+                    </div>
+                    <span class="mt-2 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- UNIFIED COMMAND CENTER (Bottom) -->
+        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
+            
+            <!-- Top Half: Connection Trigger -->
+            <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-2 focus:ring-inset focus:ring-blue-500/50 z-10">
+                <div class="flex items-center justify-between p-3">
+                    <div class="flex items-center gap-4">
+                        <!-- Icon -->
+                        <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:bg-blue-500 group-hover:scale-105">
+                            <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
+                        </div>
+                        <!-- Text -->
+                        <div class="flex flex-col justify-center">
+                            <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
+                            <div id="status-text" class="text-sm font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
+                            <div id="device-name" class="text-[10px] text-gray-500 dark:text-gray-400 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
+                        </div>
+                    </div>
+                    <!-- Status Dot -->
+                    <div class="flex items-center pr-2">
+                         <span id="status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span>
+                    </div>
+                </div>
+            </button>
+
+            <!-- Divider -->
+            <div class="h-px w-full bg-gray-100 dark:bg-gray-700"></div>
+
+            <!-- Bottom Half: Action Buttons -->
+            <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
+                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 hover:shadow-md hover:bg-emerald-500 disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/50 relative overflow-hidden">
+                    <div class="font-bold text-lg text-center relative z-10">Start</div>
+                </button>
+                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 transition-all duration-300 hover:shadow-md hover:bg-rose-500 disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-2 focus:ring-rose-500/50 relative overflow-hidden">
+                    <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
         </div>
+
     </main>
 
+    <!-- Toast -->
+    <div id="toast" class="fixed bottom-8 left-1/2 transform -translate-x-1/2 translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 min-w-[200px] justify-center pointer-events-none">
+        <span id="toast-icon"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg></span>
+        <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
+    </div>
+
     <script>
-        // --- Configuration ---
+        // --- Config ---
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
@@ -134,9 +211,10 @@
         let wakeLock = null;
         let csvData = [];
         let swingCount = 0;
+        let toastTimeout;
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
-        // --- DOM Elements ---
+        // --- Elements ---
         const ui = {
             connectTrigger: document.getElementById('connection-trigger'),
             iconBg: document.getElementById('connection-icon-bg'),
@@ -145,16 +223,35 @@
             statusText: document.getElementById('status-text'),
             deviceName: document.getElementById('device-name'),
             statusIndicator: document.getElementById('status-indicator'),
-            
             btnStart: document.getElementById('btn-start'),
             btnStop: document.getElementById('btn-stop'),
-            log: document.getElementById('log-container'),
             count: document.getElementById('record-count'),
             btnTheme: document.getElementById('btn-theme'),
-            html: document.documentElement
+            html: document.documentElement,
+            
+            // Dashboard Overlay
+            analysisOverlay: document.getElementById('analysis-overlay'),
+            
+            // Analysis UI
+            scoreOverall: document.getElementById('score-overall'),
+            scoreBadge: document.getElementById('score-badge'),
+            
+            // Circles (SVG + Text)
+            circleAcc: document.getElementById('circle-acc'),
+            valAcc: document.getElementById('val-acc'),
+            
+            circleWrist: document.getElementById('circle-wrist'),
+            valWrist: document.getElementById('val-wrist'),
+            
+            circleForm: document.getElementById('circle-form'),
+            valForm: document.getElementById('val-form'),
+
+            // Toast
+            toast: document.getElementById('toast'),
+            toastMessage: document.getElementById('toast-message')
         };
 
-        // --- Theme Toggle ---
+        // --- Theme ---
         ui.btnTheme.addEventListener('click', () => {
             if (ui.html.classList.contains('dark')) {
                 ui.html.classList.remove('dark');
@@ -165,55 +262,125 @@
             }
         });
 
-        // --- Utility Functions ---
+        // --- Analysis Logic (Colors & Mock Data) ---
+        function getScoreColor(score) {
+            if (score >= 90) return 'text-emerald-500'; // Excellent
+            if (score >= 70) return 'text-yellow-400';  // Good
+            if (score >= 50) return 'text-orange-500';  // Average
+            return 'text-red-500';                      // Poor
+        }
+
+        function getBadgeInfo(score) {
+            if (score >= 90) return { text: 'EXCELLENT', bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' };
+            if (score >= 70) return { text: 'GOOD', bg: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400' };
+            if (score >= 50) return { text: 'AVERAGE', bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400' };
+            return { text: 'POOR', bg: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' };
+        }
+
+        function showAnalysis() {
+            // 1. Hide Overlay
+            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
+
+            // 2. Generate Mock Data (Replace with ML logic)
+            const accScore = Math.floor(Math.random() * (99 - 50) + 50);
+            const wristScore = Math.floor(Math.random() * (99 - 50) + 50);
+            const formScore = Math.floor(Math.random() * (99 - 50) + 50);
+            
+            // Weighted Average
+            const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
+
+            // 3. Update Overall Score
+            ui.scoreOverall.innerText = overall;
+            const badge = getBadgeInfo(overall);
+            ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
+            ui.scoreBadge.innerText = badge.text;
+
+            // 4. Reset circles for animation
+            resetCircle(ui.circleAcc);
+            resetCircle(ui.circleWrist);
+            resetCircle(ui.circleForm);
+
+            // 5. Animate Circles
+            setTimeout(() => {
+                updateCircle(ui.circleAcc, ui.valAcc, accScore);
+                updateCircle(ui.circleWrist, ui.valWrist, wristScore);
+                updateCircle(ui.circleForm, ui.valForm, formScore);
+            }, 100);
+        }
+
+        function resetCircle(circle) {
+            circle.style.strokeDashoffset = 251.2; // Full circumference
+            circle.setAttribute('class', 'text-gray-300 dark:text-gray-600 stroke-current circle-progress');
+        }
+
+        function updateCircle(circle, textEl, score) {
+            const circumference = 251.2;
+            const offset = circumference - (score / 100) * circumference;
+            const colorClass = getScoreColor(score);
+            
+            // Apply color
+            circle.setAttribute('class', `${colorClass} stroke-current circle-progress`);
+            
+            // Animate Fill
+            circle.style.strokeDashoffset = offset;
+            
+            // Update Text
+            textEl.innerText = `${score}%`;
+            
+            // Update Text Color
+            if (score >= 90) textEl.className = "text-sm font-bold text-emerald-600 dark:text-emerald-400";
+            else if (score >= 70) textEl.className = "text-sm font-bold text-yellow-600 dark:text-yellow-400";
+            else if (score >= 50) textEl.className = "text-sm font-bold text-orange-600 dark:text-orange-400";
+            else textEl.className = "text-sm font-bold text-red-600 dark:text-red-400";
+        }
+
+        function resetAnalysisView() {
+            // Show Overlay (Grey out)
+            ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        // --- Toast ---
+        function showToast(message) {
+            if (toastTimeout) clearTimeout(toastTimeout);
+            ui.toastMessage.innerText = message;
+            ui.toast.classList.remove('translate-y-20', 'opacity-0');
+            toastTimeout = setTimeout(() => {
+                ui.toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // --- Connection Logic ---
         function setConnectionState(state, message = "") {
             if (state === 'disconnected') {
                 ui.connectTrigger.disabled = false;
-                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
                 ui.btIcon.classList.remove('hidden');
                 ui.checkIcon.classList.add('hidden');
                 ui.statusText.innerText = "Tap to Connect";
                 ui.deviceName.style.height = "0px";
-                ui.deviceName.style.marginTop = "0px";
                 ui.deviceName.style.opacity = "0";
-                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300";
+                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300";
                 isConnected = false;
             } 
             else if (state === 'connecting') {
                 ui.connectTrigger.disabled = true;
-                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
                 ui.statusText.innerText = "Searching...";
-                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-yellow-400 animate-pulse";
+                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
             } 
             else if (state === 'connected') {
-                ui.connectTrigger.disabled = true; // Prevent re-clicking
-                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
+                ui.connectTrigger.disabled = true;
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
                 ui.btIcon.classList.add('hidden');
                 ui.checkIcon.classList.remove('hidden');
-                
                 ui.statusText.innerText = "Sensor Ready";
                 ui.deviceName.innerText = `Connected to: ${message}`;
-                // Animate device name appearance
                 ui.deviceName.style.height = "auto";
-                ui.deviceName.style.marginTop = "2px";
                 ui.deviceName.style.opacity = "1";
-                
-                ui.statusIndicator.className = "h-3 w-3 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
+                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
+                showToast("Connected successfully!");
                 isConnected = true;
             }
-        }
-
-        function logLine(text) {
-            // Remove placeholder if it exists
-            if (ui.log.children.length === 1 && ui.log.children[0].classList.contains('text-center')) {
-                ui.log.innerHTML = '';
-            }
-
-            const div = document.createElement('div');
-            div.innerText = text;
-            div.className = "mb-1.5 border-b border-gray-200 dark:border-gray-800 pb-1.5 last:border-0 leading-relaxed";
-            ui.log.insertBefore(div, ui.log.firstChild);
-            if (ui.log.children.length > 50) ui.log.lastChild.remove();
         }
 
         async function requestWakeLock() {
@@ -221,49 +388,30 @@
                 if ('wakeLock' in navigator) {
                     wakeLock = await navigator.wakeLock.request('screen');
                 }
-            } catch (err) {
-                console.log("Wake Lock error:", err);
-            }
+            } catch (err) { console.log(err); }
         }
 
-        // --- Bluetooth Logic ---
         ui.connectTrigger.addEventListener('click', async () => {
-            if (isConnected) return; // Should not happen due to disabled attr, but safety check
-
+            if (isConnected) return;
             try {
                 setConnectionState('connecting');
-                
                 device = await navigator.bluetooth.requestDevice({
                     filters: [{ name: DEVICE_NAME_PREFIX }],
                     optionalServices: [SERVICE_UUID]
                 });
-
-                logLine(`Found device: ${device.name}`);
-                
                 device.addEventListener('gattserverdisconnected', onDisconnected);
-
                 server = await device.gatt.connect();
                 const service = await server.getPrimaryService(SERVICE_UUID);
                 characteristic = await service.getCharacteristic(CHAR_UUID);
-
                 await characteristic.startNotifications();
                 characteristic.addEventListener('characteristicvaluechanged', handleData);
-
                 setConnectionState('connected', device.name);
-                
                 ui.btnStart.disabled = false;
-                ui.log.innerHTML = "";
-                logLine("✓ Connection established. Ready to record.");
-                
                 requestWakeLock();
-
             } catch (error) {
                 console.error(error);
                 setConnectionState('disconnected');
-                // Only alert if it wasn't a user cancellation
-                if (!error.message.includes("User cancelled")) {
-                    alert("Could not connect: " + error.message);
-                }
+                if (!error.message.includes("User cancelled")) alert("Error: " + error.message);
             }
         });
 
@@ -272,24 +420,22 @@
             ui.btnStart.disabled = true;
             ui.btnStop.disabled = true;
             isRecording = false;
-            logLine("! Sensor disconnected.");
+            showToast("Sensor Disconnected");
             if (wakeLock) wakeLock.release();
         }
 
-        // --- Recording Logic ---
+        // --- Start/Stop Logic ---
         ui.btnStart.addEventListener('click', startSequence);
         
         function startSequence() {
             ui.btnStart.disabled = true;
-            let count = 5;
+            resetAnalysisView(); // Grey out dashboard while recording
             
-            logLine(`Preparing to record in 5 seconds...`);
-
+            let count = 5;
             const timer = setInterval(() => {
                 ui.statusText.innerText = `Starting in ${count}...`;
-                ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-purple-500 text-white animate-pulse";
                 count--;
-
                 if (count < 0) {
                     clearInterval(timer);
                     beginRecording();
@@ -300,50 +446,34 @@
         function beginRecording() {
             csvData = [CSV_HEADER]; 
             isRecording = true;
-            
-            // Update UI for recording state
             ui.statusText.innerText = "Recording Data...";
-            ui.iconBg.className = "flex h-12 w-12 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce"; // Bouncing icon
-            ui.statusIndicator.className = "h-3 w-3 rounded-full bg-rose-600 animate-pulse";
-            
+            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
+            ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false;
-            ui.log.innerHTML = ""; 
-            logLine("● Recording started. Listening for data...");
+            showToast("Recording Started");
         }
 
-        // --- Stop & Save Logic ---
         ui.btnStop.addEventListener('click', () => {
             isRecording = false;
+            if (isConnected && device) setConnectionState('connected', device.name);
             
-            // Reset UI to connected state
-            if (isConnected && device) {
-                setConnectionState('connected', device.name);
-            }
-
             ui.btnStop.disabled = true;
             ui.btnStart.disabled = false;
-
-            // Increment Swing Count
             swingCount++;
-            ui.count.innerText = `${swingCount} swings`;
-
+            ui.count.innerText = swingCount;
+            
             saveFile();
+            showAnalysis(); // Reveal Dashboard
         });
 
         function handleData(event) {
             const value = event.target.value;
             const decoder = new TextDecoder('utf-8');
             const rawLine = decoder.decode(value).trim();
-
             if (isRecording) {
                 const now = new Date();
                 const timeStr = now.toISOString().replace('T', ' ').replace('Z', '');
-                
-                const dataLine = `${timeStr},${rawLine}`;
-                csvData.push(dataLine);
-                
-                // Removed line count update to keep UI clean
-                // Removed logLine(rawLine) to keep feed clean
+                csvData.push(`${timeStr},${rawLine}`);
             }
         }
 
@@ -351,26 +481,20 @@
             const blob = new Blob([csvData.join("\n")], { type: 'text/csv' });
             const url = window.URL.createObjectURL(blob);
             const a = document.createElement('a');
-            
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
             const fileName = `swingpal_log_${timestamp}.csv`;
-            
             a.href = url;
             a.download = fileName;
             document.body.appendChild(a);
             a.click();
             document.body.removeChild(a);
-            
-            // Natural language message with "path" context
-            logLine(`✓ Session saved as "${fileName}". Check your Downloads folder.`);
+            showToast("Session Saved!");
         }
 
-        // --- Keyboard Support ---
         document.addEventListener('keydown', (e) => {
             if (e.key === 's' && !ui.btnStart.disabled) startSequence();
             if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click();
         });
-
     </script>
 </body>
 </html>
