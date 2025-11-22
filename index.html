@@ -93,11 +93,10 @@
     </header>
 
     <!-- Main Scrollable Area -->
-    <!-- Added pb-48 to allow content to scroll ABOVE the fixed bottom buttons -->
-    <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 px-6 pb-48">
+    <!-- Added pt-6 to fix the dashboard sticking to the header line -->
+    <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 px-6 pb-48 pt-6">
 
         <!-- Analysis Dashboard -->
-        <!-- Removed flex-grow, added h-auto so it sizes to content -->
         <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden h-auto">
             
             <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
@@ -261,10 +260,10 @@
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
