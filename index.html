@@ -264,8 +264,9 @@
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
 
-    <!-- HELP MODAL (Updated for Smooth Transitions) -->
-    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300 ease-out">
+    <!-- HELP MODAL (Updated for Bug Fix) -->
+    <!-- Added 'invisible' to default state to prevent ghost artifacts -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out">
         <div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
         <div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800">
             <div class="flex justify-between items-center mb-4">
@@ -353,12 +354,13 @@
             }
         });
 
-        // --- HELP MODAL LOGIC ---
+        // --- HELP MODAL LOGIC (Fixed) ---
         function openHelp() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
             const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
             const isAndroid = /android/i.test(ua);
+            
             if (isIOS) {
                 content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p>Safari does not support Bluetooth. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> browser app.</li><li>Open this page inside Bluefy.</li><li>Tap the <strong>"Tap to Connect"</strong> card below.</li></ol>`;
             } else if (isAndroid) {
@@ -366,16 +368,29 @@
             } else {
                 content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li><li>Select your sensor from the popup list.</li></ul>`;
             }
+
             ui.helpContent.innerHTML = content;
-            ui.helpModal.classList.remove('opacity-0', 'pointer-events-none');
-            ui.helpCard.classList.remove('scale-95');
-            ui.helpCard.classList.add('scale-100');
+            
+            // OPEN: Remove invisible first, then animate opacity
+            ui.helpModal.classList.remove('invisible', 'pointer-events-none');
+            // Small timeout to allow browser to register 'display: block' before fading in
+            setTimeout(() => {
+                ui.helpModal.classList.remove('opacity-0');
+                ui.helpCard.classList.remove('scale-95');
+                ui.helpCard.classList.add('scale-100');
+            }, 10);
         }
 
         function closeHelp() {
+            // CLOSE: Animate out first
             ui.helpModal.classList.add('opacity-0', 'pointer-events-none');
             ui.helpCard.classList.remove('scale-100');
             ui.helpCard.classList.add('scale-95');
+
+            // WAIT: Add invisible after animation completes (300ms)
+            setTimeout(() => {
+                ui.helpModal.classList.add('invisible');
+            }, 300);
         }
 
         ui.btnHelp.addEventListener('click', openHelp);
