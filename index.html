@@ -58,21 +58,15 @@
             transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1);
         }
         
-        /* Safe Area for Fixed Bottom Elements */
+        /* Safe Area for Bottom Elements */
         .safe-bottom {
             padding-bottom: env(safe-area-inset-bottom);
-            margin-bottom: env(safe-area-inset-bottom);
-        }
-
-        /* Force rubber-band scrolling on iOS even for short content */
-        .force-scroll-bounce {
-            min-height: calc(100% + 1px);
         }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center font-sans transition-colors duration-300 overflow-hidden">
 
-    <!-- Header -->
+    <!-- Header (Fixed Height) -->
     <header class="w-full max-w-md pt-6 px-6 pb-4 border-b border-gray-200/60 dark:border-gray-800 flex-shrink-0 bg-gray-50 dark:bg-gray-900 z-20">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
@@ -103,32 +97,29 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
     </header>
 
-    <!-- Main Flex Area (Replaces scrollable main) -->
-    <main class="w-full max-w-md flex-1 flex flex-col gap-4 px-6 pb-24 pt-6 overflow-hidden">
+    <!-- Main Content Area (Flex Grow - Fills space between Header and Command Center) -->
+    <main class="w-full max-w-md flex-1 flex flex-col min-h-0 px-6 gap-6">
 
-        <!-- Analysis Dashboard (Constrained to Flex space) -->
-        <!-- Added flex-col, max-h-full, and relative -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col max-h-full overflow-hidden">
+        <!-- Analysis Dashboard (Flex Container) -->
+        <!-- flex-1 ensures it takes up all available space. overflow-hidden contains the inner scroll. -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col flex-1 min-h-0 overflow-hidden">
             
-            <!-- FIXED HEADER SECTION -->
+            <!-- Fixed Dashboard Header -->
             <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-gray-800">
                 <div class="flex items-center gap-2">
                     <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
                     <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Swing Analysis</span>
                 </div>
-                
                 <div class="flex items-center gap-1.5 opacity-90">
                     <span id="record-count" class="text-sm font-bold text-gray-900 dark:text-white">0</span>
                     <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Swings</span>
                 </div>
             </div>
 
-            <!-- SCROLLABLE CONTENT SECTION -->
-            <!-- This wrapper handles the scrolling for the contents only -->
-            <div class="overflow-y-auto overscroll-y-auto no-scrollbar flex-1 px-6 pb-6 relative z-10">
+            <!-- Scrollable Content Area (Circles + Feedback) -->
+            <div class="flex-1 overflow-y-auto overscroll-y-auto no-scrollbar px-6 pb-6 relative z-10">
                 
-                <!-- GREY OUT OVERLAY (Inside Scroll Area but covering it) -->
-                <!-- Absolute positioning relative to Dashboard parent works, but z-index ensures cover -->
+                <!-- GREY OUT OVERLAY -->
                 <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
                     <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -163,50 +154,42 @@
 
                     <!-- CIRCULAR BENCHMARKS GRID -->
                     <div class="grid grid-cols-3 gap-2">
-                        <!-- Acceleration Circle -->
+                        <!-- Acceleration -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
                                 <svg class="w-full h-full" viewBox="0 0 100 100">
                                     <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                     <circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                                 </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span id="val-acc" class="text-xl font-bold text-gray-400">--</span>
-                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center"><span id="val-acc" class="text-xl font-bold text-gray-400">--</span></div>
                             </div>
                             <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
                         </div>
-
-                        <!-- Wrist Circle -->
+                        <!-- Wrist -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
                                 <svg class="w-full h-full" viewBox="0 0 100 100">
                                     <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                     <circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                                 </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span id="val-wrist" class="text-xl font-bold text-gray-400">--</span>
-                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center"><span id="val-wrist" class="text-xl font-bold text-gray-400">--</span></div>
                             </div>
                             <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
                         </div>
-
-                        <!-- Form Circle -->
+                        <!-- Form -->
                         <div class="flex flex-col items-center">
                             <div class="relative w-24 h-24">
                                 <svg class="w-full h-full" viewBox="0 0 100 100">
                                     <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                     <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                                 </svg>
-                                <div class="absolute inset-0 flex items-center justify-center">
-                                    <span id="val-form" class="text-xl font-bold text-gray-400">--</span>
-                                </div>
+                                <div class="absolute inset-0 flex items-center justify-center"><span id="val-form" class="text-xl font-bold text-gray-400">--</span></div>
                             </div>
                             <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
                         </div>
                     </div>
 
-                    <!-- BOTTOM SECTION: TEXTUAL FEEDBACK -->
+                    <!-- TEXTUAL FEEDBACK -->
                     <div class="mt-4">
                         <div id="feedback-container" class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 transition-all duration-500">
                             <div class="flex items-center gap-2 mb-2 opacity-90">
@@ -222,18 +205,16 @@
                             </p>
                         </div>
                     </div>
-                    
-                    <!-- Spacer to ensure bottom content is visible if scrolled -->
-                    <div class="h-4"></div>
-
-                </div> <!-- End Inner Content Flex -->
-            </div> <!-- End Scrollable Content Wrapper -->
+                </div> 
+            </div> 
 
         </div>
     </main>
 
-    <!-- UNIFIED COMMAND CENTER (Fixed Bottom) -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40 safe-bottom">
+    <!-- UNIFIED COMMAND CENTER (Flow Bottom) -->
+    <!-- Removed 'mt-auto' and 'fixed' classes. It now sits naturally in the flex column below Main -->
+    <!-- Added mb-6 and mx-6 to match padding -->
+    <div class="w-full max-w-md flex-shrink-0 px-6 pb-6 safe-bottom z-40">
         <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
             
             <!-- Top Half: Connection Trigger -->
@@ -276,7 +257,7 @@
     </div>
 
     <!-- Toast -->
-    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-auto border border-white/10 touch-none">
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-auto border border-white/10 touch-none cursor-pointer">
         <span id="toast-icon"></span>
         <span id="toast-message" class="text-sm font-semibold tracking-wide flex-grow text-center">Notification</span>
         <button id="btn-close-toast" class="ml-1 p-1 rounded-full hover:bg-white/20 dark:hover:bg-black/10 transition-colors">
@@ -342,7 +323,6 @@
                 modal.classList.add('flex');
             }
             
-            // Add touch listeners to interactive elements
             const handlePress = (el) => el.classList.add('is-pressed');
             const handleRelease = (el) => el.classList.remove('is-pressed');
 
@@ -370,6 +350,7 @@
         let wakeLock = null;
         let currentChunk = []; 
         let chunkBlobs = [];   
+        let pendingDownloadUrl = null; // Store URL for manual download
         let swingCount = 0;
         let toastTimeout;
         let safetyTimer;
@@ -434,7 +415,6 @@
         function openHelp() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
-
             const isiPhone = /iPhone|iPod/.test(ua) && !window.MSStream;
             const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
             const isIOS = isiPhone || isIPad;
@@ -471,9 +451,7 @@
                     </ul>
                 `;
             }
-
             ui.helpContent.innerHTML = content;
-            
             ui.helpModal.classList.remove('invisible', 'pointer-events-none');
             setTimeout(() => {
                 ui.helpModal.classList.remove('opacity-0');
@@ -585,6 +563,33 @@
             touchEndY = e.changedTouches[0].screenY;
             handleSwipe();
         }, {passive: true});
+        
+        // Added Click Listener for Manual Download
+        ui.toast.addEventListener('click', (e) => {
+            // Ignore if clicking close button (handled separately)
+            if (e.target.closest('#btn-close-toast')) return;
+            
+            if (pendingDownloadUrl) {
+                // Trigger download
+                const a = document.createElement('a');
+                a.href = pendingDownloadUrl;
+                // Generate filename if needed, or use cached
+                const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
+                a.download = `swingpal_log_${timestamp}.csv`;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                
+                // Cleanup
+                setTimeout(() => {
+                    window.URL.revokeObjectURL(pendingDownloadUrl);
+                    pendingDownloadUrl = null;
+                    chunkBlobs = [];
+                }, 100);
+                
+                hideToast();
+            }
+        });
 
         function handleSwipe() {
             if (touchEndY < touchStartY - 30) { // Swiped UP
@@ -599,15 +604,19 @@
             
             const successIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`;
             const errorIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 dark:text-rose-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`;
+            const downloadIcon = `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`;
 
             if (type === 'error') {
                 ui.toastIcon.innerHTML = errorIcon;
+                pendingDownloadUrl = null; // Clear download on error
+            } else if (type === 'download') {
+                ui.toastIcon.innerHTML = downloadIcon;
             } else {
                 ui.toastIcon.innerHTML = successIcon;
             }
 
             ui.toast.classList.remove('-translate-y-20', 'opacity-0');
-            toastTimeout = setTimeout(hideToast, 3000);
+            toastTimeout = setTimeout(hideToast, 5000); // Longer timeout for download/interaction
         }
         
         function hideToast() {
@@ -774,7 +783,8 @@
             const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
             if (overall > 20) {
                 swingCount++; ui.count.innerText = swingCount;
-                saveFile(); showToast("Session Saved!", 'success');
+                saveFile(); // PREPARE FILE BUT DON'T AUTO DOWNLOAD
+                showToast("Analysis Ready. Tap to Download CSV.", 'download');
             } else {
                 showToast("False Start Detected (Ignored)", 'error');
                 chunkBlobs = []; currentChunk = [];
@@ -795,14 +805,11 @@
         function saveFile() {
             flushChunk();
             if (chunkBlobs.length === 0) return;
+            
+            // Instead of auto-clicking <a> tag, store the blob URL for manual click
             const finalBlob = new Blob([CSV_HEADER + "\n", ...chunkBlobs], { type: 'text/csv' });
-            const url = window.URL.createObjectURL(finalBlob);
-            const a = document.createElement('a');
-            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0,19);
-            const fileName = `swingpal_log_${timestamp}.csv`;
-            a.href = url; a.download = fileName;
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-            setTimeout(() => { window.URL.revokeObjectURL(url); chunkBlobs = []; }, 100);
+            if (pendingDownloadUrl) window.URL.revokeObjectURL(pendingDownloadUrl); // Cleanup old
+            pendingDownloadUrl = window.URL.createObjectURL(finalBlob);
         }
 
         document.addEventListener('keydown', (e) => {
