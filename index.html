@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SwingPal</title>
     <script src="https://cdn.tailwindcss.com"></script>
     
@@ -48,18 +48,25 @@
         /* Remove default tap highlight */
         * { -webkit-tap-highlight-color: transparent; }
         
-        /* UNIVERSAL PRESS STATE (Refined to 0.98 for aesthetics) */
+        /* UNIVERSAL PRESS STATE */
         .is-pressed { 
             transform: scale(0.98) !important; 
             filter: brightness(0.92) !important;
             transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.1s ease-out !important;
         }
+        
+        /* Safe Area for Fixed Bottom Elements */
+        .safe-bottom {
+            padding-bottom: env(safe-area-inset-bottom);
+            margin-bottom: env(safe-area-inset-bottom);
+        }
     </style>
 </head>
-<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center p-4 sm:p-6 font-sans transition-colors duration-300 overflow-hidden">
+<body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center font-sans transition-colors duration-300 overflow-hidden">
 
     <!-- Header -->
-    <header class="w-full max-w-md mb-4 flex-shrink-0 border-b border-gray-200/60 dark:border-gray-800 pb-4">
+    <!-- Added pt-safe for top notch handling -->
+    <header class="w-full max-w-md pt-6 px-6 pb-4 border-b border-gray-200/60 dark:border-gray-800 flex-shrink-0 bg-gray-50 dark:bg-gray-900 z-20">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             
@@ -86,10 +93,12 @@
     </header>
 
     <!-- Main Scrollable Area -->
-    <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 relative pb-4">
+    <!-- Added pb-48 to allow content to scroll ABOVE the fixed bottom buttons -->
+    <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 px-6 pb-48">
 
         <!-- Analysis Dashboard -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
+        <!-- Removed flex-grow, added h-auto so it sizes to content -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden h-auto">
             
             <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
             <div class="relative z-30 flex items-center justify-between mb-6">
@@ -213,8 +222,12 @@
 
         </div>
 
-        <!-- UNIFIED COMMAND CENTER (Bottom - Separated) -->
-        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
+    </main>
+
+    <!-- UNIFIED COMMAND CENTER (Fixed Bottom) -->
+    <!-- Added fixed positioning, centering, and safe area padding -->
+    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40 safe-bottom">
+        <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
             
             <!-- Top Half: Connection Trigger -->
             <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-all duration-150 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
@@ -256,11 +269,9 @@
                 </button>
             </div>
         </div>
-
-    </main>
+    </div>
 
     <!-- Toast -->
-    <!-- Enabled pointer-events-auto so click/swipe works -->
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-auto border border-white/10 touch-none">
         <!-- Icon Container (Content injected by JS) -->
         <span id="toast-icon"></span>
