@@ -56,25 +56,26 @@
     <header class="w-full max-w-md pt-6 px-6 pb-4 border-b border-gray-200/60 dark:border-gray-800 flex-shrink-0 bg-gray-50 dark:bg-gray-900 z-20">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
+            
             <div class="flex items-center gap-3">
-                <!-- Notification Button -->
-                <button id="btn-notifications" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600 relative">
+                <!-- Help Button -->
+                <button id="btn-help" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600" aria-label="Setup Guide">
                     <div class="btn-content">
                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                         </svg>
-                        <span id="notification-dot" class="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-gray-200 dark:border-gray-800 hidden"></span>
                     </div>
                 </button>
-                <!-- Help Button -->
-                <button id="btn-help" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600">
-                    <div class="btn-content"><svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg></div>
-                </button>
+
                 <!-- Theme Toggle -->
                 <button id="btn-theme" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600">
                     <div class="btn-content">
-                        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" /></svg>
-                        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" /></svg>
+                        <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+                        </svg>
+                        <svg id="icon-moon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z" />
+                        </svg>
                     </div>
                 </button>
             </div>
@@ -84,11 +85,30 @@
 
     <!-- Main Scrollable Area -->
     <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 px-6 pb-32 pt-6">
-        
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 h-auto flex flex-col overflow-hidden">
+
+        <!-- Analysis Dashboard -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col h-auto">
             
-            <!-- Fixed Dashboard Header (Above scroll) -->
-            <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
+            <!-- 1. GREY OUT OVERLAY (Moved to Top Level for Stability) -->
+            <div id="analysis-overlay" class="absolute inset-0 z-50 bg-gray-50/90 dark:bg-gray-900/90 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500 rounded-3xl">
+                <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Complete a swing to unlock insights</p>
+                <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
+            </div>
+
+            <!-- 2. COUNTDOWN OVERLAY (Moved to Top Level) -->
+            <div id="countdown-overlay" class="absolute inset-0 z-50 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300 rounded-3xl">
+                <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
+                <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
+            </div>
+
+            <!-- Fixed Dashboard Header -->
+            <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-gray-800">
                 <div class="flex items-center gap-2">
                     <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
                     <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Swing Analysis</span>
@@ -99,60 +119,42 @@
                 </div>
             </div>
 
-            <!-- Content Wrapper (Scrollable) -->
-            <div class="relative">
-                <!-- GREY OUT OVERLAY -->
-                <div id="analysis-overlay" class="absolute inset-0 z-20 bg-white/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500 rounded-b-3xl">
-                    <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+            <!-- Scrollable Content Area -->
+            <div class="overflow-y-auto overscroll-y-auto no-scrollbar flex-1 px-6 pb-6 relative z-10">
+                <div class="flex flex-col gap-6">
+                    <!-- Mastery Score -->
+                    <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4 pt-2">
+                        <div>
+                            <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1">Mastery</h2>
+                            <div class="flex items-baseline">
+                                <span id="score-overall" class="inline-block text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400 tracking-tight">--</span>
+                                <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
+                            </div>
+                        </div>
+                        <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">READY</div>
                     </div>
-                    <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Complete a swing to unlock insights</p>
-                    <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
-                </div>
 
-                <!-- COUNTDOWN OVERLAY -->
-                <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300 rounded-b-3xl">
-                    <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
-                    <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
-                </div>
-
-                <!-- SCROLLABLE CONTENTS (Padded) -->
-                <div class="p-6">
-                    <div class="flex flex-col gap-6">
-                        <!-- Mastery Score -->
-                        <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4">
-                            <div>
-                                <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1">Mastery</h2>
-                                <div class="flex items-baseline">
-                                    <span id="score-overall" class="inline-block text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400 tracking-tight">--</span>
-                                    <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
-                                </div>
-                            </div>
-                            <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">READY</div>
+                    <!-- Circles -->
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-acc" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
                         </div>
-
-                        <!-- Circles -->
-                        <div class="grid grid-cols-3 gap-2">
-                            <div class="flex flex-col items-center">
-                                <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-acc" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-wrist" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
-                            </div>
-                            <div class="flex flex-col items-center">
-                                <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-form" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
-                            </div>
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-wrist" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
                         </div>
+                        <div class="flex flex-col items-center">
+                            <div class="relative w-24 h-24"><svg class="w-full h-full" viewBox="0 0 100 100"><circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle><circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle></svg><div class="absolute inset-0 flex items-center justify-center"><span id="val-form" class="text-xl font-bold text-gray-400">--</span></div></div><span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
+                        </div>
+                    </div>
 
-                        <!-- Feedback -->
-                        <div class="mt-4">
-                            <div id="feedback-container" class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 transition-all duration-500">
-                                <div class="flex items-center gap-2 mb-2 opacity-90">
-                                    <div id="feedback-icon-bg" class="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full transition-colors duration-500"><svg id="feedback-icon" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-600 dark:text-blue-400 transition-colors duration-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg></div>
-                                    <span class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Insights</span>
-                                </div>
-                                <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500">Analysis pending...</p>
+                    <!-- Feedback -->
+                    <div class="mt-4">
+                        <div id="feedback-container" class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 transition-all duration-500">
+                            <div class="flex items-center gap-2 mb-2 opacity-90">
+                                <div id="feedback-icon-bg" class="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full transition-colors duration-500"><svg id="feedback-icon" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-600 dark:text-blue-400 transition-colors duration-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg></div>
+                                <span class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Insights</span>
                             </div>
+                            <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500">Analysis pending...</p>
                         </div>
                     </div>
                 </div>
@@ -160,17 +162,21 @@
         </div>
     </main>
 
-    <!-- Command Center -->
+    <!-- UNIFIED COMMAND CENTER (Fixed Bottom) -->
+    <!-- Reverted "Disconnect" logic: No color change, no disconnect click -->
     <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40 safe-bottom">
         <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
-            <!-- Connect Button -->
-            <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 z-10">
+            
+            <!-- Top Half: Connection Trigger (Reverted) -->
+            <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
                 <div class="btn-content flex items-center justify-between p-3 transition-transform duration-100 ease-out">
                     <div class="flex items-center gap-4">
-                        <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-rose-500 group-hover:scale-105">
+                        <!-- Icon (No Red Hover) -->
+                        <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:bg-blue-500 group-hover:scale-105">
                             <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                            <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg> <!-- Swapped check for X on disconnect -->
+                            <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </div>
+                        <!-- Text -->
                         <div class="flex flex-col justify-center">
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
                             <div id="status-text" class="text-sm font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
@@ -180,13 +186,16 @@
                     <div class="flex items-center pr-2"><span id="status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span></div>
                 </div>
             </button>
+
+            <!-- Divider -->
             <div class="h-px w-full bg-gray-100 dark:bg-gray-700"></div>
-            <!-- Start/Stop -->
+
+            <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden">
+                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
                     <div class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden">
+                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
                     <div class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out">Stop</div>
                 </button>
             </div>
@@ -202,25 +211,14 @@
         </button>
     </div>
 
-    <!-- Notif Modal -->
-    <div id="notify-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out">
-        <div id="notify-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
-        <div id="notify-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 scale-95 border border-gray-100 dark:border-gray-800 flex flex-col max-h-[80vh]">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h2 class="text-xl font-bold text-gray-900 dark:text-white">History</h2>
-                <button id="btn-close-notify" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
-            </div>
-            <div id="notify-list" class="flex-1 overflow-y-auto no-scrollbar space-y-3"><div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div></div>
-        </div>
-    </div>
-    
-    <!-- Help Modal (Hidden) -->
-    <div id="help-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"><div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div><div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 scale-95 border border-gray-100 dark:border-gray-800"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2><button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div><button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button></div></div>
-    <!-- Browser Modal (Hidden) -->
-    <div id="incompatible-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-6"><div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div><div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">We are really sorry...</h2><p id="incompatible-text" class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6"></p><button onclick="document.getElementById('incompatible-modal').classList.add('hidden')" class="text-sm text-gray-400 hover:text-gray-600 underline">Dismiss (for testing)</button></div></div>
+    <!-- BROWSER INCOMPATIBLE MODAL -->
+    <div id="incompatible-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-6"><div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div><div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">We are really sorry...</h2><p id="incompatible-text" class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6"></p><button onclick="document.getElementById('incompatible-modal').classList.add('hidden')" class="text-sm text-gray-400 hover:text-gray-600 underline">Dismiss (for testing)</button></div></div>
+
+    <!-- HELP MODAL -->
+    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"><div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div><div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2><button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div><button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button></div></div>
 
     <script>
-        // Init
+        // --- Init Checks ---
         window.addEventListener('load', () => {
             if (!navigator.bluetooth) {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -245,12 +243,14 @@
             });
         });
 
+        // --- Config ---
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
         const MAX_RECORDING_TIME_MS = 10 * 60 * 1000; 
         const CHUNK_SIZE = 500; 
 
+        // --- State ---
         let device, server, characteristic;
         let isRecording = false;
         let isConnected = false;
@@ -263,9 +263,9 @@
         let safetyTimer;
         let recordingStartTime; 
         let recordingTimerInterval;
-        let notifications = []; 
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
+        // --- Elements ---
         const ui = {
             connectTrigger: document.getElementById('connection-trigger'),
             iconBg: document.getElementById('connection-icon-bg'),
@@ -279,8 +279,6 @@
             count: document.getElementById('record-count'),
             btnTheme: document.getElementById('btn-theme'),
             btnHelp: document.getElementById('btn-help'),
-            btnNotify: document.getElementById('btn-notifications'),
-            notifyDot: document.getElementById('notification-dot'),
             html: document.documentElement,
             analysisOverlay: document.getElementById('analysis-overlay'),
             countdownOverlay: document.getElementById('countdown-overlay'),
@@ -306,54 +304,21 @@
             helpContent: document.getElementById('help-content'),
             helpBackdrop: document.getElementById('help-backdrop'),
             btnCloseHelp: document.getElementById('btn-close-help'),
-            btnOkHelp: document.getElementById('btn-ok-help'),
-            notifyModal: document.getElementById('notify-modal'),
-            notifyCard: document.getElementById('notify-card'),
-            notifyList: document.getElementById('notify-list'),
-            notifyBackdrop: document.getElementById('notify-backdrop'),
-            btnCloseNotify: document.getElementById('btn-close-notify')
+            btnOkHelp: document.getElementById('btn-ok-help')
         };
 
+        // --- Theme ---
         ui.btnTheme.addEventListener('click', () => {
             if (ui.html.classList.contains('dark')) {
-                ui.html.classList.remove('dark'); localStorage.setItem('theme', 'light');
+                ui.html.classList.remove('dark');
+                localStorage.setItem('theme', 'light');
             } else {
-                ui.html.classList.add('dark'); localStorage.setItem('theme', 'dark');
+                ui.html.classList.add('dark');
+                localStorage.setItem('theme', 'dark');
             }
         });
 
-        // --- NOTIFICATION CENTER ---
-        function openNotify() {
-            renderNotifications();
-            ui.notifyDot.classList.add('hidden');
-            ui.notifyModal.classList.remove('invisible', 'pointer-events-none');
-            setTimeout(() => { ui.notifyModal.classList.remove('opacity-0'); ui.notifyCard.classList.remove('scale-95'); ui.notifyCard.classList.add('scale-100'); }, 10);
-        }
-        function closeNotify() {
-            ui.notifyModal.classList.add('opacity-0', 'pointer-events-none');
-            ui.notifyCard.classList.remove('scale-100'); ui.notifyCard.classList.add('scale-95');
-            setTimeout(() => { ui.notifyModal.classList.add('invisible'); }, 300);
-        }
-        function addNotification(msg, type, downloadUrl = null) {
-            notifications.unshift({ msg, type, downloadUrl, time: new Date() });
-            ui.notifyDot.classList.remove('hidden');
-            renderNotifications();
-        }
-        function renderNotifications() {
-            if (notifications.length === 0) { ui.notifyList.innerHTML = '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div>'; return; }
-            ui.notifyList.innerHTML = notifications.map((n) => {
-                let icon = '', action = '';
-                const time = n.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
-                if (n.type === 'error') icon = `<span class="h-8 w-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">⚠️</span>`;
-                else if (n.type === 'download') icon = `<span class="h-8 w-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center flex-shrink-0">💾</span>`;
-                else icon = `<span class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center flex-shrink-0">✓</span>`;
-                if (n.downloadUrl) action = `<a href="${n.downloadUrl}" download="swing.csv" class="text-xs font-bold text-blue-600 hover:underline ml-auto">Download</a>`;
-                return `<div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">${icon}<div class="flex-grow min-w-0"><p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${n.msg}</p><p class="text-xs text-gray-400">${time}</p></div>${action}</div>`;
-            }).join('');
-        }
-        ui.btnNotify.addEventListener('click', openNotify); ui.notifyBackdrop.addEventListener('click', closeNotify); ui.btnCloseNotify.addEventListener('click', closeNotify);
-
-        // --- HELP MODAL ---
+        // --- HELP MODAL LOGIC ---
         function openHelp() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
@@ -361,18 +326,27 @@
             const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
             const isIOS = isiPhone || isIPad;
             const isAndroid = /android/i.test(ua);
-            if (isIOS) content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p><p>Apple blocks Bluetooth on standard browsers. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li><li>Open this website <em>inside</em> the Bluefy app.</li><li>Tap <strong>"Tap to Connect"</strong> below.</li></ol>`;
-            else if (isAndroid) content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
-            else content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
+            if (isIOS) {
+                const deviceName = isIPad ? "iPad" : "iOS";
+                content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 ${deviceName} Setup</p><p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p><p>Apple blocks Bluetooth on standard browsers. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li><li>Open this website <em>inside</em> the Bluefy app.</li><li>Tap <strong>"Tap to Connect"</strong> below.</li></ol>`;
+            } else if (isAndroid) content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
+            else content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.</li><li>Ensure your computer has Bluetooth active.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
             ui.helpContent.innerHTML = content;
             ui.helpModal.classList.remove('invisible', 'pointer-events-none');
             setTimeout(() => { ui.helpModal.classList.remove('opacity-0'); ui.helpCard.classList.remove('scale-95'); ui.helpCard.classList.add('scale-100'); }, 10);
         }
+
         function closeHelp() {
-            ui.helpModal.classList.add('opacity-0', 'pointer-events-none'); ui.helpCard.classList.remove('scale-100'); ui.helpCard.classList.add('scale-95');
+            ui.helpModal.classList.add('opacity-0', 'pointer-events-none');
+            ui.helpCard.classList.remove('scale-100');
+            ui.helpCard.classList.add('scale-95');
             setTimeout(() => { ui.helpModal.classList.add('invisible'); }, 300);
         }
-        ui.btnHelp.addEventListener('click', openHelp); ui.helpBackdrop.addEventListener('click', closeHelp); ui.btnCloseHelp.addEventListener('click', closeHelp); ui.btnOkHelp.addEventListener('click', closeHelp);
+
+        ui.btnHelp.addEventListener('click', openHelp);
+        ui.helpBackdrop.addEventListener('click', closeHelp);
+        ui.btnCloseHelp.addEventListener('click', closeHelp);
+        ui.btnOkHelp.addEventListener('click', closeHelp);
 
         // --- Analysis Logic ---
         function getScoreColor(score) { if (score >= 90) return 'text-emerald-500'; if (score >= 70) return 'text-yellow-400'; if (score >= 50) return 'text-orange-500'; return 'text-red-500'; }
@@ -434,10 +408,12 @@
         }
         function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
         
-        // --- Interaction ---
+        // --- Toast Interaction ---
         let touchStartY = 0; let touchEndY = 0;
         ui.toast.addEventListener('touchstart', e => { touchStartY = e.changedTouches[0].screenY; }, {passive: true});
         ui.toast.addEventListener('touchend', e => { touchEndY = e.changedTouches[0].screenY; if(touchEndY < touchStartY - 30) hideToast(); }, {passive: true});
+        
+        // MANUAL CLICK DOWNLOAD
         ui.toast.addEventListener('click', (e) => {
             if (e.target.closest('#btn-close-toast')) return;
             if (pendingDownloadUrl) {
@@ -448,6 +424,7 @@
                 hideToast();
             }
         });
+
         function showToast(message, type = 'success') {
             if (toastTimeout) clearTimeout(toastTimeout);
             ui.toastMessage.innerText = message;
@@ -479,11 +456,12 @@
                 ui.statusText.innerText = "Searching...";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
             } else if (state === 'connected') {
-                ui.connectTrigger.disabled = false; // ENABLED to allow disconnect click
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md group-hover:bg-rose-500 transition-colors duration-300";
+                // REVERTED: Disabled again to remove disconnect logic
+                ui.connectTrigger.disabled = true;
+                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
                 ui.btIcon.classList.add('hidden'); ui.checkIcon.classList.remove('hidden');
-                ui.statusText.innerText = "Connected (Tap to Disconnect)";
-                ui.deviceName.innerText = `Device: ${message}`;
+                ui.statusText.innerText = "Sensor Ready";
+                ui.deviceName.innerText = `Connected to: ${message}`;
                 ui.deviceName.style.height = "auto"; ui.deviceName.style.opacity = "1";
                 ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
                 showToast("Connected successfully!", 'success');
@@ -494,16 +472,8 @@
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); } }
 
         ui.connectTrigger.addEventListener('click', async () => {
-            // DISCONNECT LOGIC
-            if (isConnected) {
-                if (device && device.gatt.connected) {
-                    device.gatt.disconnect(); 
-                    // onDisconnected triggers automatically
-                } else {
-                    onDisconnected(); // Force reset if already physically disconnected
-                }
-                return;
-            }
+            // Removed Disconnect Logic Block
+            if (isConnected) return; // Just ignore if connected
 
             if (!navigator.bluetooth) {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
@@ -544,7 +514,7 @@
         function onDisconnected() {
             setConnectionState('disconnected');
             ui.btnStart.disabled = true; ui.btnStop.disabled = true; isRecording = false;
-            showToast("Sensor disconnected.", 'error');
+            showToast("Sensor disconnected. Please reconnect.", 'error');
             if (wakeLock) wakeLock.release();
         }
 
@@ -557,9 +527,6 @@
 
         ui.btnStart.addEventListener('click', async () => {
             ui.btnStart.disabled = true;
-            // Blur previous
-            ui.blurTarget.classList.add('blur-sm', 'opacity-50', 'grayscale');
-
             try {
                 if (characteristic) {
                     await characteristic.startNotifications();
@@ -614,10 +581,6 @@
 
         ui.btnStop.addEventListener('click', async () => {
             isRecording = false;
-            
-            // Unblur
-            ui.blurTarget.classList.remove('blur-sm', 'opacity-50', 'grayscale');
-
             if (safetyTimer) clearTimeout(safetyTimer);
             if (recordingTimerInterval) clearInterval(recordingTimerInterval);
             ui.statusText.innerText = "Sensor Ready";
@@ -630,24 +593,13 @@
             } catch (e) { console.error(e); }
             if (isConnected && device) setConnectionState('connected', device.name);
             ui.btnStop.disabled = true; ui.btnStart.disabled = false;
-            
             const accScore = Math.floor(Math.random() * 100);
             const wristScore = Math.floor(Math.random() * 100);
             const formScore = Math.floor(Math.random() * 100);
             const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
-            
             if (overall > 20) {
                 swingCount++; ui.count.innerText = swingCount;
                 saveFile(); // This prepares pendingDownloadUrl
-                
-                // Add to Notification Center AFTER saving
-                setTimeout(() => {
-                   if(pendingDownloadUrl) {
-                       const swingName = `Swing #${swingCount}`;
-                       addNotification(`Analysis Ready: ${swingName}`, 'download', pendingDownloadUrl);
-                   }
-                }, 200);
-
                 showToast("Analysis Ready. Tap to Download CSV.", 'download');
             } else {
                 showToast("False Start Detected (Ignored)", 'error');
