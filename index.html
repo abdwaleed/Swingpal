@@ -254,15 +254,32 @@
         window.addEventListener('load', () => {
             if (!navigator.bluetooth) {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
-                const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
                 const modal = document.getElementById('incompatible-modal');
                 const text = document.getElementById('incompatible-text');
                 
-                if (isIOS) {
-                    text.innerHTML = `Apple blocks Bluetooth on Safari.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
+                let msg = "";
+
+                if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
+                    // iOS
+                    msg = `Apple restricts Bluetooth on standard iOS browsers.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
+                } else if (/android/i.test(ua)) {
+                    // Android
+                    msg = `It looks like you are on Android.<br><br>Please use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong> to connect to your sensor.`;
+                } else if (/Macintosh/i.test(ua)) {
+                    // macOS
+                    msg = `It looks like you are on a Mac.<br><br>Safari does not support Bluetooth. Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.`;
+                } else if (/Windows/i.test(ua)) {
+                    // Windows
+                    msg = `It looks like you are on Windows.<br><br>Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> for Bluetooth support.`;
+                } else if (/Linux/i.test(ua)) {
+                    // Linux
+                    msg = `It looks like you are on Linux.<br><br>Please use <strong>Google Chrome</strong> (you may need to enable experimental web platform features).`;
                 } else {
-                    text.innerHTML = `Your current browser doesn't support Web Bluetooth.<br><br>Please use <strong>Google Chrome</strong> or <strong>Edge</strong>.`;
+                    // Fallback
+                    msg = `Your current browser doesn't support Web Bluetooth.<br><br>Please try using the latest version of <strong>Google Chrome</strong>.`;
                 }
+
+                text.innerHTML = msg;
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             }
@@ -345,16 +362,56 @@
         function openHelp() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
-            const isIOS = /iPad|iPhone|iPod/.test(ua) && !window.MSStream;
+
+            // Improved Detection:
+            // 1. Standard iOS detection (iPhone/iPod)
+            const isiPhone = /iPhone|iPod/.test(ua) && !window.MSStream;
+            
+            // 2. Modern iPad detection (Looks like Mac, but has Touch Points)
+            const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
+            
+            const isIOS = isiPhone || isIPad;
             const isAndroid = /android/i.test(ua);
+            const isMac = /Macintosh/i.test(ua) && !isIOS; // Genuine Mac, not iPad
+            const isWindows = /Windows/i.test(ua);
+
             if (isIOS) {
-                content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p>Safari does not support Bluetooth. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> browser app.</li><li>Open this page inside Bluefy.</li><li>Tap the <strong>"Tap to Connect"</strong> card below.</li></ol>`;
+                // Correct advice for iPad/iPhone
+                const deviceName = isIPad ? "iPad" : "iOS";
+                content = `
+                    <p class="font-bold text-blue-600 dark:text-blue-400">📱 ${deviceName} Setup</p>
+                    <p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p>
+                    <p>Apple blocks Bluetooth on standard browsers. You must:</p>
+                    <ol class="list-decimal pl-5 space-y-2 mt-2">
+                        <li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li>
+                        <li>Open this website <em>inside</em> the Bluefy app.</li>
+                        <li>Tap <strong>"Tap to Connect"</strong> below.</li>
+                    </ol>
+                `;
             } else if (isAndroid) {
-                content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
+                content = `
+                    <p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li>
+                        <li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li>
+                        <li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li>
+                    </ul>
+                `;
             } else {
-                content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li><li>Select your sensor from the popup list.</li></ul>`;
+                // Desktop (Windows/Mac/Linux)
+                content = `
+                    <p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p>
+                    <ul class="list-disc pl-5 space-y-2">
+                        <li>Use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.</li>
+                        <li>Ensure your computer has Bluetooth active.</li>
+                        <li>Click the <strong>"Tap to Connect"</strong> card.</li>
+                    </ul>
+                `;
             }
+
             ui.helpContent.innerHTML = content;
+            
+            // ANIMATION: Open
             ui.helpModal.classList.remove('invisible', 'pointer-events-none');
             setTimeout(() => {
                 ui.helpModal.classList.remove('opacity-0');
