@@ -45,8 +45,15 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* Remove default tap highlight on mobile for custom active states */
+        /* Remove default tap highlight */
         * { -webkit-tap-highlight-color: transparent; }
+        
+        /* UNIVERSAL PRESS STATE (Refined to 0.98 for aesthetics) */
+        .is-pressed { 
+            transform: scale(0.98) !important; 
+            filter: brightness(0.92) !important;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), filter 0.1s ease-out !important;
+        }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center p-4 sm:p-6 font-sans transition-colors duration-300 overflow-hidden">
@@ -58,14 +65,14 @@
             
             <div class="flex items-center gap-3">
                 <!-- Help Button -->
-                <button id="btn-help" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-90 active:bg-gray-300 dark:active:bg-gray-700 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600" aria-label="Setup Guide">
+                <button id="btn-help" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-95 active:bg-gray-300 dark:active:bg-gray-700 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600" aria-label="Setup Guide">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                 </button>
 
                 <!-- Theme Toggle -->
-                <button id="btn-theme" class="p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-90 active:bg-gray-300 dark:active:bg-gray-700 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600">
+                <button id="btn-theme" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-yellow-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] active:scale-95 active:bg-gray-300 dark:active:bg-gray-700 transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600">
                     <svg id="icon-sun" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
                     </svg>
@@ -84,19 +91,21 @@
         <!-- Analysis Dashboard -->
         <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl p-6 shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 overflow-hidden flex-grow flex flex-col min-h-[380px]">
             
-            <!-- Always Visible Card Header -->
+            <!-- NEW: Always Visible Card Header (Z-Index 30 > Overlay) -->
             <div class="relative z-30 flex items-center justify-between mb-6">
                 <div class="flex items-center gap-2">
                     <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
                     <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Swing Analysis</span>
                 </div>
+                
+                <!-- Integrated Session Swings Counter -->
                 <div class="flex items-center gap-1.5 opacity-90">
                     <span id="record-count" class="text-sm font-bold text-gray-900 dark:text-white">0</span>
                     <span class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider">Swings</span>
                 </div>
             </div>
 
-            <!-- GREY OUT OVERLAY -->
+            <!-- 1. GREY OUT OVERLAY (Initial State) -->
             <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 pt-16 transition-all duration-500">
                 <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -108,63 +117,85 @@
                 <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
             </div>
 
-            <!-- COUNTDOWN OVERLAY -->
+            <!-- 2. COUNTDOWN OVERLAY (Hidden by default) -->
             <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300 rounded-3xl">
                 <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
-                <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
+                <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">
+                    5
+                </div>
             </div>
 
             <!-- TOP SECTION: DATA & VISUALS -->
             <div class="flex flex-col gap-6 relative z-10">
+                
+                <!-- Header & Overall Score -->
                 <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4">
                     <div>
                         <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1">Mastery</h2>
                         <div class="flex items-baseline">
+                            <!-- Gradient Text -->
                             <span id="score-overall" class="text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400 tracking-tight">--</span>
                             <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                         </div>
                     </div>
-                    <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">READY</div>
+                    <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
+                        READY
+                    </div>
                 </div>
 
+                <!-- CIRCULAR BENCHMARKS GRID -->
                 <div class="grid grid-cols-3 gap-2">
+                    <!-- Acceleration Circle -->
                     <div class="flex flex-col items-center">
                         <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-acc" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
-                            <div class="absolute inset-0 flex items-center justify-center"><span id="val-acc" class="text-xl font-bold text-gray-400">--</span></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="val-acc" class="text-xl font-bold text-gray-400">--</span>
+                            </div>
                         </div>
                         <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Accel.</span>
                     </div>
+
+                    <!-- Wrist Circle -->
                     <div class="flex flex-col items-center">
                         <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-wrist" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
-                            <div class="absolute inset-0 flex items-center justify-center"><span id="val-wrist" class="text-xl font-bold text-gray-400">--</span></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="val-wrist" class="text-xl font-bold text-gray-400">--</span>
+                            </div>
                         </div>
                         <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Wrist</span>
                     </div>
+
+                    <!-- Form Circle -->
                     <div class="flex flex-col items-center">
                         <div class="relative w-24 h-24">
                             <svg class="w-full h-full" viewBox="0 0 100 100">
                                 <circle class="text-gray-100 dark:text-gray-700 stroke-current" stroke-width="10" cx="50" cy="50" r="40" fill="transparent"></circle>
                                 <circle id="circle-form" class="text-gray-300 dark:text-gray-600 stroke-current circle-progress" stroke-width="10" stroke-linecap="round" cx="50" cy="50" r="40" fill="transparent" stroke-dasharray="251.2" stroke-dashoffset="251.2"></circle>
                             </svg>
-                            <div class="absolute inset-0 flex items-center justify-center"><span id="val-form" class="text-xl font-bold text-gray-400">--</span></div>
+                            <div class="absolute inset-0 flex items-center justify-center">
+                                <span id="val-form" class="text-xl font-bold text-gray-400">--</span>
+                            </div>
                         </div>
                         <span class="mt-3 text-[10px] font-bold text-gray-500 dark:text-gray-400 uppercase tracking-wider text-center">Form</span>
                     </div>
                 </div>
             </div>
 
-            <!-- BOTTOM SECTION: FEEDBACK -->
+            <!-- BOTTOM SECTION: TEXTUAL FEEDBACK (Compact) -->
             <div class="mt-8 relative z-10">
+                <!-- Feedback Container (Dynamic ID) -->
                 <div id="feedback-container" class="bg-gray-50 dark:bg-gray-700/30 rounded-xl p-4 border border-gray-100 dark:border-gray-700/50 transition-all duration-500">
+                    <!-- Header Inside the Box -->
                     <div class="flex items-center gap-2 mb-2 opacity-90">
+                        <!-- Icon Container -->
                         <div id="feedback-icon-bg" class="bg-blue-100 dark:bg-blue-900/30 p-1 rounded-full transition-colors duration-500">
                             <svg id="feedback-icon" xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 text-blue-600 dark:text-blue-400 transition-colors duration-500" viewBox="0 0 20 20" fill="currentColor">
                                 <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
@@ -172,51 +203,64 @@
                         </div>
                         <span class="text-xs font-bold text-gray-500 dark:text-gray-300 uppercase tracking-wider">Insights</span>
                     </div>
-                    <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500">Analysis pending...</p>
+                    
+                    <!-- Feedback Text -->
+                    <p id="coach-feedback" class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500">
+                        Analysis pending...
+                    </p>
                 </div>
             </div>
+
         </div>
 
-    </main>
-
-    <!-- UNIFIED COMMAND CENTER -->
-    <div class="w-full max-w-md mt-auto mb-6 flex-shrink-0 z-40">
-        <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
+        <!-- UNIFIED COMMAND CENTER (Bottom - Separated) -->
+        <div class="mt-auto w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden mb-4"> 
             
             <!-- Top Half: Connection Trigger -->
-            <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-all duration-150 active:bg-gray-50 dark:active:bg-gray-700 active:scale-[0.99] text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
+            <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-all duration-150 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
                 <div class="flex items-center justify-between p-3">
                     <div class="flex items-center gap-4">
+                        <!-- Icon -->
                         <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:bg-blue-500 group-hover:scale-105">
-                            <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
-                            <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
+                            <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                            </svg>
+                            <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                            </svg>
                         </div>
+                        <!-- Text -->
                         <div class="flex flex-col justify-center">
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
                             <div id="status-text" class="text-sm font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
                             <div id="device-name" class="text-[10px] text-gray-500 dark:text-gray-400 font-medium h-0 overflow-hidden opacity-0 transition-all duration-300 mt-0"></div>
                         </div>
                     </div>
-                    <div class="flex items-center pr-2"><span id="status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span></div>
+                    <!-- Status Dot -->
+                    <div class="flex items-center pr-2">
+                         <span id="status-indicator" class="h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-600 transition-colors duration-300 shadow-inner"></span>
+                    </div>
                 </div>
             </button>
 
+            <!-- Divider -->
             <div class="h-px w-full bg-gray-100 dark:bg-gray-700"></div>
 
             <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:hover:shadow-md hover:bg-emerald-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:hover:shadow-md hover:bg-rose-500 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Stop</div>
                 </button>
             </div>
         </div>
-    </div>
+
+    </main>
 
     <!-- Toast -->
-    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-none border border-white/10">
+    <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-none border border-white/10 touch-none">
         <span id="toast-icon"></span>
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
@@ -254,33 +298,23 @@
         window.addEventListener('load', () => {
             if (!navigator.bluetooth) {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
-                // Updated iPad Detection logic for the automatic popup
                 const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
                 const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
-                
                 const modal = document.getElementById('incompatible-modal');
                 const text = document.getElementById('incompatible-text');
                 
                 let msg = "";
-
                 if (isIOS) {
-                     // Correct advice for iPad/iPhone
-                    const deviceName = isIPad ? "iPad" : "iOS";
-                    msg = `Apple restricts Bluetooth on ${deviceName} browsers (Safari/Chrome).<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
+                    msg = `Apple restricts Bluetooth on standard iOS browsers.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
                 } else if (/android/i.test(ua)) {
-                    // Android
                     msg = `It looks like you are on Android.<br><br>Please use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong> to connect to your sensor.`;
-                } else if (/Macintosh/i.test(ua)) { // Real Mac
-                    // macOS
+                } else if (/Macintosh/i.test(ua)) {
                     msg = `It looks like you are on a Mac.<br><br>Safari does not support Bluetooth. Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.`;
                 } else if (/Windows/i.test(ua)) {
-                    // Windows
                     msg = `It looks like you are on Windows.<br><br>Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> for Bluetooth support.`;
                 } else if (/Linux/i.test(ua)) {
-                    // Linux
                     msg = `It looks like you are on Linux.<br><br>Please use <strong>Google Chrome</strong>.`;
                 } else {
-                    // Fallback
                     msg = `Your current browser doesn't support Web Bluetooth.<br><br>Please try using the latest version of <strong>Google Chrome</strong>.`;
                 }
 
@@ -288,6 +322,22 @@
                 modal.classList.remove('hidden');
                 modal.classList.add('flex');
             }
+            
+            // Add touch listeners to interactive elements for immediate visual feedback
+            const handlePress = (el) => el.classList.add('is-pressed');
+            const handleRelease = (el) => el.classList.remove('is-pressed');
+
+            document.querySelectorAll('.touch-feedback').forEach(el => {
+                // Touch Events
+                el.addEventListener('touchstart', () => handlePress(el), {passive: true});
+                el.addEventListener('touchend', () => handleRelease(el), {passive: true});
+                el.addEventListener('touchcancel', () => handleRelease(el), {passive: true});
+                
+                // Mouse Events (for Desktop fast click)
+                el.addEventListener('mousedown', () => handlePress(el));
+                el.addEventListener('mouseup', () => handleRelease(el));
+                el.addEventListener('mouseleave', () => handleRelease(el));
+            });
         });
 
         // --- Config ---
@@ -506,6 +556,28 @@
 
         function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
         
+        // --- Toast with Swipe ---
+        let touchStartY = 0;
+        let touchEndY = 0;
+
+        ui.toast.addEventListener('touchstart', e => {
+            touchStartY = e.changedTouches[0].screenY;
+        }, {passive: true});
+
+        ui.toast.addEventListener('touchend', e => {
+            touchEndY = e.changedTouches[0].screenY;
+            handleSwipe();
+        }, {passive: true});
+
+        function handleSwipe() {
+            if (touchEndY < touchStartY - 30) { // Swiped UP
+                clearTimeout(toastTimeout);
+                ui.toast.classList.remove('-translate-y-20', 'opacity-0'); // Ensure states are correct
+                // Force hide
+                setTimeout(() => ui.toast.classList.add('-translate-y-20', 'opacity-0'), 10);
+            }
+        }
+
         function showToast(message, type = 'success') {
             if (toastTimeout) clearTimeout(toastTimeout);
             
