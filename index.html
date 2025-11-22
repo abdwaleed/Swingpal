@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>SwingPal</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
+
     <!-- Font: Inter (Apple-like standard font) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -31,7 +31,7 @@
     <style>
         body { font-family: 'Inter', sans-serif; }
         .circle-progress { transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
-        
+
         @keyframes pulse-scale {
             0% { transform: scale(0.8); opacity: 0; }
             50% { transform: scale(1.2); opacity: 1; }
@@ -43,10 +43,10 @@
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
         * { -webkit-tap-highlight-color: transparent; }
-        
+
         .is-pressed { filter: brightness(0.92) !important; }
         .is-pressed .btn-content { transform: scale(0.96); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
-        
+
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
@@ -56,7 +56,7 @@
     <header class="w-full max-w-md pt-6 px-6 pb-4 border-b border-gray-200/60 dark:border-gray-800 flex-shrink-0 bg-gray-50 dark:bg-gray-900 z-20">
         <div class="flex justify-between items-center">
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
-            
+
             <div class="flex items-center gap-3">
                 <!-- Notification Button (Restored) -->
                 <button id="btn-notifications" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600 relative">
@@ -98,8 +98,8 @@
     <main class="w-full max-w-md flex-1 flex flex-col min-h-0 px-6 gap-6">
 
         <!-- Analysis Dashboard Card (Fixed Size Container) -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col flex-1 min-h-0 overflow-hidden">
-            
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col flex-1 min-h-0 overflow-hidden mt-6">
+
             <!-- HEADER: Swing Analysis (Beautiful Grey Title) -->
             <!-- Placed at top of card, z-30 to sit above overlay -->
             <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
@@ -115,9 +115,9 @@
 
             <!-- Scrollable Content (Inside the card) -->
             <div class="flex-1 overflow-y-auto overscroll-y-auto no-scrollbar px-6 pb-6 relative z-10">
-                
+
                 <!-- OVERLAYS (Inside Scroll Area but absolutely positioned to cover it) -->
-                
+
                 <!-- 1. GREY OUT OVERLAY -->
                 <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
                     <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700">
@@ -183,7 +183,7 @@
     <!-- UNIFIED COMMAND CENTER (Fixed Bottom) -->
     <div class="w-full max-w-md mt-auto mb-6 flex-shrink-0 z-40 safe-bottom px-6">
         <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
-            
+
             <!-- Connection Trigger -->
             <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 z-10">
                 <div class="btn-content flex items-center justify-between p-3 transition-transform duration-100 ease-out">
@@ -235,7 +235,7 @@
             <div id="notify-list" class="flex-1 overflow-y-auto no-scrollbar space-y-3"><div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div></div>
         </div>
     </div>
-    
+
     <!-- Browser Modal -->
     <div id="incompatible-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-6"><div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div><div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">We are really sorry...</h2><p id="incompatible-text" class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6"></p><button onclick="document.getElementById('incompatible-modal').classList.add('hidden')" class="text-sm text-gray-400 hover:text-gray-600 underline">Dismiss (for testing)</button></div></div>
 
@@ -251,13 +251,13 @@
                 const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
                 const modal = document.getElementById('incompatible-modal');
                 const text = document.getElementById('incompatible-text');
-                
+
                 let msg = "";
                 if (isIOS) msg = `Apple restricts Bluetooth on standard iOS browsers.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
                 else msg = `Your current browser doesn't support Web Bluetooth.<br><br>Please try using <strong>Google Chrome</strong> or <strong>Edge</strong>.`;
                 text.innerHTML = msg; modal.classList.remove('hidden'); modal.classList.add('flex');
             }
-            
+
             const handlePress = (el) => el.classList.add('is-pressed');
             const handleRelease = (el) => el.classList.remove('is-pressed');
 
@@ -275,21 +275,21 @@
         const SERVICE_UUID = "19b10000-e8f2-537e-4f6c-d104768a1214";
         const CHAR_UUID    = "19b10001-e8f2-537e-4f6c-d104768a1214";
         const DEVICE_NAME_PREFIX = "IMU_SENSOR";
-        const MAX_RECORDING_TIME_MS = 10 * 60 * 1000; 
-        const CHUNK_SIZE = 500; 
+        const MAX_RECORDING_TIME_MS = 10 * 60 * 1000;
+        const CHUNK_SIZE = 500;
 
         // --- State ---
         let device, server, characteristic;
         let isRecording = false;
         let isConnected = false;
         let wakeLock = null;
-        let currentChunk = []; 
-        let chunkBlobs = [];   
-        let pendingDownloadUrl = null; 
+        let currentChunk = [];
+        let chunkBlobs = [];
+        let pendingDownloadUrl = null;
         let swingCount = 0;
         let toastTimeout;
         let safetyTimer;
-        let recordingStartTime; 
+        let recordingStartTime;
         let recordingTimerInterval;
         let notifications = [];
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
@@ -317,9 +317,9 @@
             scoreOverall: document.getElementById('score-overall'),
             scoreBadge: document.getElementById('score-badge'),
             coachFeedback: document.getElementById('coach-feedback'),
-            feedbackContainer: document.getElementById('feedback-container'), 
-            feedbackIconBg: document.getElementById('feedback-icon-bg'),     
-            feedbackIcon: document.getElementById('feedback-icon'),          
+            feedbackContainer: document.getElementById('feedback-container'),
+            feedbackIconBg: document.getElementById('feedback-icon-bg'),
+            feedbackIcon: document.getElementById('feedback-icon'),
             circleAcc: document.getElementById('circle-acc'),
             valAcc: document.getElementById('val-acc'),
             circleWrist: document.getElementById('circle-wrist'),
@@ -425,7 +425,7 @@
             if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400"; else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400"; else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400"; else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
         }
         function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
-        
+
         // --- Toast / Interaction ---
         let touchStartY = 0; let touchEndY = 0;
         ui.toast.addEventListener('touchstart', e => { touchStartY = e.changedTouches[0].screenY; }, {passive: true});
@@ -509,7 +509,7 @@
         function flushChunk() {
             if (currentChunk.length === 0) return;
             // FIXED: Use raw strings, don't add JS timestamps. Match Python.
-            const chunkStr = currentChunk.join("\n"); 
+            const chunkStr = currentChunk.join("\n");
             chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
             currentChunk = [];
         }
