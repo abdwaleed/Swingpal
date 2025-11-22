@@ -47,7 +47,7 @@
         .is-pressed { filter: brightness(0.92) !important; }
         .is-pressed .btn-content { transform: scale(0.96); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
         
-        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); margin-bottom: env(safe-area-inset-bottom); }
+        .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center font-sans transition-colors duration-300 overflow-hidden">
@@ -58,6 +58,16 @@
             <h1 class="text-3xl font-extrabold tracking-tight text-gray-900 dark:text-white drop-shadow-sm">SwingPal</h1>
             
             <div class="flex items-center gap-3">
+                <!-- Notification Button (Restored) -->
+                <button id="btn-notifications" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600 relative">
+                    <div class="btn-content">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
+                        </svg>
+                        <span id="notification-dot" class="absolute top-1 right-1 h-2.5 w-2.5 bg-red-500 rounded-full border-2 border-gray-200 dark:border-gray-800 hidden"></span>
+                    </div>
+                </button>
+
                 <!-- Help Button -->
                 <button id="btn-help" class="touch-feedback p-2 rounded-full bg-gray-200 dark:bg-gray-800 text-gray-600 dark:text-blue-400 shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-150 focus:outline-none focus-visible:ring-2 focus-visible:ring-gray-400 dark:focus-visible:ring-gray-600" aria-label="Setup Guide">
                     <div class="btn-content">
@@ -83,32 +93,16 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
     </header>
 
-    <!-- Main Scrollable Area -->
-    <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 px-6 pb-32 pt-6">
+    <!-- Main Content Area -->
+    <!-- Flex-1 to fill space, flex-col to organize. No scroll here. -->
+    <main class="w-full max-w-md flex-1 flex flex-col min-h-0 px-6 gap-6">
 
-        <!-- Analysis Dashboard -->
-        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col h-auto">
+        <!-- Analysis Dashboard Card (Fixed Size Container) -->
+        <div class="w-full relative bg-white dark:bg-gray-800 rounded-3xl shadow-lg dark:shadow-[0_10px_25px_-5px_rgba(0,0,0,0.5)] border border-gray-200 dark:border-gray-700/50 flex flex-col flex-1 min-h-0 overflow-hidden">
             
-            <!-- 1. GREY OUT OVERLAY (Moved to Top Level for Stability) -->
-            <div id="analysis-overlay" class="absolute inset-0 z-50 bg-gray-50/90 dark:bg-gray-900/90 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500 rounded-3xl">
-                <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Complete a swing to unlock insights</p>
-                <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
-            </div>
-
-            <!-- 2. COUNTDOWN OVERLAY (Moved to Top Level) -->
-            <div id="countdown-overlay" class="absolute inset-0 z-50 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300 rounded-3xl">
-                <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
-                <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
-            </div>
-
-            <!-- Fixed Dashboard Header -->
-            <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-2 flex-shrink-0 bg-white dark:bg-gray-800">
+            <!-- HEADER: Swing Analysis (Beautiful Grey Title) -->
+            <!-- Placed at top of card, z-30 to sit above overlay -->
+            <div class="relative z-30 flex items-center justify-between px-6 pt-6 pb-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0">
                 <div class="flex items-center gap-2">
                     <div class="h-2 w-2 rounded-full bg-blue-500 animate-pulse shadow-[0_0_8px_rgba(59,130,246,0.6)]"></div>
                     <span class="text-[10px] font-bold uppercase tracking-[0.2em] text-gray-400 dark:text-gray-500">Swing Analysis</span>
@@ -119,11 +113,33 @@
                 </div>
             </div>
 
-            <!-- Scrollable Content Area -->
-            <div class="overflow-y-auto overscroll-y-auto no-scrollbar flex-1 px-6 pb-6 relative z-10">
-                <div class="flex flex-col gap-6">
+            <!-- Scrollable Content (Inside the card) -->
+            <div class="flex-1 overflow-y-auto overscroll-y-auto no-scrollbar px-6 pb-6 relative z-10">
+                
+                <!-- OVERLAYS (Inside Scroll Area but absolutely positioned to cover it) -->
+                
+                <!-- 1. GREY OUT OVERLAY -->
+                <div id="analysis-overlay" class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500">
+                    <div class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z" />
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                    </div>
+                    <p class="text-sm font-bold text-gray-600 dark:text-gray-300">Complete a swing to unlock insights</p>
+                    <p class="text-xs text-gray-400 mt-1">Press Start, Swing, then Stop</p>
+                </div>
+
+                <!-- 2. COUNTDOWN OVERLAY -->
+                <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300">
+                    <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
+                    <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
+                </div>
+
+                <!-- CONTENT -->
+                <div class="flex flex-col gap-6 pt-2">
                     <!-- Mastery Score -->
-                    <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4 pt-2">
+                    <div class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4">
                         <div>
                             <h2 class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1">Mastery</h2>
                             <div class="flex items-baseline">
@@ -131,7 +147,9 @@
                                 <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                             </div>
                         </div>
-                        <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">READY</div>
+                        <div id="score-badge" class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300">
+                            READY
+                        </div>
                     </div>
 
                     <!-- Circles -->
@@ -163,20 +181,17 @@
     </main>
 
     <!-- UNIFIED COMMAND CENTER (Fixed Bottom) -->
-    <!-- Reverted "Disconnect" logic: No color change, no disconnect click -->
-    <div class="fixed bottom-6 left-1/2 -translate-x-1/2 w-[90%] max-w-md z-40 safe-bottom">
+    <div class="w-full max-w-md mt-auto mb-6 flex-shrink-0 z-40 safe-bottom px-6">
         <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
             
-            <!-- Top Half: Connection Trigger (Reverted) -->
-            <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
+            <!-- Connection Trigger -->
+            <button id="connection-trigger" class="touch-feedback w-full group relative bg-white dark:bg-gray-800 p-1 transition-colors duration-300 hover:bg-gray-50 dark:hover:bg-gray-700/50 text-left outline-none focus:ring-0 z-10">
                 <div class="btn-content flex items-center justify-between p-3 transition-transform duration-100 ease-out">
                     <div class="flex items-center gap-4">
-                        <!-- Icon (No Red Hover) -->
-                        <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md dark:shadow-[0_2px_8px_rgba(0,0,0,0.5)] transition-all duration-300 group-hover:bg-blue-500 group-hover:scale-105">
+                        <div id="connection-icon-bg" class="flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500 group-hover:scale-105">
                             <svg id="bt-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" /></svg>
                             <svg id="check-icon" xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" /></svg>
                         </div>
-                        <!-- Text -->
                         <div class="flex flex-col justify-center">
                             <div class="text-[10px] font-bold uppercase tracking-widest text-gray-400 dark:text-gray-500 mb-0.5">Sensor Status</div>
                             <div id="status-text" class="text-sm font-bold text-gray-900 dark:text-white leading-none">Tap to Connect</div>
@@ -190,12 +205,12 @@
             <!-- Divider -->
             <div class="h-px w-full bg-gray-100 dark:bg-gray-700"></div>
 
-            <!-- Bottom Half: Action Buttons -->
+            <!-- Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
-                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
+                <button id="btn-start" disabled class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden">
                     <div class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out">Start</div>
                 </button>
-                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-rose-500/50 relative overflow-hidden">
+                <button id="btn-stop" disabled class="touch-feedback group w-full bg-rose-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden">
                     <div class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out">Stop</div>
                 </button>
             </div>
@@ -206,16 +221,26 @@
     <div id="toast" class="fixed top-6 left-1/2 transform -translate-x-1/2 -translate-y-20 opacity-0 bg-gray-900/90 dark:bg-white/90 text-white dark:text-gray-900 px-6 py-3 rounded-full shadow-2xl dark:shadow-[0_10px_20px_rgba(0,0,0,0.6)] backdrop-blur-md transition-all duration-500 z-50 flex items-center gap-3 w-[85%] max-w-sm justify-center pointer-events-auto border border-white/10 touch-none cursor-pointer">
         <span id="toast-icon"></span>
         <span id="toast-message" class="text-sm font-semibold tracking-wide flex-grow text-center">Notification</span>
-        <button id="btn-close-toast" class="ml-1 p-1 rounded-full hover:bg-white/20 dark:hover:bg-black/10 transition-colors cursor-pointer pointer-events-auto">
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-        </button>
+        <button id="btn-close-toast" class="ml-1 p-1 rounded-full hover:bg-white/20 dark:hover:bg-black/10 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 opacity-70" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
     </div>
 
-    <!-- BROWSER INCOMPATIBLE MODAL -->
-    <div id="incompatible-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-6"><div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div><div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">We are really sorry...</h2><p id="incompatible-text" class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6"></p><button onclick="document.getElementById('incompatible-modal').classList.add('hidden')" class="text-sm text-gray-400 hover:text-gray-600 underline">Dismiss (for testing)</button></div></div>
+    <!-- Notification Center -->
+    <div id="notify-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out">
+        <div id="notify-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div>
+        <div id="notify-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 scale-95 border border-gray-100 dark:border-gray-800 flex flex-col max-h-[80vh]">
+            <div class="flex justify-between items-center mb-4 flex-shrink-0">
+                <h2 class="text-xl font-bold text-gray-900 dark:text-white">History</h2>
+                <button id="btn-close-notify" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+            </div>
+            <div id="notify-list" class="flex-1 overflow-y-auto no-scrollbar space-y-3"><div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div></div>
+        </div>
+    </div>
+    
+    <!-- Browser Modal -->
+    <div id="incompatible-modal" class="fixed inset-0 z-[70] hidden items-center justify-center p-6"><div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div><div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800"><div class="w-16 h-16 bg-rose-100 dark:bg-rose-900/30 rounded-full flex items-center justify-center mx-auto mb-4"><svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-rose-500" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg></div><h2 class="text-2xl font-black text-gray-900 dark:text-white mb-2">We are really sorry...</h2><p id="incompatible-text" class="text-gray-500 dark:text-gray-400 leading-relaxed mb-6"></p><button onclick="document.getElementById('incompatible-modal').classList.add('hidden')" class="text-sm text-gray-400 hover:text-gray-600 underline">Dismiss (for testing)</button></div></div>
 
-    <!-- HELP MODAL -->
-    <div id="help-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"><div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div><div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 cubic-bezier(0.34, 1.56, 0.64, 1) scale-95 border border-gray-100 dark:border-gray-800"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2><button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div><button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button></div></div>
+    <!-- Help Modal -->
+    <div id="help-modal" class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"><div id="help-backdrop" class="absolute inset-0 bg-black/60 backdrop-blur-sm"></div><div id="help-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 scale-95 border border-gray-100 dark:border-gray-800"><div class="flex justify-between items-center mb-4"><h2 class="text-xl font-bold text-gray-900 dark:text-white">Quick Setup</h2><button id="btn-close-help" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button></div><div id="help-content" class="space-y-4 text-sm text-gray-600 dark:text-gray-300 leading-relaxed"></div><button id="btn-ok-help" class="w-full mt-6 bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl shadow-lg shadow-blue-500/30 transition-all active:scale-95">Got it</button></div></div>
 
     <script>
         // --- Init Checks ---
@@ -226,13 +251,16 @@
                 const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
                 const modal = document.getElementById('incompatible-modal');
                 const text = document.getElementById('incompatible-text');
+                
                 let msg = "";
                 if (isIOS) msg = `Apple restricts Bluetooth on standard iOS browsers.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
                 else msg = `Your current browser doesn't support Web Bluetooth.<br><br>Please try using <strong>Google Chrome</strong> or <strong>Edge</strong>.`;
                 text.innerHTML = msg; modal.classList.remove('hidden'); modal.classList.add('flex');
             }
+            
             const handlePress = (el) => el.classList.add('is-pressed');
             const handleRelease = (el) => el.classList.remove('is-pressed');
+
             document.querySelectorAll('.touch-feedback').forEach(el => {
                 el.addEventListener('touchstart', () => handlePress(el), {passive: true});
                 el.addEventListener('touchend', () => handleRelease(el), {passive: true});
@@ -263,6 +291,7 @@
         let safetyTimer;
         let recordingStartTime; 
         let recordingTimerInterval;
+        let notifications = [];
         const CSV_HEADER = "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
         // --- Elements ---
@@ -279,6 +308,8 @@
             count: document.getElementById('record-count'),
             btnTheme: document.getElementById('btn-theme'),
             btnHelp: document.getElementById('btn-help'),
+            btnNotify: document.getElementById('btn-notifications'),
+            notifyDot: document.getElementById('notification-dot'),
             html: document.documentElement,
             analysisOverlay: document.getElementById('analysis-overlay'),
             countdownOverlay: document.getElementById('countdown-overlay'),
@@ -304,7 +335,12 @@
             helpContent: document.getElementById('help-content'),
             helpBackdrop: document.getElementById('help-backdrop'),
             btnCloseHelp: document.getElementById('btn-close-help'),
-            btnOkHelp: document.getElementById('btn-ok-help')
+            btnOkHelp: document.getElementById('btn-ok-help'),
+            notifyModal: document.getElementById('notify-modal'),
+            notifyCard: document.getElementById('notify-card'),
+            notifyList: document.getElementById('notify-list'),
+            notifyBackdrop: document.getElementById('notify-backdrop'),
+            btnCloseNotify: document.getElementById('btn-close-notify')
         };
 
         // --- Theme ---
@@ -318,7 +354,24 @@
             }
         });
 
-        // --- HELP MODAL LOGIC ---
+        // --- NOTIFICATIONS ---
+        function openNotify() { renderNotifications(); ui.notifyDot.classList.add('hidden'); ui.notifyModal.classList.remove('invisible', 'pointer-events-none'); setTimeout(() => { ui.notifyModal.classList.remove('opacity-0'); ui.notifyCard.classList.remove('scale-95'); ui.notifyCard.classList.add('scale-100'); }, 10); }
+        function closeNotify() { ui.notifyModal.classList.add('opacity-0', 'pointer-events-none'); ui.notifyCard.classList.remove('scale-100'); ui.notifyCard.classList.add('scale-95'); setTimeout(() => { ui.notifyModal.classList.add('invisible'); }, 300); }
+        function addNotification(msg, type, downloadUrl = null) { notifications.unshift({ msg, type, downloadUrl, time: new Date() }); ui.notifyDot.classList.remove('hidden'); renderNotifications(); }
+        function renderNotifications() {
+            if (notifications.length === 0) { ui.notifyList.innerHTML = '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div>'; return; }
+            ui.notifyList.innerHTML = notifications.map((n) => {
+                let icon = '', action = ''; const time = n.time.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+                if (n.type === 'error') icon = `<span class="h-8 w-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">⚠️</span>`;
+                else if (n.type === 'download') icon = `<span class="h-8 w-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center flex-shrink-0">💾</span>`;
+                else icon = `<span class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center flex-shrink-0">✓</span>`;
+                if (n.downloadUrl) action = `<a href="${n.downloadUrl}" download="swing.csv" class="text-xs font-bold text-blue-600 hover:underline ml-auto">Download</a>`;
+                return `<div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">${icon}<div class="flex-grow min-w-0"><p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${n.msg}</p><p class="text-xs text-gray-400">${time}</p></div>${action}</div>`;
+            }).join('');
+        }
+        ui.btnNotify.addEventListener('click', openNotify); ui.notifyBackdrop.addEventListener('click', closeNotify); ui.btnCloseNotify.addEventListener('click', closeNotify);
+
+        // --- HELP MODAL ---
         function openHelp() {
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
@@ -326,36 +379,19 @@
             const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
             const isIOS = isiPhone || isIPad;
             const isAndroid = /android/i.test(ua);
-            if (isIOS) {
-                const deviceName = isIPad ? "iPad" : "iOS";
-                content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 ${deviceName} Setup</p><p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p><p>Apple blocks Bluetooth on standard browsers. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li><li>Open this website <em>inside</em> the Bluefy app.</li><li>Tap <strong>"Tap to Connect"</strong> below.</li></ol>`;
-            } else if (isAndroid) content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
-            else content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.</li><li>Ensure your computer has Bluetooth active.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
+            if (isIOS) content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p><p>Apple blocks Bluetooth on standard browsers. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li><li>Open this website <em>inside</em> the Bluefy app.</li><li>Tap <strong>"Tap to Connect"</strong> below.</li></ol>`;
+            else if (isAndroid) content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
+            else content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
             ui.helpContent.innerHTML = content;
             ui.helpModal.classList.remove('invisible', 'pointer-events-none');
             setTimeout(() => { ui.helpModal.classList.remove('opacity-0'); ui.helpCard.classList.remove('scale-95'); ui.helpCard.classList.add('scale-100'); }, 10);
         }
-
-        function closeHelp() {
-            ui.helpModal.classList.add('opacity-0', 'pointer-events-none');
-            ui.helpCard.classList.remove('scale-100');
-            ui.helpCard.classList.add('scale-95');
-            setTimeout(() => { ui.helpModal.classList.add('invisible'); }, 300);
-        }
-
-        ui.btnHelp.addEventListener('click', openHelp);
-        ui.helpBackdrop.addEventListener('click', closeHelp);
-        ui.btnCloseHelp.addEventListener('click', closeHelp);
-        ui.btnOkHelp.addEventListener('click', closeHelp);
+        function closeHelp() { ui.helpModal.classList.add('opacity-0', 'pointer-events-none'); ui.helpCard.classList.remove('scale-100'); ui.helpCard.classList.add('scale-95'); setTimeout(() => { ui.helpModal.classList.add('invisible'); }, 300); }
+        ui.btnHelp.addEventListener('click', openHelp); ui.helpBackdrop.addEventListener('click', closeHelp); ui.btnCloseHelp.addEventListener('click', closeHelp); ui.btnOkHelp.addEventListener('click', closeHelp);
 
         // --- Analysis Logic ---
         function getScoreColor(score) { if (score >= 90) return 'text-emerald-500'; if (score >= 70) return 'text-yellow-400'; if (score >= 50) return 'text-orange-500'; return 'text-red-500'; }
-        function getBadgeInfo(score) {
-            if (score >= 90) return { text: 'EXCELLENT', bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' };
-            if (score >= 70) return { text: 'GOOD', bg: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400' };
-            if (score >= 50) return { text: 'AVERAGE', bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400' };
-            return { text: 'POOR', bg: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' };
-        }
+        function getBadgeInfo(score) { if (score >= 90) return { text: 'EXCELLENT', bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-400' }; if (score >= 70) return { text: 'GOOD', bg: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-400' }; if (score >= 50) return { text: 'AVERAGE', bg: 'bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-400' }; return { text: 'POOR', bg: 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-400' }; }
         function generateFeedback(acc, wrist, form) {
             const scores = [{ name: 'acceleration', val: acc }, { name: 'wrist', val: wrist }, { name: 'form', val: form }];
             scores.sort((a, b) => a.val - b.val);
@@ -372,267 +408,120 @@
             ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
             ui.scoreOverall.innerText = overall;
             let gradientClass = "from-gray-700 to-gray-900 dark:from-gray-100 dark:to-gray-400";
-            if (overall >= 90) gradientClass = "from-emerald-400 to-teal-600";
-            else if (overall >= 70) gradientClass = "from-yellow-400 to-amber-600";
-            else if (overall < 50) gradientClass = "from-rose-400 to-red-600";
+            if (overall >= 90) gradientClass = "from-emerald-400 to-teal-600"; else if (overall >= 70) gradientClass = "from-yellow-400 to-amber-600"; else if (overall < 50) gradientClass = "from-rose-400 to-red-600";
             ui.scoreOverall.className = `inline-block text-5xl font-black text-transparent bg-clip-text bg-gradient-to-r ${gradientClass} tracking-tight`;
-            const badge = getBadgeInfo(overall);
-            ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`;
-            ui.scoreBadge.innerText = badge.text;
-            const feedback = generateFeedback(accScore, wristScore, formScore);
-            ui.coachFeedback.innerText = feedback.text;
-            const sentimentColors = {
-                'emerald': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/50', iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' },
-                'amber': { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/50', iconBg: 'bg-amber-100 dark:bg-amber-900/30', iconText: 'text-amber-600 dark:text-amber-400' },
-                'rose': { bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-100 dark:border-rose-800/50', iconBg: 'bg-rose-100 dark:bg-rose-900/30', iconText: 'text-rose-600 dark:text-rose-400' },
-                'blue': { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/50', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconText: 'text-blue-600 dark:text-blue-400' }
-            };
+            const badge = getBadgeInfo(overall); ui.scoreBadge.className = `px-3 py-1.5 rounded-full text-[10px] font-bold tracking-wide ${badge.bg}`; ui.scoreBadge.innerText = badge.text;
+            const feedback = generateFeedback(accScore, wristScore, formScore); ui.coachFeedback.innerText = feedback.text;
+            const sentimentColors = { 'emerald': { bg: 'bg-emerald-50 dark:bg-emerald-900/20', border: 'border-emerald-100 dark:border-emerald-800/50', iconBg: 'bg-emerald-100 dark:bg-emerald-900/30', iconText: 'text-emerald-600 dark:text-emerald-400' }, 'amber': { bg: 'bg-amber-50 dark:bg-amber-900/20', border: 'border-amber-100 dark:border-amber-800/50', iconBg: 'bg-amber-100 dark:bg-amber-900/30', iconText: 'text-amber-600 dark:text-amber-400' }, 'rose': { bg: 'bg-rose-50 dark:bg-rose-900/20', border: 'border-rose-100 dark:border-rose-800/50', iconBg: 'bg-rose-100 dark:bg-rose-900/30', iconText: 'text-rose-600 dark:text-rose-400' }, 'blue': { bg: 'bg-blue-50 dark:bg-blue-900/20', border: 'border-blue-100 dark:border-blue-800/50', iconBg: 'bg-blue-100 dark:bg-blue-900/30', iconText: 'text-blue-600 dark:text-blue-400' } };
             const style = sentimentColors[feedback.sentiment] || sentimentColors['blue'];
-            ui.feedbackContainer.className = `${style.bg} ${style.border} rounded-xl p-4 border transition-all duration-500`;
-            ui.feedbackIconBg.className = `${style.iconBg} p-1 rounded-full transition-colors duration-500`;
-            ui.feedbackIcon.className = `h-3 w-3 ${style.iconText} transition-colors duration-500`;
+            ui.feedbackContainer.className = `${style.bg} ${style.border} rounded-xl p-4 border transition-all duration-500`; ui.feedbackIconBg.className = `${style.iconBg} p-1 rounded-full transition-colors duration-500`; ui.feedbackIcon.className = `h-3 w-3 ${style.iconText} transition-colors duration-500`;
             resetCircle(ui.circleAcc); resetCircle(ui.circleWrist); resetCircle(ui.circleForm);
             setTimeout(() => { updateCircle(ui.circleAcc, ui.valAcc, accScore); updateCircle(ui.circleWrist, ui.valWrist, wristScore); updateCircle(ui.circleForm, ui.valForm, formScore); }, 100);
         }
         function resetCircle(circle) { circle.style.strokeDashoffset = 251.2; circle.setAttribute('class', 'text-gray-300 dark:text-gray-600 stroke-current circle-progress'); }
         function updateCircle(circle, textEl, score) {
-            const circumference = 251.2; const offset = circumference - (score / 100) * circumference;
-            const colorClass = getScoreColor(score);
-            circle.setAttribute('class', `${colorClass} stroke-current circle-progress`);
-            circle.style.strokeDashoffset = offset;
-            textEl.innerText = `${score}%`;
-            if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400";
-            else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400";
-            else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400";
-            else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
+            const circumference = 251.2; const offset = circumference - (score / 100) * circumference; const colorClass = getScoreColor(score);
+            circle.setAttribute('class', `${colorClass} stroke-current circle-progress`); circle.style.strokeDashoffset = offset; textEl.innerText = `${score}%`;
+            if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400"; else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400"; else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400"; else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
         }
         function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
         
-        // --- Toast Interaction ---
+        // --- Toast / Interaction ---
         let touchStartY = 0; let touchEndY = 0;
         ui.toast.addEventListener('touchstart', e => { touchStartY = e.changedTouches[0].screenY; }, {passive: true});
         ui.toast.addEventListener('touchend', e => { touchEndY = e.changedTouches[0].screenY; if(touchEndY < touchStartY - 30) hideToast(); }, {passive: true});
-        
-        // MANUAL CLICK DOWNLOAD
         ui.toast.addEventListener('click', (e) => {
             if (e.target.closest('#btn-close-toast')) return;
             if (pendingDownloadUrl) {
-                const a = document.createElement('a'); a.href = pendingDownloadUrl;
-                a.download = `swingpal_log_${new Date().toISOString().replace(/[:.]/g, '-').slice(0,19)}.csv`;
+                const a = document.createElement('a'); a.href = pendingDownloadUrl; a.download = `swingpal_log_${new Date().toISOString().replace(/[:.]/g, '-').slice(0,19)}.csv`;
                 document.body.appendChild(a); a.click(); document.body.removeChild(a);
-                setTimeout(() => { window.URL.revokeObjectURL(pendingDownloadUrl); pendingDownloadUrl = null; chunkBlobs = []; }, 100);
                 hideToast();
             }
         });
-
         function showToast(message, type = 'success') {
-            if (toastTimeout) clearTimeout(toastTimeout);
-            ui.toastMessage.innerText = message;
-            const icons = {
-                success: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`,
-                error: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 dark:text-rose-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`,
-                download: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>`
-            };
-            ui.toastIcon.innerHTML = icons[type] || icons['success'];
-            if(type === 'error') pendingDownloadUrl = null;
-            ui.toast.classList.remove('-translate-y-20', 'opacity-0');
-            toastTimeout = setTimeout(hideToast, 5000);
+            if (toastTimeout) clearTimeout(toastTimeout); ui.toastMessage.innerText = message;
+            const icons = { success: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-emerald-400 dark:text-emerald-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd" /></svg>`, error: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-rose-500 dark:text-rose-600" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clip-rule="evenodd" /></svg>`, download: `<svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-blue-500" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 17a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zm3.293-7.707a1 1 0 011.414 0L9 10.586V3a1 1 0 112 0v7.586l1.293-1.293a1 1 0 111.414 1.414l-3 3a1 1 0 01-1.414 0l-3-3a1 1 0 010-1.414z" clip-rule="evenodd" /></svg>` };
+            ui.toastIcon.innerHTML = icons[type] || icons['success']; if(type === 'error') pendingDownloadUrl = null;
+            ui.toast.classList.remove('-translate-y-20', 'opacity-0'); toastTimeout = setTimeout(hideToast, 5000);
         }
         function hideToast() { if (toastTimeout) clearTimeout(toastTimeout); ui.toast.classList.add('-translate-y-20', 'opacity-0'); }
         ui.btnCloseToast.addEventListener('click', hideToast);
 
         function setConnectionState(state, message = "") {
             if (state === 'disconnected') {
-                ui.connectTrigger.disabled = false;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500";
-                ui.btIcon.classList.remove('hidden'); ui.checkIcon.classList.add('hidden');
-                ui.statusText.innerText = "Tap to Connect";
-                ui.deviceName.style.height = "0px"; ui.deviceName.style.opacity = "0";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300 shadow-inner";
-                isConnected = false;
+                ui.connectTrigger.disabled = false; ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-blue-600 text-white shadow-md transition-all duration-300 group-hover:bg-blue-500"; ui.btIcon.classList.remove('hidden'); ui.checkIcon.classList.add('hidden'); ui.statusText.innerText = "Tap to Connect"; ui.deviceName.style.height = "0px"; ui.deviceName.style.opacity = "0"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-gray-300 dark:bg-gray-700 transition-colors duration-300 shadow-inner"; isConnected = false;
             } else if (state === 'connecting') {
-                ui.connectTrigger.disabled = true;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse";
-                ui.statusText.innerText = "Searching...";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
+                ui.connectTrigger.disabled = true; ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-yellow-500 text-white shadow-md animate-pulse"; ui.statusText.innerText = "Searching..."; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-yellow-400 animate-pulse";
             } else if (state === 'connected') {
-                // REVERTED: Disabled again to remove disconnect logic
-                ui.connectTrigger.disabled = true;
-                ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md";
-                ui.btIcon.classList.add('hidden'); ui.checkIcon.classList.remove('hidden');
-                ui.statusText.innerText = "Sensor Ready";
-                ui.deviceName.innerText = `Connected to: ${message}`;
-                ui.deviceName.style.height = "auto"; ui.deviceName.style.opacity = "1";
-                ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
-                showToast("Connected successfully!", 'success');
-                isConnected = true;
+                ui.connectTrigger.disabled = true; ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-emerald-500 text-white shadow-md"; ui.btIcon.classList.add('hidden'); ui.checkIcon.classList.remove('hidden'); ui.statusText.innerText = "Sensor Ready"; ui.deviceName.innerText = `Connected to: ${message}`; ui.deviceName.style.height = "auto"; ui.deviceName.style.opacity = "1"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]"; showToast("Connected successfully!", 'success'); isConnected = true;
             }
         }
-
         async function requestWakeLock() { try { if ('wakeLock' in navigator) wakeLock = await navigator.wakeLock.request('screen'); } catch (err) { console.log(err); } }
 
         ui.connectTrigger.addEventListener('click', async () => {
-            // Removed Disconnect Logic Block
-            if (isConnected) return; // Just ignore if connected
-
-            if (!navigator.bluetooth) {
-                const ua = navigator.userAgent || navigator.vendor || window.opera;
-                const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
-                const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
-                const isChromeIOS = /CriOS/.test(ua) && isIOS;
-                showToast(isChromeIOS ? "Chrome on iOS uses WebKit (Restricted). Use Bluefy." : (isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome."), 'error');
-                return;
-            }
-            const isAvailable = await navigator.bluetooth.getAvailability();
-            if (!isAvailable) { showToast("Bluetooth is off or no adapter found.", 'error'); return; }
+            if (isConnected) return;
+            if (!navigator.bluetooth) { const ua = navigator.userAgent || navigator.vendor || window.opera; const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua); const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad; const isChromeIOS = /CriOS/.test(ua) && isIOS; showToast(isChromeIOS ? "Chrome on iOS uses WebKit (Restricted). Use Bluefy." : (isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome."), 'error'); return; }
+            const isAvailable = await navigator.bluetooth.getAvailability(); if (!isAvailable) { showToast("Bluetooth is off or no adapter found.", 'error'); return; }
             try {
-                setConnectionState('connecting');
-                device = await navigator.bluetooth.requestDevice({ filters: [{ name: DEVICE_NAME_PREFIX }], optionalServices: [SERVICE_UUID] });
-                device.addEventListener('gattserverdisconnected', onDisconnected);
-                server = await device.gatt.connect();
-                const service = await server.getPrimaryService(SERVICE_UUID);
-                characteristic = await service.getCharacteristic(CHAR_UUID);
-                setConnectionState('connected', device.name);
-                ui.btnStart.disabled = false;
-                requestWakeLock();
-            } catch (error) {
-                console.error(error);
-                setConnectionState('disconnected');
-                if (error.message.includes("User cancelled")) return;
-                switch(error.name) {
-                    case 'NotFoundError': showToast("No SwingPal sensor found. Is it powered on?", 'error'); break;
-                    case 'NotSupportedError': showToast("Bluetooth appears disabled. Please turn it on in Settings.", 'error'); break;
-                    case 'SecurityError': showToast("Security block. Try tapping the screen again.", 'error'); break;
-                    case 'NetworkError': showToast("Connection lost. Try moving closer to the sensor.", 'error'); break;
-                    case 'NotAllowedError': showToast("Bluetooth permission denied. Please allow access.", 'error'); break;
-                    case 'InvalidStateError': showToast("Bluetooth is busy. Try restarting the app.", 'error'); break;
-                    default: showToast(error.message.includes("Connection failed") ? "Connection failed. Is another app using the sensor?" : "Oops! Connection error. Please try again.", 'error');
-                }
-            }
+                setConnectionState('connecting'); device = await navigator.bluetooth.requestDevice({ filters: [{ name: DEVICE_NAME_PREFIX }], optionalServices: [SERVICE_UUID] });
+                device.addEventListener('gattserverdisconnected', onDisconnected); server = await device.gatt.connect();
+                const service = await server.getPrimaryService(SERVICE_UUID); characteristic = await service.getCharacteristic(CHAR_UUID);
+                setConnectionState('connected', device.name); ui.btnStart.disabled = false; requestWakeLock();
+            } catch (error) { console.error(error); setConnectionState('disconnected'); if (error.message.includes("User cancelled")) return; switch(error.name) { case 'NotFoundError': showToast("No SwingPal sensor found. Is it powered on?", 'error'); break; case 'NotSupportedError': showToast("Bluetooth appears disabled. Please turn it on in Settings.", 'error'); break; case 'SecurityError': showToast("Security block. Try tapping the screen again.", 'error'); break; case 'NetworkError': showToast("Connection lost. Try moving closer to the sensor.", 'error'); break; case 'NotAllowedError': showToast("Bluetooth permission denied. Please allow access.", 'error'); break; case 'InvalidStateError': showToast("Bluetooth is busy. Try restarting the app.", 'error'); break; default: showToast(error.message.includes("Connection failed") ? "Connection failed. Is another app using the sensor?" : "Oops! Connection error. Please try again.", 'error'); } }
         });
 
-        function onDisconnected() {
-            setConnectionState('disconnected');
-            ui.btnStart.disabled = true; ui.btnStop.disabled = true; isRecording = false;
-            showToast("Sensor disconnected. Please reconnect.", 'error');
-            if (wakeLock) wakeLock.release();
-        }
-
-        function flushChunk() {
-            if (currentChunk.length === 0) return;
-            const chunkStr = currentChunk.map(row => `${new Date(row.t).toISOString().replace('T', ' ').replace('Z', '')},${row.d}`).join("\n");
-            chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
-            currentChunk = [];
-        }
+        function onDisconnected() { setConnectionState('disconnected'); ui.btnStart.disabled = true; ui.btnStop.disabled = true; isRecording = false; showToast("Sensor disconnected. Please reconnect.", 'error'); if (wakeLock) wakeLock.release(); }
 
         ui.btnStart.addEventListener('click', async () => {
             ui.btnStart.disabled = true;
-            try {
-                if (characteristic) {
-                    await characteristic.startNotifications();
-                    characteristic.addEventListener('characteristicvaluechanged', handleData);
-                }
-            } catch (e) {
-                console.error("Stream Error", e);
-                showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.", 'error');
-                ui.btnStart.disabled = false;
-                return;
-            }
-            resetAnalysisView();
-            ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none');
-            ui.countdownOverlay.classList.remove('hidden');
-            let count = 5;
-            ui.countdownNumber.innerText = count;
-            ui.countdownNumber.classList.remove('animate-number');
-            void ui.countdownNumber.offsetWidth;
-            ui.countdownNumber.classList.add('animate-number');
-            const timer = setInterval(() => {
-                count--;
-                if (count < 0) {
-                    clearInterval(timer);
-                    ui.countdownOverlay.classList.add('hidden');
-                    beginRecording();
-                } else {
-                    ui.countdownNumber.innerText = count;
-                    ui.countdownNumber.classList.remove('animate-number');
-                    void ui.countdownNumber.offsetWidth;
-                    ui.countdownNumber.classList.add('animate-number');
-                }
-            }, 1000);
+            try { if (characteristic) { await characteristic.startNotifications(); characteristic.addEventListener('characteristicvaluechanged', handleData); } } catch (e) { console.error("Stream Error", e); showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.", 'error'); ui.btnStart.disabled = false; return; }
+            resetAnalysisView(); ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none'); ui.countdownOverlay.classList.remove('hidden');
+            let count = 5; ui.countdownNumber.innerText = count; ui.countdownNumber.classList.remove('animate-number'); void ui.countdownNumber.offsetWidth; ui.countdownNumber.classList.add('animate-number');
+            const timer = setInterval(() => { count--; if (count < 0) { clearInterval(timer); ui.countdownOverlay.classList.add('hidden'); beginRecording(); } else { ui.countdownNumber.innerText = count; ui.countdownNumber.classList.remove('animate-number'); void ui.countdownNumber.offsetWidth; ui.countdownNumber.classList.add('animate-number'); } }, 1000);
         });
 
         function beginRecording() {
-            currentChunk = []; chunkBlobs = [];
-            isRecording = true; recordingStartTime = Date.now();
+            currentChunk = []; chunkBlobs = []; isRecording = true; recordingStartTime = Date.now();
             if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-            ui.statusText.innerText = "Recording: 0.0s";
-            ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse');
-            recordingTimerInterval = setInterval(() => {
-                const elapsed = (Date.now() - recordingStartTime) / 1000;
-                ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`;
-            }, 100);
-            if (safetyTimer) clearTimeout(safetyTimer);
-            safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)", 'error'); } }, MAX_RECORDING_TIME_MS);
-            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce";
-            ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
-            ui.btnStop.disabled = false;
-            showToast("Recording Started", 'success');
+            ui.statusText.innerText = "Recording: 0.0s"; ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse');
+            recordingTimerInterval = setInterval(() => { const elapsed = (Date.now() - recordingStartTime) / 1000; ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`; }, 100);
+            if (safetyTimer) clearTimeout(safetyTimer); safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)", 'error'); } }, MAX_RECORDING_TIME_MS);
+            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
+            ui.btnStop.disabled = false; showToast("Recording Started", 'success');
         }
 
         ui.btnStop.addEventListener('click', async () => {
-            isRecording = false;
-            if (safetyTimer) clearTimeout(safetyTimer);
-            if (recordingTimerInterval) clearInterval(recordingTimerInterval);
-            ui.statusText.innerText = "Sensor Ready";
-            ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
-            try {
-                if (characteristic) {
-                    await characteristic.stopNotifications();
-                    characteristic.removeEventListener('characteristicvaluechanged', handleData);
-                }
-            } catch (e) { console.error(e); }
+            isRecording = false; if (safetyTimer) clearTimeout(safetyTimer); if (recordingTimerInterval) clearInterval(recordingTimerInterval);
+            ui.statusText.innerText = "Sensor Ready"; ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
+            try { if (characteristic) { await characteristic.stopNotifications(); characteristic.removeEventListener('characteristicvaluechanged', handleData); } } catch (e) { console.error(e); }
             if (isConnected && device) setConnectionState('connected', device.name);
             ui.btnStop.disabled = true; ui.btnStart.disabled = false;
-            const accScore = Math.floor(Math.random() * 100);
-            const wristScore = Math.floor(Math.random() * 100);
-            const formScore = Math.floor(Math.random() * 100);
-            const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
-            if (overall > 20) {
-                swingCount++; ui.count.innerText = swingCount;
-                saveFile(); // This prepares pendingDownloadUrl
-                showToast("Analysis Ready. Tap to Download CSV.", 'download');
-            } else {
-                showToast("False Start Detected (Ignored)", 'error');
-                chunkBlobs = []; currentChunk = [];
-            }
+            const accScore = Math.floor(Math.random() * 100); const wristScore = Math.floor(Math.random() * 100); const formScore = Math.floor(Math.random() * 100); const overall = Math.floor((accScore * 0.3) + (wristScore * 0.3) + (formScore * 0.4));
+            if (overall > 20) { swingCount++; ui.count.innerText = swingCount; saveFile(); setTimeout(() => { if(pendingDownloadUrl) { const swingName = `Swing #${swingCount}`; addNotification(`Analysis Ready: ${swingName}`, 'download', pendingDownloadUrl); } }, 200); showToast("Analysis Ready. Tap to Download CSV.", 'download'); } else { showToast("False Start Detected (Ignored)", 'error'); chunkBlobs = []; currentChunk = []; }
             showAnalysis(accScore, wristScore, formScore, overall);
         });
 
         function handleData(event) {
-            const value = event.target.value;
-            const decoder = new TextDecoder('utf-8');
-            const rawLine = decoder.decode(value).trim();
-            if (isRecording && rawLine.length > 0) {
-                currentChunk.push({ t: Date.now(), d: rawLine });
-                if (currentChunk.length >= CHUNK_SIZE) flushChunk();
-            }
+            const value = event.target.value; const decoder = new TextDecoder('utf-8'); const rawLine = decoder.decode(value).trim();
+            if (isRecording && rawLine.length > 0) { currentChunk.push(rawLine); if (currentChunk.length >= CHUNK_SIZE) flushChunk(); }
+        }
+
+        function flushChunk() {
+            if (currentChunk.length === 0) return;
+            // FIXED: Use raw strings, don't add JS timestamps. Match Python.
+            const chunkStr = currentChunk.join("\n"); 
+            chunkBlobs.push(new Blob([chunkStr + "\n"], { type: 'text/plain' }));
+            currentChunk = [];
         }
 
         function saveFile() {
-            flushChunk();
-            if (chunkBlobs.length === 0) return;
+            flushChunk(); if (chunkBlobs.length === 0) return;
             const finalBlob = new Blob([CSV_HEADER + "\n", ...chunkBlobs], { type: 'text/csv' });
-            // DO NOT Revoke immediately for manual download flows
             if(pendingDownloadUrl) window.URL.revokeObjectURL(pendingDownloadUrl);
             pendingDownloadUrl = window.URL.createObjectURL(finalBlob);
-            
-            // We do NOT auto click. We wait for user action on Toast or Notification Center.
         }
 
-        document.addEventListener('keydown', (e) => {
-            if (e.key === 's' && !ui.btnStart.disabled) ui.btnStart.click();
-            if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click();
-        });
+        document.addEventListener('keydown', (e) => { if (e.key === 's' && !ui.btnStart.disabled) ui.btnStart.click(); if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click(); });
     </script>
 </body>
 </html>
