@@ -78,7 +78,7 @@
         <p class="text-sm text-gray-500 dark:text-gray-400 font-medium mt-1">Intuitive Tennis Coaching</p>
     </header>
 
-    <!-- Main Scrollable Area (Added overscroll-y-auto for iOS bounce) -->
+    <!-- Main Scrollable Area -->
     <main class="w-full max-w-md flex-1 overflow-y-auto overscroll-y-auto no-scrollbar flex flex-col gap-4 relative pb-4">
 
         <!-- Analysis Dashboard -->
@@ -183,7 +183,7 @@
     <div class="w-full max-w-md mt-auto mb-6 flex-shrink-0 z-40">
         <div class="w-full bg-white dark:bg-gray-800 rounded-3xl shadow-2xl dark:shadow-[0_25px_50px_-12px_rgba(0,0,0,0.7)] border border-gray-200 dark:border-gray-700 overflow-hidden">
             
-            <!-- Top Half: Connection Trigger (Enhanced Active State) -->
+            <!-- Top Half: Connection Trigger -->
             <button id="connection-trigger" class="w-full group relative bg-white dark:bg-gray-800 p-1 transition-all duration-150 active:bg-gray-50 dark:active:bg-gray-700 active:scale-[0.99] text-left outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-blue-500/50 z-10">
                 <div class="flex items-center justify-between p-3">
                     <div class="flex items-center gap-4">
@@ -203,7 +203,7 @@
 
             <div class="h-px w-full bg-gray-100 dark:bg-gray-700"></div>
 
-            <!-- Bottom Half: Action Buttons (Enhanced Active State) -->
+            <!-- Bottom Half: Action Buttons -->
             <div class="grid grid-cols-2 gap-px bg-gray-100 dark:bg-gray-700">
                 <button id="btn-start" disabled class="group w-full bg-emerald-600 text-white shadow-sm dark:shadow-[inset_0_1px_0_rgba(255,255,255,0.1)] p-5 pb-8 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 focus-visible:ring-2 focus-visible:ring-emerald-500/50 relative overflow-hidden">
                     <div class="font-bold text-lg text-center relative z-10">Start</div>
@@ -221,7 +221,7 @@
         <span id="toast-message" class="text-sm font-semibold tracking-wide">Notification</span>
     </div>
 
-    <!-- BROWSER INCOMPATIBLE MODAL (New) -->
+    <!-- BROWSER INCOMPATIBLE MODAL -->
     <div id="incompatible-modal" class="fixed inset-0 z-[60] hidden items-center justify-center p-6">
         <div class="absolute inset-0 bg-black/80 backdrop-blur-md"></div>
         <div class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-8 text-center border border-gray-200 dark:border-gray-800">
@@ -254,18 +254,23 @@
         window.addEventListener('load', () => {
             if (!navigator.bluetooth) {
                 const ua = navigator.userAgent || navigator.vendor || window.opera;
+                // Updated iPad Detection logic for the automatic popup
+                const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
+                const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
+                
                 const modal = document.getElementById('incompatible-modal');
                 const text = document.getElementById('incompatible-text');
                 
                 let msg = "";
 
-                if (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) {
-                    // iOS
-                    msg = `Apple restricts Bluetooth on standard iOS browsers.<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
+                if (isIOS) {
+                     // Correct advice for iPad/iPhone
+                    const deviceName = isIPad ? "iPad" : "iOS";
+                    msg = `Apple restricts Bluetooth on ${deviceName} browsers (Safari/Chrome).<br><br>Please download the free <strong>"Bluefy"</strong> app and open this website there.`;
                 } else if (/android/i.test(ua)) {
                     // Android
                     msg = `It looks like you are on Android.<br><br>Please use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong> to connect to your sensor.`;
-                } else if (/Macintosh/i.test(ua)) {
+                } else if (/Macintosh/i.test(ua)) { // Real Mac
                     // macOS
                     msg = `It looks like you are on a Mac.<br><br>Safari does not support Bluetooth. Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong>.`;
                 } else if (/Windows/i.test(ua)) {
@@ -273,7 +278,7 @@
                     msg = `It looks like you are on Windows.<br><br>Please open this page in <strong>Google Chrome</strong> or <strong>Microsoft Edge</strong> for Bluetooth support.`;
                 } else if (/Linux/i.test(ua)) {
                     // Linux
-                    msg = `It looks like you are on Linux.<br><br>Please use <strong>Google Chrome</strong> (you may need to enable experimental web platform features).`;
+                    msg = `It looks like you are on Linux.<br><br>Please use <strong>Google Chrome</strong>.`;
                 } else {
                     // Fallback
                     msg = `Your current browser doesn't support Web Bluetooth.<br><br>Please try using the latest version of <strong>Google Chrome</strong>.`;
@@ -363,20 +368,12 @@
             const ua = navigator.userAgent || navigator.vendor || window.opera;
             let content = "";
 
-            // Improved Detection:
-            // 1. Standard iOS detection (iPhone/iPod)
             const isiPhone = /iPhone|iPod/.test(ua) && !window.MSStream;
-            
-            // 2. Modern iPad detection (Looks like Mac, but has Touch Points)
             const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
-            
             const isIOS = isiPhone || isIPad;
             const isAndroid = /android/i.test(ua);
-            const isMac = /Macintosh/i.test(ua) && !isIOS; // Genuine Mac, not iPad
-            const isWindows = /Windows/i.test(ua);
-
+            
             if (isIOS) {
-                // Correct advice for iPad/iPhone
                 const deviceName = isIPad ? "iPad" : "iOS";
                 content = `
                     <p class="font-bold text-blue-600 dark:text-blue-400">📱 ${deviceName} Setup</p>
@@ -398,7 +395,6 @@
                     </ul>
                 `;
             } else {
-                // Desktop (Windows/Mac/Linux)
                 content = `
                     <p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p>
                     <ul class="list-disc pl-5 space-y-2">
@@ -411,7 +407,6 @@
 
             ui.helpContent.innerHTML = content;
             
-            // ANIMATION: Open
             ui.helpModal.classList.remove('invisible', 'pointer-events-none');
             setTimeout(() => {
                 ui.helpModal.classList.remove('opacity-0');
@@ -563,7 +558,9 @@
         ui.connectTrigger.addEventListener('click', async () => {
             if (isConnected) return;
             if (!navigator.bluetooth) {
-                const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+                const ua = navigator.userAgent || navigator.vendor || window.opera;
+                const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
+                const isIOS = (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
                 showToast(isIOS ? "Bluetooth unavailable in Safari. Please use the 'Bluefy' app." : "This browser doesn't support Bluetooth. Try Chrome.", 'error');
                 return;
             }
