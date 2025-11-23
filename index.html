@@ -483,7 +483,7 @@
             ui.btnStart.disabled = true;
             try { if (characteristic) { await characteristic.startNotifications(); characteristic.addEventListener('characteristicvaluechanged', handleData); } } catch (e) { console.error("Stream Error", e); showToast(e.name === 'NotSupportedError' ? "Sensor error: Data stream not supported." : "Could not wake sensor. Try reconnecting.", 'error'); ui.btnStart.disabled = false; return; }
             resetAnalysisView(); ui.analysisOverlay.classList.add('opacity-0', 'pointer-events-none'); ui.countdownOverlay.classList.remove('hidden');
-            let count = 5; ui.countdownNumber.innerText = count; ui.countdownNumber.classList.remove('animate-number'); void ui.countdownNumber.offsetWidth; ui.countdownNumber.classList.add('animate-number');
+            let count = 3; ui.countdownNumber.innerText = count; ui.countdownNumber.classList.remove('animate-number'); void ui.countdownNumber.offsetWidth; ui.countdownNumber.classList.add('animate-number');
             const timer = setInterval(() => { count--; if (count < 0) { clearInterval(timer); ui.countdownOverlay.classList.add('hidden'); beginRecording(); } else { ui.countdownNumber.innerText = count; ui.countdownNumber.classList.remove('animate-number'); void ui.countdownNumber.offsetWidth; ui.countdownNumber.classList.add('animate-number'); } }, 1000);
         });
 
