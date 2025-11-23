@@ -493,7 +493,7 @@
             ui.statusText.innerText = "Recording: 0.0s"; ui.statusText.classList.add('text-red-500', 'dark:text-red-400', 'animate-pulse');
             recordingTimerInterval = setInterval(() => { const elapsed = (Date.now() - recordingStartTime) / 1000; ui.statusText.innerText = `Recording: ${elapsed.toFixed(1)}s`; }, 100);
             if (safetyTimer) clearTimeout(safetyTimer); safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)", 'error'); } }, MAX_RECORDING_TIME_MS);
-            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-bounce"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
+            ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white animate-pulse"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false; showToast("Recording Started", 'success');
         }
 
