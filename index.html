@@ -29,6 +29,13 @@
         }
     </script>
     <style>
+        /* Apply smooth transition to all elements */
+        body, body * {
+            transition-property: background-color, border-color, color, fill, stroke, box-shadow;
+            transition-duration: 300ms;
+            transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        
         body { font-family: 'Inter', sans-serif; }
         .circle-progress { transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
 
