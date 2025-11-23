@@ -35,7 +35,7 @@
             transition-duration: 300ms;
             transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
         }
-        
+
         body { font-family: 'Inter', sans-serif; }
         .circle-progress { transition: stroke-dashoffset 1.5s cubic-bezier(0.4, 0, 0.2, 1); transform: rotate(-90deg); transform-origin: 50% 50%; }
 
@@ -55,6 +55,12 @@
         .is-pressed .btn-content { transform: scale(0.96); transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1); }
 
         .safe-bottom { padding-bottom: env(safe-area-inset-bottom); }
+
+        @keyframes ripple {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.6); opacity: 0; }
+        }
+        .animate-ripple { animation: ripple 2s cubic-bezier(0, 0.2, 0.8, 1) infinite; }
     </style>
 </head>
 <body class="bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 h-[100dvh] w-full flex flex-col items-center font-sans transition-colors duration-300 overflow-hidden">
@@ -141,6 +147,23 @@
                 <div id="countdown-overlay" class="absolute inset-0 z-30 bg-white/40 dark:bg-black/40 backdrop-blur-md flex flex-col items-center justify-center hidden transition-opacity duration-300">
                     <span class="text-xs font-black uppercase tracking-[0.2em] text-gray-500 dark:text-gray-300 mb-4">Get Ready</span>
                     <div id="countdown-number" class="text-8xl font-black text-blue-600 dark:text-blue-400 drop-shadow-2xl">5</div>
+                </div>
+
+                <!-- 3. ACTIVE RECORDING OVERLAY (New) -->
+                <div id="recording-overlay" class="absolute inset-0 z-20 bg-white/90 dark:bg-gray-900/90 backdrop-blur-sm flex flex-col items-center justify-center text-center hidden transition-opacity duration-500">
+                    <div class="relative w-24 h-24 flex items-center justify-center mb-6">
+                        <!-- Pulsing Ripples -->
+                        <div class="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ripple"></div>
+                        <div class="absolute inset-0 bg-blue-500 rounded-full opacity-20 animate-ripple" style="animation-delay: 0.5s;"></div>
+                        <!-- Center Icon -->
+                        <div class="relative z-10 bg-white dark:bg-gray-800 p-4 rounded-full shadow-lg border border-blue-100 dark:border-blue-900">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.384-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
+                        </div>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-900 dark:text-white mb-1">Listening...</h3>
+                    <p class="text-xs text-blue-500 font-medium tracking-wide uppercase">Perform your swing</p>
                 </div>
 
                 <!-- CONTENT -->
@@ -237,7 +260,23 @@
         <div id="notify-card" class="relative w-full max-w-sm bg-white dark:bg-gray-900 rounded-3xl shadow-2xl p-6 transform transition-all duration-300 scale-95 border border-gray-100 dark:border-gray-800 flex flex-col max-h-[80vh]">
             <div class="flex justify-between items-center mb-4 flex-shrink-0">
                 <h2 class="text-xl font-bold text-gray-900 dark:text-white">History</h2>
-                <button id="btn-close-notify" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors"><svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg></button>
+                <div class="flex gap-2 ml-auto">
+                    <!-- Download All Button -->
+                    <button id="btn-download-all" class="p-1 rounded-full hover:bg-blue-100 text-blue-500 dark:hover:bg-blue-900/30 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+                        </svg>
+                    </button>
+
+                    <!-- Close Button -->
+                    <button id="btn-close-notify" class="p-1 rounded-full hover:bg-gray-100 dark:hover:bg-gray-800 text-gray-500 transition-colors">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                d="M6 18L18 6M6 6l12 12"/>
+                        </svg>
+                    </button>
+                </div>
             </div>
             <div id="notify-list" class="flex-1 overflow-y-auto no-scrollbar space-y-3"><div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div></div>
         </div>
@@ -347,7 +386,8 @@
             notifyCard: document.getElementById('notify-card'),
             notifyList: document.getElementById('notify-list'),
             notifyBackdrop: document.getElementById('notify-backdrop'),
-            btnCloseNotify: document.getElementById('btn-close-notify')
+            btnCloseNotify: document.getElementById('btn-close-notify'),
+            recordingOverlay: document.getElementById('recording-overlay')
         };
 
         // --- Theme ---
@@ -375,6 +415,31 @@
                 if (n.downloadUrl) action = `<a href="${n.downloadUrl}" download="swing.csv" class="text-xs font-bold text-blue-600 hover:underline ml-auto">Download</a>`;
                 return `<div class="flex items-center gap-3 p-3 bg-gray-50 dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700">${icon}<div class="flex-grow min-w-0"><p class="text-sm font-medium text-gray-800 dark:text-gray-200 truncate">${n.msg}</p><p class="text-xs text-gray-400">${time}</p></div>${action}</div>`;
             }).join('');
+        }
+        function downloadAllHistory() {
+            // 1. Find all notifications that have a file attached
+            const validDownloads = notifications.filter(n => n.downloadUrl);
+
+            if (validDownloads.length === 0) {
+                showToast("No recordings found to download.", 'error');
+                return;
+            }
+
+            // 2. Loop through and download with a slight delay
+            validDownloads.forEach((n, index) => {
+                setTimeout(() => {
+                    const a = document.createElement('a');
+                    a.href = n.downloadUrl;
+                    // Create a clean filename based on time
+                    const timestamp = n.time.toISOString().replace(/[:.]/g, '-').slice(0,19);
+                    a.download = `swing_backup_${timestamp}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                }, index * 1000); // 1000ms delay between each file
+            });
+
+            showToast(`Downloading ${validDownloads.length} files...`, 'download');
         }
         ui.btnNotify.addEventListener('click', openNotify); ui.notifyBackdrop.addEventListener('click', closeNotify); ui.btnCloseNotify.addEventListener('click', closeNotify);
 
@@ -431,7 +496,11 @@
             circle.setAttribute('class', `${colorClass} stroke-current circle-progress`); circle.style.strokeDashoffset = offset; textEl.innerText = `${score}%`;
             if (score >= 90) textEl.className = "text-xl font-bold text-emerald-600 dark:text-emerald-400"; else if (score >= 70) textEl.className = "text-xl font-bold text-yellow-600 dark:text-yellow-400"; else if (score >= 50) textEl.className = "text-xl font-bold text-orange-600 dark:text-orange-400"; else textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
         }
-        function resetAnalysisView() { ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none'); }
+        function resetAnalysisView() {
+            ui.analysisOverlay.classList.remove('opacity-0', 'pointer-events-none');
+
+            if(ui.recordingOverlay) ui.recordingOverlay.classList.add('hidden');
+        }
 
         // --- Toast / Interaction ---
         let touchStartY = 0; let touchEndY = 0;
@@ -495,9 +564,13 @@
             if (safetyTimer) clearTimeout(safetyTimer); safetyTimer = setTimeout(() => { if (isRecording) { ui.btnStop.click(); showToast("Auto-stopped (Time Limit)", 'error'); } }, MAX_RECORDING_TIME_MS);
             ui.iconBg.className = "flex h-10 w-10 items-center justify-center rounded-xl bg-rose-600 text-white"; ui.statusIndicator.className = "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
             ui.btnStop.disabled = false; showToast("Recording Started", 'success');
+
+            ui.recordingOverlay.classList.remove('hidden');
         }
 
         ui.btnStop.addEventListener('click', async () => {
+            ui.recordingOverlay.classList.add('hidden');
+
             isRecording = false; if (safetyTimer) clearTimeout(safetyTimer); if (recordingTimerInterval) clearInterval(recordingTimerInterval);
             ui.statusText.innerText = "Sensor Ready"; ui.statusText.classList.remove('text-red-500', 'dark:text-red-400', 'animate-pulse');
             try { if (characteristic) { await characteristic.stopNotifications(); characteristic.removeEventListener('characteristicvaluechanged', handleData); } } catch (e) { console.error(e); }
@@ -529,6 +602,7 @@
         }
 
         document.addEventListener('keydown', (e) => { if (e.key === 's' && !ui.btnStart.disabled) ui.btnStart.click(); if (e.key === 'p' && !ui.btnStop.disabled) ui.btnStop.click(); });
+        document.getElementById('btn-download-all').addEventListener('click', downloadAllHistory);
     </script>
 </body>
 </html>
