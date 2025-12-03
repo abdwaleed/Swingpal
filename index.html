@@ -938,6 +938,7 @@
       let toastTimeout;
       let safetyTimer;
       let recordingStartTime;
+      let recordingCalendarTime = null; // Calendar timestamp when user clicks start
       let recordingTimerInterval;
       let notifications = [];
       let impactChart = null; // Chart.js instance
@@ -1023,8 +1024,8 @@
           ui.notifyModal.classList.add("invisible");
         }, 300);
       }
-      function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null) {
-        notifications.unshift({ msg, type, downloadUrl, downloadPngUrl, time: new Date() });
+      function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null, calendarTime = null) {
+        notifications.unshift({ msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() });
         ui.notifyDot.classList.remove("hidden");
         renderNotifications();
       }
@@ -1105,11 +1106,20 @@
 
         // 2. Create new blob URLs for each download to avoid network errors
         let downloadIndex = 0;
+        const formatTimestamp = (date) => {
+          if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+          const d = date instanceof Date ? date : new Date(date);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const hours = String(d.getHours()).padStart(2, "0");
+          const minutes = String(d.getMinutes()).padStart(2, "0");
+          const seconds = String(d.getSeconds()).padStart(2, "0");
+          return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+        };
+        
         validDownloads.forEach((n) => {
-          const timestamp = n.time
-            .toISOString()
-            .replace(/[:.]/g, "-")
-            .slice(0, 19);
+          const timestamp = formatTimestamp(n.calendarTime || n.time);
           
           if (n.downloadUrl) {
             setTimeout(() => {
@@ -1120,7 +1130,7 @@
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement("a");
                   a.href = url;
-                  a.download = `swing_backup_${timestamp}.csv`;
+                  a.download = `swing_${timestamp}.csv`;
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
@@ -1130,7 +1140,7 @@
                   // Fallback: try direct download
                   const a = document.createElement("a");
                   a.href = n.downloadUrl;
-                  a.download = `swing_backup_${timestamp}.csv`;
+                  a.download = `swing_${timestamp}.csv`;
                   document.body.appendChild(a);
                   a.click();
                   document.body.removeChild(a);
@@ -1531,6 +1541,9 @@
       }
 
       ui.btnStart.addEventListener("click", async () => {
+        // Store calendar timestamp when user clicks start
+        recordingCalendarTime = new Date();
+        
         ui.btnStart.disabled = true;
         try {
           if (characteristic) {
@@ -1549,6 +1562,7 @@
             "error"
           );
           ui.btnStart.disabled = false;
+          recordingCalendarTime = null;
           return;
         }
         resetAnalysisView();
@@ -1678,30 +1692,101 @@
                   realAccScore * 0.3 + wristScore * 0.3 + formScore * 0.4
                 );
                 showAnalysis(realAccScore, wristScore, formScore, updatedOverall);
+                
+                // Generate graphs PNG and add notification
+                setTimeout(() => {
+                  if (pendingDownloadUrl) {
+                    const getOrdinal = (n) => {
+                      const s = ["th", "st", "nd", "rd"];
+                      const v = n % 100;
+                      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                    };
+                    const swingName = `${getOrdinal(swingCount)} Swing`;
+                    // Generate graphs PNG
+                    generateGraphsPNG(
+                      result.rawData,
+                      result.netAccData,
+                      result.jerkData,
+                      result.angleDerivatives
+                    ).then((pngUrl) => {
+                      addNotification(
+                        `Analysis Ready: ${swingName}`,
+                        "download",
+                        pendingDownloadUrl,
+                        pngUrl,
+                        window.lastRecordingCalendarTime || recordingCalendarTime
+                      );
+                    }).catch(() => {
+                      addNotification(
+                        `Analysis Ready: ${swingName}`,
+                        "download",
+                        pendingDownloadUrl,
+                        null,
+                        window.lastRecordingCalendarTime || recordingCalendarTime
+                      );
+                    });
+                  }
+                }, 200);
               } else {
                 showAnalysis(accScore, wristScore, formScore, overall);
+                setTimeout(() => {
+                  if (pendingDownloadUrl) {
+                    const getOrdinal = (n) => {
+                      const s = ["th", "st", "nd", "rd"];
+                      const v = n % 100;
+                      return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                    };
+                    const swingName = `${getOrdinal(swingCount)} Swing`;
+                    addNotification(
+                      `Analysis Ready: ${swingName}`,
+                      "download",
+                      pendingDownloadUrl,
+                      null,
+                      window.lastRecordingCalendarTime || recordingCalendarTime
+                    );
+                  }
+                }, 200);
               }
             }).catch(() => {
               showAnalysis(accScore, wristScore, formScore, overall);
+              setTimeout(() => {
+                if (pendingDownloadUrl) {
+                  const getOrdinal = (n) => {
+                    const s = ["th", "st", "nd", "rd"];
+                    const v = n % 100;
+                    return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                  };
+                  const swingName = `${getOrdinal(swingCount)} Swing`;
+                  addNotification(
+                    `Analysis Ready: ${swingName}`,
+                    "download",
+                    pendingDownloadUrl,
+                    null,
+                    window.lastRecordingCalendarTime || recordingCalendarTime
+                  );
+                }
+              }, 200);
             });
           } else {
             showAnalysis(accScore, wristScore, formScore, overall);
+            setTimeout(() => {
+              if (pendingDownloadUrl) {
+                const getOrdinal = (n) => {
+                  const s = ["th", "st", "nd", "rd"];
+                  const v = n % 100;
+                  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+                };
+                const swingName = `${getOrdinal(swingCount)} Swing`;
+                addNotification(
+                  `Analysis Ready: ${swingName}`,
+                  "download",
+                  pendingDownloadUrl,
+                  null,
+                  window.lastRecordingCalendarTime || recordingCalendarTime
+                );
+              }
+            }, 200);
           }
-          setTimeout(() => {
-            if (pendingDownloadUrl) {
-              const getOrdinal = (n) => {
-                const s = ["th", "st", "nd", "rd"];
-                const v = n % 100;
-                return n + (s[(v - 20) % 10] || s[v] || s[0]);
-              };
-              const swingName = `${getOrdinal(swingCount)} Swing`;
-              addNotification(
-                `Analysis Ready: ${swingName}`,
-                "download",
-                pendingDownloadUrl
-              );
-            }
-          }, 200);
           showToast("Analysis Ready. Check notifications for downloads.", "download");
         } else {
           showToast("False Start Detected (Ignored)", "error");
@@ -1740,6 +1825,8 @@
         
         // Store blob for analysis
         window.lastRecordingBlob = finalBlob;
+        // Store calendar time for file naming
+        window.lastRecordingCalendarTime = recordingCalendarTime;
       }
 
       // Parse CSV data from blob (includes all data)
@@ -2065,13 +2152,17 @@
       async function generateGraphsPNG(rawData, netAccData, jerkData, angleDerivatives) {
         return new Promise((resolve) => {
           // Create a hidden canvas container for graph generation
+          const containerId = `graph-container-${Date.now()}`;
           const container = document.createElement("div");
+          container.id = containerId;
           container.style.position = "fixed";
           container.style.left = "-9999px";
           container.style.top = "0";
           container.style.width = "1200px";
           container.style.height = "2000px";
           container.style.backgroundColor = ui.html.classList.contains("dark") ? "#111827" : "#ffffff";
+          container.style.visibility = "visible";
+          container.style.display = "block";
           document.body.appendChild(container);
 
           const isDark = ui.html.classList.contains("dark");
@@ -2269,47 +2360,57 @@
           });
 
           // Wait for charts to render, then export
-          // Give more time for charts to fully render
-          setTimeout(() => {
-            // Check if html2canvas is available
-            if (typeof html2canvas !== "undefined" && html2canvas) {
-              html2canvas(container, {
-                backgroundColor: bgColor,
-                scale: 2,
-                logging: false,
-                useCORS: true,
-                allowTaint: false,
-                width: container.offsetWidth,
-                height: container.scrollHeight,
-              }).then(canvas => {
-                canvas.toBlob((blob) => {
-                  if (blob) {
-                    const url = URL.createObjectURL(blob);
-                    // Cleanup
-                    charts.forEach(chart => chart.destroy());
-                    document.body.removeChild(container);
-                    resolve(url);
-                  } else {
-                    console.error("Failed to create blob from canvas");
-                    charts.forEach(chart => chart.destroy());
-                    document.body.removeChild(container);
-                    resolve(null);
+          // Use requestAnimationFrame to ensure charts are fully rendered
+          requestAnimationFrame(() => {
+            setTimeout(() => {
+              // Check if html2canvas is available
+              if (typeof html2canvas !== "undefined" && html2canvas) {
+                html2canvas(container, {
+                  backgroundColor: bgColor,
+                  scale: 2,
+                  logging: false,
+                  useCORS: true,
+                  allowTaint: false,
+                  width: container.offsetWidth,
+                  height: container.scrollHeight,
+                  onclone: (clonedDoc) => {
+                    // Ensure all charts are visible in the cloned document
+                    const clonedContainer = clonedDoc.querySelector(`#${containerId}`);
+                    if (clonedContainer) {
+                      clonedContainer.style.visibility = 'visible';
+                      clonedContainer.style.display = 'block';
+                    }
                   }
-                }, "image/png");
-              }).catch((error) => {
-                console.error("html2canvas error:", error);
+                }).then(canvas => {
+                  canvas.toBlob((blob) => {
+                    if (blob) {
+                      const url = URL.createObjectURL(blob);
+                      // Cleanup
+                      charts.forEach(chart => chart.destroy());
+                      document.body.removeChild(container);
+                      resolve(url);
+                    } else {
+                      console.error("Failed to create blob from canvas");
+                      charts.forEach(chart => chart.destroy());
+                      document.body.removeChild(container);
+                      resolve(null);
+                    }
+                  }, "image/png");
+                }).catch((error) => {
+                  console.error("html2canvas error:", error);
+                  charts.forEach(chart => chart.destroy());
+                  document.body.removeChild(container);
+                  resolve(null);
+                });
+              } else {
+                console.warn("html2canvas not available");
+                // Fallback: try to use Chart.js export (requires manual canvas stitching)
                 charts.forEach(chart => chart.destroy());
                 document.body.removeChild(container);
                 resolve(null);
-              });
-            } else {
-              console.warn("html2canvas not available");
-              // Fallback: try to use Chart.js export (requires manual canvas stitching)
-              charts.forEach(chart => chart.destroy());
-              document.body.removeChild(container);
-              resolve(null);
-            }
-          }, 2000); // Increased wait time for charts to render
+              }
+            }, 1500); // Wait for charts to render
+          });
         });
       }
 
