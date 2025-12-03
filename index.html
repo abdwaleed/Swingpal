@@ -289,7 +289,7 @@
             class="absolute top-0 left-0 right-0 bottom-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500 pointer-events-auto"
             style="min-height: 1000px; width: 100%; overflow: hidden;"
           >
-            <div class="flex flex-col items-center justify-center">
+            <div class="flex flex-col items-center justify-center w-full">
               <div
                 class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700"
               >
@@ -419,57 +419,28 @@
             <!-- Metrics -->
             <div class="flex flex-col gap-6 pt-2">
               <!-- Circular Icons Row -->
-              <div class="flex justify-center items-center gap-6 px-1">
-                <div class="flex flex-col items-center gap-2">
-                  <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-2 border-emerald-500 dark:border-emerald-600">
-                    <span id="circular-peak-acc" class="text-lg font-black text-emerald-600 dark:text-emerald-400">--</span>
+              <div class="flex justify-center items-center gap-10 px-1">
+                <div class="flex flex-col items-center gap-3">
+                  <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-2 border-emerald-500 dark:border-emerald-600 shadow-md">
+                    <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">--</span>
                   </div>
-                  <span class="text-[10px] font-bold text-gray-700 dark:text-gray-300 text-center">Peak<br>Accel</span>
+                  <span class="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Peak Acceleration</span>
                 </div>
-                <div class="flex flex-col items-center gap-2 opacity-60 grayscale">
-                  <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
-                    <span class="text-lg font-black text-gray-400">--</span>
+                <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
+                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600 shadow-md">
+                    <span class="text-2xl font-black text-gray-400">--</span>
                   </div>
-                  <span class="text-[10px] font-bold text-gray-500 text-center">Swing<br>Form</span>
+                  <span class="text-xs font-bold text-gray-500 text-center">Swing Form</span>
                 </div>
-                <div class="flex flex-col items-center gap-2 opacity-60 grayscale">
-                  <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
-                    <span class="text-lg font-black text-gray-400">--</span>
+                <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
+                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600 shadow-md">
+                    <span class="text-2xl font-black text-gray-400">--</span>
                   </div>
-                  <span class="text-[10px] font-bold text-gray-500 text-center">Wrist<br>Looseness</span>
+                  <span class="text-xs font-bold text-gray-500 text-center">Wrist Looseness</span>
                 </div>
               </div>
 
-              <div class="flex flex-col gap-5 px-1">
-                <div>
-                  <div class="flex justify-between items-end mb-2">
-                    <h3
-                      class="text-sm font-bold text-gray-800 dark:text-gray-200"
-                    >
-                      Peak Acceleration
-                    </h3>
-                    <div class="flex flex-col items-end gap-0.5">
-                      <span
-                        id="text-peak-acc-val"
-                        class="text-xs font-bold text-blue-600 dark:text-blue-400 font-mono"
-                        >-- m/s²</span
-                      >
-                      <span
-                        id="text-peak-acc-time"
-                        class="text-[10px] font-medium text-gray-500 dark:text-gray-400 font-mono"
-                        >-- s</span
-                      >
-                    </div>
-                  </div>
-                  <div
-                    class="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
-                  >
-                    <div
-                      id="bar-peak-acc"
-                      class="h-full bg-blue-500 rounded-full w-0 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(59,130,246,0.4)]"
-                    ></div>
-                  </div>
-                </div>
+              <div class="flex flex-col gap-5 px-1 hidden">
 
                 <div class="opacity-60 grayscale">
                   <div class="flex justify-between items-end mb-2">
@@ -587,7 +558,7 @@
                   id="coach-feedback"
                   class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500"
                 >
-                  Analysis pending...
+                  Coming soon...
                 </p>
               </div>
             </div>
@@ -1016,9 +987,6 @@
         notifyBackdrop: document.getElementById("notify-backdrop"),
         btnCloseNotify: document.getElementById("btn-close-notify"),
         recordingOverlay: document.getElementById("recording-overlay"),
-        textPeakAccVal: document.getElementById("text-peak-acc-val"),
-        textPeakAccTime: document.getElementById("text-peak-acc-time"),
-        barPeakAcc: document.getElementById("bar-peak-acc"),
         circularPeakAcc: document.getElementById("circular-peak-acc"),
         impactChart: document.getElementById("impactChart"),
         swingLabel: document.getElementById("swing-label"),
@@ -1040,11 +1008,12 @@
         renderNotifications();
         ui.notifyDot.classList.add("hidden");
         ui.notifyModal.classList.remove("invisible", "pointer-events-none");
-        setTimeout(() => {
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
           ui.notifyModal.classList.remove("opacity-0");
           ui.notifyCard.classList.remove("scale-95");
           ui.notifyCard.classList.add("scale-100");
-        }, 10);
+        });
       }
       function closeNotify() {
         ui.notifyModal.classList.add("opacity-0", "pointer-events-none");
@@ -1223,11 +1192,12 @@
           content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
         ui.helpContent.innerHTML = content;
         ui.helpModal.classList.remove("invisible", "pointer-events-none");
-        setTimeout(() => {
+        // Use requestAnimationFrame for smoother animation
+        requestAnimationFrame(() => {
           ui.helpModal.classList.remove("opacity-0");
           ui.helpCard.classList.remove("scale-95");
           ui.helpCard.classList.add("scale-100");
-        }, 10);
+        });
       }
       function closeHelp() {
         ui.helpModal.classList.add("opacity-0", "pointer-events-none");
@@ -1361,6 +1331,8 @@
         if (scrollableContent) {
           const scrollHeight = scrollableContent.scrollHeight;
           ui.analysisOverlay.style.minHeight = `${scrollHeight}px`;
+          // Reset scroll position to top to center overlay content
+          scrollableContent.scrollTop = 0;
         }
 
         if (ui.recordingOverlay) ui.recordingOverlay.classList.add("hidden");
@@ -1680,14 +1652,14 @@
         );
         if (overall > 20) {
           swingCount++;
-          ui.count.innerText = swingCount;
           // Convert to ordinal (1st, 2nd, 3rd, etc.)
           const getOrdinal = (n) => {
             const s = ["th", "st", "nd", "rd"];
             const v = n % 100;
             return n + (s[(v - 20) % 10] || s[v] || s[0]);
           };
-          ui.swingLabel.textContent = `${getOrdinal(swingCount)} Swing`;
+          ui.count.innerText = getOrdinal(swingCount);
+          ui.swingLabel.textContent = "Swing";
           saveFile();
           // Analyze acceleration data
           if (window.lastRecordingBlob) {
@@ -1862,21 +1834,6 @@
         );
       }
 
-      // Update peak acceleration display
-      function updatePeakAccelerationDisplay(accValue, time) {
-        if (ui.textPeakAccVal) {
-          ui.textPeakAccVal.textContent = `${accValue.toFixed(1)} m/s²`;
-        }
-        if (ui.textPeakAccTime) {
-          ui.textPeakAccTime.textContent = `${time.toFixed(3)} s`;
-        }
-        // Calculate percentage for bar
-        const maxAcc = 200;
-        const percentage = Math.min((accValue / maxAcc) * 100, 100);
-        if (ui.barPeakAcc) {
-          ui.barPeakAcc.style.width = `${percentage}%`;
-        }
-      }
 
       // Create/update impact chart
       function updateImpactChart(netAccData, peakTime) {
@@ -1999,7 +1956,17 @@
                   color: gridColor,
                   drawBorder: false,
                 },
-                display: false,
+                title: {
+                  display: false,
+                },
+                ticks: {
+                  color: textColor,
+                  font: {
+                    size: 9,
+                  },
+                },
+                min: Math.max(0, minAcc - padding),
+                max: maxAcc + padding,
               },
             },
           },
@@ -2042,9 +2009,6 @@
             }
           }
 
-          // Update displays
-          updatePeakAccelerationDisplay(peakAcc, peakAccTime);
-          
           // Update circular icon
           if (ui.circularPeakAcc) {
             ui.circularPeakAcc.textContent = Math.round(peakAcc);
