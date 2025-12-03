@@ -429,30 +429,30 @@
             <!-- Metrics -->
             <div class="flex flex-col gap-6 pt-4">
               <!-- Circular Icons Row -->
-              <div class="flex justify-center items-center gap-6 px-1">
+              <div class="flex justify-center items-start gap-6 px-1">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-4 border-emerald-500 dark:border-emerald-600 shadow-md">
-                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
-                      <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">--</span>
-                      <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">m/s²</span>
+                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
+                      <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">--</span>
+                      <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 leading-none">m/s²</span>
                     </div>
                   </div>
                   <span class="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Peak Acceleration</span>
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
                   <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
-                      <span class="text-2xl font-black text-gray-400">--</span>
-                      <span class="text-[10px] font-medium text-gray-400">%</span>
+                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
+                      <span class="text-2xl font-black text-gray-400 leading-none">--</span>
+                      <span class="text-[10px] font-medium text-gray-400 leading-none">%</span>
                     </div>
                   </div>
                   <span class="text-xs font-bold text-gray-500 text-center">Swing Form</span>
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
                   <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
-                      <span class="text-2xl font-black text-gray-400">--</span>
-                      <span class="text-[10px] font-medium text-gray-400">%</span>
+                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
+                      <span class="text-2xl font-black text-gray-400 leading-none">--</span>
+                      <span class="text-[10px] font-medium text-gray-400 leading-none">%</span>
                     </div>
                   </div>
                   <span class="text-xs font-bold text-gray-500 text-center">Wrist Looseness</span>
@@ -961,6 +961,8 @@
       let recordingCalendarTime = null; // Calendar timestamp when user clicks start
       let recordingTimerInterval;
       let notifications = [];
+      // Expose notifications to window for debugging
+      window.swingpalNotifications = notifications;
       let impactChart = null; // Chart.js instance
       let csvData = []; // Store parsed CSV data for analysis
       const CSV_HEADER =
@@ -1025,8 +1027,20 @@
       });
 
       // --- NOTIFICATIONS ---
+      function updateNotificationDot() {
+        // Show dot if there are notifications, hide if empty
+        const currentNotifications = window.swingpalNotifications || notifications;
+        if (currentNotifications && currentNotifications.length > 0) {
+          ui.notifyDot.classList.remove("hidden");
+        } else {
+          ui.notifyDot.classList.add("hidden");
+        }
+      }
       function openNotify() {
+        // Force re-render with current notifications state
+        console.log("Opening notification center, current notifications:", notifications.length);
         renderNotifications();
+        // Hide dot when notification center is opened (user has seen notifications)
         ui.notifyDot.classList.add("hidden");
         ui.notifyModal.classList.remove("invisible", "pointer-events-none");
         // Use requestAnimationFrame for smoother animation
@@ -1034,6 +1048,8 @@
           ui.notifyModal.classList.remove("opacity-0");
           ui.notifyCard.classList.remove("scale-95");
           ui.notifyCard.classList.add("scale-100");
+          // Re-render one more time after animation to ensure latest state
+          setTimeout(() => renderNotifications(), 50);
         });
       }
       function closeNotify() {
@@ -1042,20 +1058,46 @@
         ui.notifyCard.classList.add("scale-95");
         setTimeout(() => {
           ui.notifyModal.classList.add("invisible");
+          // Update dot state when closing (in case new notifications arrived while open)
+          updateNotificationDot();
         }, 300);
       }
       function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null, calendarTime = null) {
-        notifications.unshift({ msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() });
-        ui.notifyDot.classList.remove("hidden");
+        const notification = { msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() };
+        notifications.unshift(notification);
+        // Keep window reference in sync
+        window.swingpalNotifications = notifications;
+        console.log("Added notification:", notification, "Total notifications:", notifications.length);
+        console.log("Full notifications array:", JSON.stringify(notifications, null, 2));
+        // Always refresh the notification list, even if modal is already open
         renderNotifications();
+        // Update the notification dot
+        updateNotificationDot();
       }
       function renderNotifications() {
-        if (notifications.length === 0) {
+        // Ensure notifyList element exists
+        if (!ui.notifyList) {
+          console.error("Notification list element not found");
+          return;
+        }
+        
+        // Use window reference if available, otherwise use local
+        const currentNotifications = window.swingpalNotifications || notifications;
+        
+        console.log("Rendering notifications, count:", currentNotifications.length);
+        console.log("Notifications array:", currentNotifications);
+        console.log("Local notifications array:", notifications);
+        console.log("Window notifications array:", window.swingpalNotifications);
+        
+        // Force a fresh check - sometimes the array might be empty due to timing
+        if (!currentNotifications || currentNotifications.length === 0) {
           ui.notifyList.innerHTML =
             '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div>';
           return;
         }
-        ui.notifyList.innerHTML = notifications
+        
+        // Use currentNotifications for rendering
+        ui.notifyList.innerHTML = currentNotifications
           .map((n) => {
             let icon = "",
               action = "";
@@ -1133,7 +1175,8 @@
       }
       function downloadAllHistory() {
         // 1. Find all notifications that have files attached
-        const validDownloads = notifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
+        const currentNotifications = window.swingpalNotifications || notifications;
+        const validDownloads = currentNotifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
 
         if (validDownloads.length === 0) {
           showToast("No recordings found to download.", "error");
@@ -1226,6 +1269,9 @@
       ui.btnNotify.addEventListener("click", openNotify);
       ui.notifyBackdrop.addEventListener("click", closeNotify);
       ui.btnCloseNotify.addEventListener("click", closeNotify);
+      
+      // Initialize notification dot state on page load
+      updateNotificationDot();
 
       // --- HELP MODAL ---
       function openHelp() {
@@ -1998,6 +2044,7 @@
         const gridColor = isDark ? "rgba(75, 85, 99, 0.2)" : "rgba(0, 0, 0, 0.08)";
         const lineColor = isDark ? "#10b981" : "#059669";
         const peakLineColor = isDark ? "#f59e0b" : "#d97706"; // Orange for peak line
+        const peakPointColor = isDark ? "#fbbf24" : "#facc15"; // Yellow for peak point - theme-aware
         
         // Find peak acceleration point in window data if provided
         let peakPoint = null;
@@ -2055,7 +2102,7 @@
             borderWidth: 2,
             borderDash: [5, 5],
             pointRadius: 6,
-            pointBackgroundColor: peakLineColor,
+            pointBackgroundColor: peakPointColor, // Theme-aware yellow color
             pointBorderColor: isDark ? "#1f2937" : "#ffffff",
             pointBorderWidth: 2,
             pointHoverRadius: 8,
