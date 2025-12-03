@@ -1025,8 +1025,17 @@
       });
 
       // --- NOTIFICATIONS ---
+      function updateNotificationDot() {
+        // Show dot if there are notifications, hide if empty
+        if (notifications.length > 0) {
+          ui.notifyDot.classList.remove("hidden");
+        } else {
+          ui.notifyDot.classList.add("hidden");
+        }
+      }
       function openNotify() {
         renderNotifications();
+        // Hide dot when notification center is opened (user has seen notifications)
         ui.notifyDot.classList.add("hidden");
         ui.notifyModal.classList.remove("invisible", "pointer-events-none");
         // Use requestAnimationFrame for smoother animation
@@ -1042,13 +1051,16 @@
         ui.notifyCard.classList.add("scale-95");
         setTimeout(() => {
           ui.notifyModal.classList.add("invisible");
+          // Update dot state when closing (in case new notifications arrived while open)
+          updateNotificationDot();
         }, 300);
       }
       function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null, calendarTime = null) {
         notifications.unshift({ msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() });
-        ui.notifyDot.classList.remove("hidden");
         // Always refresh the notification list, even if modal is already open
         renderNotifications();
+        // Update the notification dot
+        updateNotificationDot();
       }
       function renderNotifications() {
         if (notifications.length === 0) {
@@ -1227,6 +1239,9 @@
       ui.btnNotify.addEventListener("click", openNotify);
       ui.notifyBackdrop.addEventListener("click", closeNotify);
       ui.btnCloseNotify.addEventListener("click", closeNotify);
+      
+      // Initialize notification dot state on page load
+      updateNotificationDot();
 
       // --- HELP MODAL ---
       function openHelp() {
@@ -2533,4 +2548,4 @@
         .addEventListener("click", downloadAllHistory);
     </script>
   </body>
-</html
+</html>
