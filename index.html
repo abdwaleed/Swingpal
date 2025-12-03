@@ -922,6 +922,8 @@
       let recordingStartTime;
       let recordingTimerInterval;
       let notifications = [];
+      let impactChart = null; // Chart.js instance
+      let csvData = []; // Store parsed CSV data for analysis
       const CSV_HEADER =
         "Timestamp,Yaw(deg),Pitch(deg),Roll(deg),AccelX(m/s^2),AccelY(m/s^2),AccelZ(m/s^2)";
 
@@ -951,12 +953,6 @@
         feedbackContainer: document.getElementById("feedback-container"),
         feedbackIconBg: document.getElementById("feedback-icon-bg"),
         feedbackIcon: document.getElementById("feedback-icon"),
-        circleAcc: document.getElementById("circle-acc"),
-        valAcc: document.getElementById("val-acc"),
-        circleWrist: document.getElementById("circle-wrist"),
-        valWrist: document.getElementById("val-wrist"),
-        circleForm: document.getElementById("circle-form"),
-        valForm: document.getElementById("val-form"),
         toast: document.getElementById("toast"),
         toastMessage: document.getElementById("toast-message"),
         toastIcon: document.getElementById("toast-icon"),
@@ -973,6 +969,9 @@
         notifyBackdrop: document.getElementById("notify-backdrop"),
         btnCloseNotify: document.getElementById("btn-close-notify"),
         recordingOverlay: document.getElementById("recording-overlay"),
+        textAccVal: document.getElementById("text-acc-val"),
+        barAcc: document.getElementById("bar-acc"),
+        impactChart: document.getElementById("impactChart"),
       };
 
       // --- Theme ---
@@ -1216,43 +1215,6 @@
         ui.feedbackContainer.className = `${style.bg} ${style.border} rounded-xl p-4 border transition-all duration-500`;
         ui.feedbackIconBg.className = `${style.iconBg} p-1 rounded-full transition-colors duration-500`;
         ui.feedbackIcon.className = `h-3 w-3 ${style.iconText} transition-colors duration-500`;
-        resetCircle(ui.circleAcc);
-        resetCircle(ui.circleWrist);
-        resetCircle(ui.circleForm);
-        setTimeout(() => {
-          updateCircle(ui.circleAcc, ui.valAcc, accScore);
-          updateCircle(ui.circleWrist, ui.valWrist, wristScore);
-          updateCircle(ui.circleForm, ui.valForm, formScore);
-        }, 100);
-      }
-      function resetCircle(circle) {
-        circle.style.strokeDashoffset = 251.2;
-        circle.setAttribute(
-          "class",
-          "text-gray-300 dark:text-gray-600 stroke-current circle-progress"
-        );
-      }
-      function updateCircle(circle, textEl, score) {
-        const circumference = 251.2;
-        const offset = circumference - (score / 100) * circumference;
-        const colorClass = getScoreColor(score);
-        circle.setAttribute(
-          "class",
-          `${colorClass} stroke-current circle-progress`
-        );
-        circle.style.strokeDashoffset = offset;
-        textEl.innerText = `${score}%`;
-        if (score >= 90)
-          textEl.className =
-            "text-xl font-bold text-emerald-600 dark:text-emerald-400";
-        else if (score >= 70)
-          textEl.className =
-            "text-xl font-bold text-yellow-600 dark:text-yellow-400";
-        else if (score >= 50)
-          textEl.className =
-            "text-xl font-bold text-orange-600 dark:text-orange-400";
-        else
-          textEl.className = "text-xl font-bold text-red-600 dark:text-red-400";
       }
       function resetAnalysisView() {
         ui.analysisOverlay.classList.remove("opacity-0", "pointer-events-none");
@@ -1497,6 +1459,17 @@
       });
 
       function beginRecording() {
+        // Clear previous data to free memory
+        csvData = [];
+        if (window.lastRecordingBlob) {
+          window.URL.revokeObjectURL(window.lastRecordingBlob);
+          window.lastRecordingBlob = null;
+        }
+        window.lastAnalysisResult = null;
+        if (impactChart) {
+          impactChart.destroy();
+          impactChart = null;
+        }
         currentChunk = [];
         chunkBlobs = [];
         isRecording = true;
@@ -1565,6 +1538,32 @@
           swingCount++;
           ui.count.innerText = swingCount;
           saveFile();
+          // Analyze acceleration data
+          if (window.lastRecordingBlob) {
+            analyzeAccelerationData(window.lastRecordingBlob).then((result) => {
+              if (result) {
+                console.log("Impact acceleration:", result.acceleration, "m/s² at time", result.time, "s");
+                // Use real acceleration for scoring
+                // Convert acceleration to score (0-100 scale)
+                // Assuming max acceleration of 200 m/s² = 100 score
+                const maxAcc = 200;
+                const realAccScore = Math.min(
+                  Math.round((result.acceleration / maxAcc) * 100),
+                  100
+                );
+                const updatedOverall = Math.floor(
+                  realAccScore * 0.3 + wristScore * 0.3 + formScore * 0.4
+                );
+                showAnalysis(realAccScore, wristScore, formScore, updatedOverall);
+              } else {
+                showAnalysis(accScore, wristScore, formScore, overall);
+              }
+            }).catch(() => {
+              showAnalysis(accScore, wristScore, formScore, overall);
+            });
+          } else {
+            showAnalysis(accScore, wristScore, formScore, overall);
+          }
           setTimeout(() => {
             if (pendingDownloadUrl) {
               const swingName = `Swing #${swingCount}`;
@@ -1580,8 +1579,8 @@
           showToast("False Start Detected (Ignored)", "error");
           chunkBlobs = [];
           currentChunk = [];
+          showAnalysis(accScore, wristScore, formScore, overall);
         }
-        showAnalysis(accScore, wristScore, formScore, overall);
       });
 
       function handleData(event) {
@@ -1610,6 +1609,268 @@
         });
         if (pendingDownloadUrl) window.URL.revokeObjectURL(pendingDownloadUrl);
         pendingDownloadUrl = window.URL.createObjectURL(finalBlob);
+        
+        // Store blob for analysis
+        window.lastRecordingBlob = finalBlob;
+      }
+
+      // Parse CSV data from blob
+      async function parseCSVData(blob) {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = (e) => {
+            const text = e.target.result;
+            const lines = text.trim().split("\n");
+            const data = [];
+            // Skip header line (index 0)
+            for (let i = 1; i < lines.length; i++) {
+              const parts = lines[i].split(",");
+              if (parts.length >= 7) {
+                const timestamp = parseFloat(parts[0]);
+                const accelX = parseFloat(parts[4]);
+                const accelY = parseFloat(parts[5]);
+                const accelZ = parseFloat(parts[6]);
+                if (!isNaN(timestamp) && !isNaN(accelX) && !isNaN(accelY) && !isNaN(accelZ)) {
+                  data.push({
+                    time: timestamp,
+                    accelX: accelX,
+                    accelY: accelY,
+                    accelZ: accelZ,
+                  });
+                }
+              }
+            }
+            resolve(data);
+          };
+          reader.onerror = reject;
+          reader.readAsText(blob);
+        });
+      }
+
+      // Calculate net acceleration: sqrt(ax² + ay² + az²)
+      function calculateNetAcceleration(data) {
+        return data.map((d) => ({
+          time: d.time,
+          netAcc: Math.sqrt(d.accelX * d.accelX + d.accelY * d.accelY + d.accelZ * d.accelZ),
+        }));
+      }
+
+      // Calculate net jerk (derivative of net acceleration)
+      function calculateNetJerk(netAccData) {
+        const jerk = [];
+        for (let i = 1; i < netAccData.length; i++) {
+          const dt = netAccData[i].time - netAccData[i - 1].time;
+          if (dt > 0) {
+            const dAcc = netAccData[i].netAcc - netAccData[i - 1].netAcc;
+            const jerkValue = dAcc / dt;
+            jerk.push({
+              time: netAccData[i].time,
+              jerk: jerkValue,
+            });
+          }
+        }
+        return jerk;
+      }
+
+      // Find peak jerk and corresponding time
+      function findPeakJerk(jerkData) {
+        if (jerkData.length === 0) return null;
+        let maxJerk = Math.abs(jerkData[0].jerk);
+        let peakIndex = 0;
+        for (let i = 1; i < jerkData.length; i++) {
+          const absJerk = Math.abs(jerkData[i].jerk);
+          if (absJerk > maxJerk) {
+            maxJerk = absJerk;
+            peakIndex = i;
+          }
+        }
+        return {
+          time: jerkData[peakIndex].time,
+          index: peakIndex,
+        };
+      }
+
+      // Get net acceleration at specific time
+      function getAccelerationAtTime(netAccData, targetTime) {
+        // Find closest data point
+        let closestIndex = 0;
+        let minDiff = Math.abs(netAccData[0].time - targetTime);
+        for (let i = 1; i < netAccData.length; i++) {
+          const diff = Math.abs(netAccData[i].time - targetTime);
+          if (diff < minDiff) {
+            minDiff = diff;
+            closestIndex = i;
+          }
+        }
+        return netAccData[closestIndex].netAcc;
+      }
+
+      // Get data in time window (2 seconds before and after)
+      function getTimeWindowData(netAccData, centerTime, windowSeconds = 2) {
+        const startTime = centerTime - windowSeconds;
+        const endTime = centerTime + windowSeconds;
+        return netAccData.filter(
+          (d) => d.time >= startTime && d.time <= endTime
+        );
+      }
+
+      // Update acceleration display
+      function updateAccelerationDisplay(accValue) {
+        ui.textAccVal.textContent = `${accValue.toFixed(1)} m/s²`;
+        // Calculate percentage for bar (assuming max is 200 m/s², adjust as needed)
+        const maxAcc = 200;
+        const percentage = Math.min((accValue / maxAcc) * 100, 100);
+        ui.barAcc.style.width = `${percentage}%`;
+      }
+
+      // Create/update impact chart
+      function updateImpactChart(netAccData, peakTime) {
+        const windowData = getTimeWindowData(netAccData, peakTime, 2);
+        const labels = windowData.map((d) => (d.time - peakTime).toFixed(2));
+        const accValues = windowData.map((d) => d.netAcc);
+
+        // Destroy existing chart if it exists
+        if (impactChart) {
+          impactChart.destroy();
+        }
+
+        // Determine if dark mode is active
+        const isDark = ui.html.classList.contains("dark");
+        const textColor = isDark ? "#e5e7eb" : "#1f2937";
+        const gridColor = isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(0, 0, 0, 0.1)";
+        const lineColor = isDark ? "#10b981" : "#059669";
+
+        impactChart = new Chart(ui.impactChart, {
+          type: "line",
+          data: {
+            labels: labels,
+            datasets: [
+              {
+                label: "Net Acceleration",
+                data: accValues,
+                borderColor: lineColor,
+                backgroundColor: isDark
+                  ? "rgba(16, 185, 129, 0.1)"
+                  : "rgba(5, 150, 105, 0.1)",
+                borderWidth: 2,
+                fill: true,
+                tension: 0.4,
+                pointRadius: 0,
+                pointHoverRadius: 4,
+              },
+            ],
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: {
+                display: false,
+              },
+              tooltip: {
+                mode: "index",
+                intersect: false,
+                backgroundColor: isDark ? "rgba(17, 24, 39, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                titleColor: textColor,
+                bodyColor: textColor,
+                borderColor: gridColor,
+                borderWidth: 1,
+              },
+            },
+            scales: {
+              x: {
+                title: {
+                  display: true,
+                  text: "Time (s) relative to impact",
+                  color: textColor,
+                  font: {
+                    size: 10,
+                  },
+                },
+                ticks: {
+                  color: textColor,
+                  font: {
+                    size: 9,
+                  },
+                },
+                grid: {
+                  color: gridColor,
+                },
+              },
+              y: {
+                title: {
+                  display: true,
+                  text: "Acceleration (m/s²)",
+                  color: textColor,
+                  font: {
+                    size: 10,
+                  },
+                },
+                ticks: {
+                  color: textColor,
+                  font: {
+                    size: 9,
+                  },
+                },
+                grid: {
+                  color: gridColor,
+                },
+              },
+            },
+          },
+        });
+      }
+
+      // Main analysis function
+      async function analyzeAccelerationData(blob) {
+        try {
+          // Parse CSV
+          const rawData = await parseCSVData(blob);
+          if (rawData.length === 0) {
+            console.error("No valid data found in CSV");
+            return null;
+          }
+
+          // Calculate net acceleration
+          const netAccData = calculateNetAcceleration(rawData);
+          csvData = netAccData; // Store for potential future use
+
+          // Calculate net jerk
+          const jerkData = calculateNetJerk(netAccData);
+
+          // Find peak jerk (impact point)
+          const peakJerk = findPeakJerk(jerkData);
+          if (!peakJerk) {
+            console.error("Could not find peak jerk");
+            return null;
+          }
+
+          // Get acceleration at impact time
+          const impactAcceleration = getAccelerationAtTime(
+            netAccData,
+            peakJerk.time
+          );
+
+          // Update display
+          updateAccelerationDisplay(impactAcceleration);
+
+          // Update chart
+          updateImpactChart(netAccData, peakJerk.time);
+
+          // Store result globally for use in showAnalysis
+          window.lastAnalysisResult = {
+            acceleration: impactAcceleration,
+            time: peakJerk.time,
+          };
+
+          return {
+            acceleration: impactAcceleration,
+            time: peakJerk.time,
+          };
+        } catch (error) {
+          console.error("Error analyzing acceleration:", error);
+          return null;
+        }
       }
 
       document.addEventListener("keydown", (e) => {
