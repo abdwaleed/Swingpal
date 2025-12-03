@@ -7,6 +7,11 @@
       content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
     />
     <title>SwingPal</title>
+    <style>
+      * {
+        touch-action: manipulation;
+      }
+    </style>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <!-- Graphs-->
@@ -281,39 +286,41 @@
           <!-- 1. GREY OUT OVERLAY -->
           <div
             id="analysis-overlay"
-            class="absolute top-0 left-0 right-0 bottom-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500"
-            style="min-height: 1000px; width: 100%;"
+            class="absolute top-0 left-0 right-0 bottom-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500 pointer-events-auto"
+            style="min-height: 1000px; width: 100%; overflow: hidden;"
           >
-            <div
-              class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-6 w-6 text-gray-400"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div class="flex flex-col items-center justify-center">
+              <div
+                class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700"
               >
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
-                />
-                <path
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                  stroke-width="2"
-                  d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6 text-gray-400"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+              </div>
+              <p class="text-sm font-bold text-gray-600 dark:text-gray-300">
+                Complete a swing to unlock insights
+              </p>
+              <p class="text-xs text-gray-400 mt-1">
+                Press Start, Swing, then Stop
+              </p>
             </div>
-            <p class="text-sm font-bold text-gray-600 dark:text-gray-300">
-              Complete a swing to unlock insights
-            </p>
-            <p class="text-xs text-gray-400 mt-1">
-              Press Start, Swing, then Stop
-            </p>
           </div>
 
           <!-- 2. COUNTDOWN OVERLAY -->
@@ -376,11 +383,17 @@
               class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4 opacity-60 grayscale"
             >
               <div>
-                <h2
-                  class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide mb-1"
-                >
-                  Mastery
-                </h2>
+                <div class="flex items-center gap-2 mb-1">
+                  <h2
+                    class="text-sm font-bold text-gray-700 dark:text-gray-200 uppercase tracking-wide"
+                  >
+                    Mastery
+                  </h2>
+                  <span
+                    class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-gray-200 text-gray-500 dark:bg-gray-700 uppercase tracking-wide"
+                    >Soon</span
+                  >
+                </div>
                 <div class="flex items-baseline">
                   <span
                     id="score-overall"
@@ -405,37 +418,29 @@
 
             <!-- Metrics -->
             <div class="flex flex-col gap-6 pt-2">
-              <div class="flex flex-col gap-5 px-1">
-                <div>
-                  <div class="flex justify-between items-end mb-2">
-                    <h3
-                      class="text-sm font-bold text-gray-800 dark:text-gray-200"
-                    >
-                      Impact Acceleration
-                    </h3>
-                    <div class="flex flex-col items-end gap-0.5">
-                      <span
-                        id="text-acc-val"
-                        class="text-xs font-bold text-emerald-600 dark:text-emerald-400 font-mono"
-                        >-- m/s²</span
-                      >
-                      <span
-                        id="text-acc-time"
-                        class="text-[10px] font-medium text-gray-500 dark:text-gray-400 font-mono"
-                        >-- s</span
-                      >
-                    </div>
+              <!-- Circular Icons Row -->
+              <div class="flex justify-center items-center gap-6 px-1">
+                <div class="flex flex-col items-center gap-2">
+                  <div class="w-16 h-16 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-2 border-emerald-500 dark:border-emerald-600">
+                    <span id="circular-peak-acc" class="text-lg font-black text-emerald-600 dark:text-emerald-400">--</span>
                   </div>
-                  <div
-                    class="h-3 w-full bg-gray-100 dark:bg-gray-700 rounded-full overflow-hidden"
-                  >
-                    <div
-                      id="bar-acc"
-                      class="h-full bg-emerald-500 rounded-full w-0 transition-all duration-1000 ease-out shadow-[0_0_10px_rgba(16,185,129,0.4)]"
-                    ></div>
-                  </div>
+                  <span class="text-[10px] font-bold text-gray-700 dark:text-gray-300 text-center">Peak<br>Accel</span>
                 </div>
+                <div class="flex flex-col items-center gap-2 opacity-60 grayscale">
+                  <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
+                    <span class="text-lg font-black text-gray-400">--</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-gray-500 text-center">Swing<br>Form</span>
+                </div>
+                <div class="flex flex-col items-center gap-2 opacity-60 grayscale">
+                  <div class="w-16 h-16 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600">
+                    <span class="text-lg font-black text-gray-400">--</span>
+                  </div>
+                  <span class="text-[10px] font-bold text-gray-500 text-center">Wrist<br>Looseness</span>
+                </div>
+              </div>
 
+              <div class="flex flex-col gap-5 px-1">
                 <div>
                   <div class="flex justify-between items-end mb-2">
                     <h3
@@ -535,10 +540,10 @@
                 <h3
                   class="text-xs font-bold text-gray-400 dark:text-gray-500 uppercase tracking-widest mb-3"
                 >
-                  Impact Visualization
+                  Acceleration Profile
                 </h3>
                 <div
-                  class="relative w-full h-48 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-2 shadow-sm"
+                  class="relative w-full h-64 bg-white dark:bg-gray-800 rounded-xl border border-gray-100 dark:border-gray-700 p-2 shadow-sm"
                 >
                   <canvas id="impactChart"></canvas>
                 </div>
@@ -677,10 +682,10 @@
           <button
             id="btn-start"
             disabled
-            class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden"
+            class="touch-feedback group w-full bg-emerald-600 text-white shadow-sm py-3 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden"
           >
             <div
-              class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out"
+              class="btn-content font-bold text-base text-center relative z-10 transition-transform duration-100 ease-out"
             >
               Start
             </div>
@@ -688,10 +693,10 @@
           <button
             id="btn-stop"
             disabled
-            class="touch-feedback group w-full bg-rose-600 text-white shadow-sm py-4 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden"
+            class="touch-feedback group w-full bg-rose-600 text-white shadow-sm py-3 transition-all duration-150 enabled:active:scale-[0.97] enabled:active:brightness-110 disabled:shadow-none disabled:bg-white disabled:text-gray-300 disabled:cursor-not-allowed dark:disabled:bg-gray-800 dark:disabled:text-gray-600 outline-none focus:ring-0 relative overflow-hidden"
           >
             <div
-              class="btn-content font-bold text-lg text-center relative z-10 transition-transform duration-100 ease-out"
+              class="btn-content font-bold text-base text-center relative z-10 transition-transform duration-100 ease-out"
             >
               Stop
             </div>
@@ -735,7 +740,7 @@
     <!-- Notification Center -->
     <div
       id="notify-modal"
-      class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"
+      class="fixed inset-0 z-[100] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"
     >
       <div
         id="notify-backdrop"
@@ -852,7 +857,7 @@
     <!-- Help Modal -->
     <div
       id="help-modal"
-      class="fixed inset-0 z-[60] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"
+      class="fixed inset-0 z-[90] flex items-center justify-center p-4 opacity-0 invisible pointer-events-none transition-all duration-300 ease-out"
     >
       <div
         id="help-backdrop"
@@ -1011,12 +1016,10 @@
         notifyBackdrop: document.getElementById("notify-backdrop"),
         btnCloseNotify: document.getElementById("btn-close-notify"),
         recordingOverlay: document.getElementById("recording-overlay"),
-        textAccVal: document.getElementById("text-acc-val"),
-        textAccTime: document.getElementById("text-acc-time"),
-        barAcc: document.getElementById("bar-acc"),
         textPeakAccVal: document.getElementById("text-peak-acc-val"),
         textPeakAccTime: document.getElementById("text-peak-acc-time"),
         barPeakAcc: document.getElementById("bar-peak-acc"),
+        circularPeakAcc: document.getElementById("circular-peak-acc"),
         impactChart: document.getElementById("impactChart"),
         swingLabel: document.getElementById("swing-label"),
       };
@@ -1076,8 +1079,8 @@
               icon = `<span class="h-8 w-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center flex-shrink-0">💾</span>`;
             else
               icon = `<span class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center flex-shrink-0">✓</span>`;
-            // Extract swing number from message
-            const swingMatch = n.msg.match(/Swing #(\d+)/);
+            // Extract swing number from message (handles "Xth Swing" format)
+            const swingMatch = n.msg.match(/(\d+)(?:st|nd|rd|th) Swing/);
             const swingNum = swingMatch ? swingMatch[1] : "";
             
             let downloadBoxes = "";
@@ -1107,8 +1110,10 @@
             return `
               <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
                 <div class="flex items-center gap-3 mb-2">
-                  <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-md">
-                    ${swingNum || "?"}
+                  <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-md relative">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
                   </div>
                   <div class="flex-grow">
                     <p class="text-sm font-bold text-gray-900 dark:text-white">Swing ${swingNum || ""}</p>
@@ -1676,7 +1681,13 @@
         if (overall > 20) {
           swingCount++;
           ui.count.innerText = swingCount;
-          ui.swingLabel.textContent = swingCount === 1 ? "Swing" : "Swings";
+          // Convert to ordinal (1st, 2nd, 3rd, etc.)
+          const getOrdinal = (n) => {
+            const s = ["th", "st", "nd", "rd"];
+            const v = n % 100;
+            return n + (s[(v - 20) % 10] || s[v] || s[0]);
+          };
+          ui.swingLabel.textContent = `${getOrdinal(swingCount)} Swing`;
           saveFile();
           // Analyze acceleration data
           if (window.lastRecordingBlob) {
@@ -1706,7 +1717,12 @@
           }
           setTimeout(() => {
             if (pendingDownloadUrl) {
-              const swingName = `Swing #${swingCount}`;
+              const getOrdinal = (n) => {
+                const s = ["th", "st", "nd", "rd"];
+                const v = n % 100;
+                return n + (s[(v - 20) % 10] || s[v] || s[0]);
+              };
+              const swingName = `${getOrdinal(swingCount)} Swing`;
               addNotification(
                 `Analysis Ready: ${swingName}`,
                 "download",
@@ -1836,20 +1852,6 @@
         };
       }
 
-      // Get net acceleration at specific time
-      function getAccelerationAtTime(netAccData, targetTime) {
-        // Find closest data point
-        let closestIndex = 0;
-        let minDiff = Math.abs(netAccData[0].time - targetTime);
-        for (let i = 1; i < netAccData.length; i++) {
-          const diff = Math.abs(netAccData[i].time - targetTime);
-          if (diff < minDiff) {
-            minDiff = diff;
-            closestIndex = i;
-          }
-        }
-        return netAccData[closestIndex].netAcc;
-      }
 
       // Get data in time window (2 seconds before and after)
       function getTimeWindowData(netAccData, centerTime, windowSeconds = 2) {
@@ -1858,18 +1860,6 @@
         return netAccData.filter(
           (d) => d.time >= startTime && d.time <= endTime
         );
-      }
-
-      // Update acceleration display
-      function updateAccelerationDisplay(accValue, time) {
-        ui.textAccVal.textContent = `${accValue.toFixed(1)} m/s²`;
-        if (ui.textAccTime) {
-          ui.textAccTime.textContent = `${time.toFixed(3)} s`;
-        }
-        // Calculate percentage for bar (assuming max is 200 m/s², adjust as needed)
-        const maxAcc = 200;
-        const percentage = Math.min((accValue / maxAcc) * 100, 100);
-        ui.barAcc.style.width = `${percentage}%`;
       }
 
       // Update peak acceleration display
@@ -2009,8 +1999,7 @@
                   color: gridColor,
                   drawBorder: false,
                 },
-                min: Math.max(0, minAcc - padding),
-                max: maxAcc + padding,
+                display: false,
               },
             },
           },
@@ -2043,12 +2032,6 @@
             return null;
           }
 
-          // Get acceleration at impact time
-          const impactAcceleration = getAccelerationAtTime(
-            netAccData,
-            peakJerk.time
-          );
-
           // Find peak acceleration
           let peakAcc = netAccData[0].netAcc;
           let peakAccTime = netAccData[0].time;
@@ -2060,8 +2043,12 @@
           }
 
           // Update displays
-          updateAccelerationDisplay(impactAcceleration, peakJerk.time);
           updatePeakAccelerationDisplay(peakAcc, peakAccTime);
+          
+          // Update circular icon
+          if (ui.circularPeakAcc) {
+            ui.circularPeakAcc.textContent = Math.round(peakAcc);
+          }
 
           // Update chart (only if canvas exists)
           if (ui.impactChart && ui.impactChart.getContext) {
