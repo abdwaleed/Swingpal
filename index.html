@@ -47,8 +47,14 @@
       body * {
         transition-property: background-color, border-color, color, fill, stroke,
           box-shadow;
-        transition-duration: 300ms;
+        transition-duration: 500ms;
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+      }
+      
+      /* Enhanced transitions for theme switching */
+      html {
+        transition: background-color 500ms cubic-bezier(0.4, 0, 0.2, 1),
+                    color 500ms cubic-bezier(0.4, 0, 0.2, 1);
       }
 
       body {
@@ -257,6 +263,7 @@
               >0</span
             >
             <span
+              id="swing-label"
               class="text-[10px] font-bold text-gray-400 dark:text-gray-500 uppercase tracking-wider"
               >Swings</span
             >
@@ -272,7 +279,8 @@
           <!-- 1. GREY OUT OVERLAY -->
           <div
             id="analysis-overlay"
-            class="absolute inset-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500"
+            class="absolute top-0 left-0 right-0 z-20 bg-gray-50/80 dark:bg-gray-900/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 transition-all duration-500"
+            style="min-height: 100%; width: 100%; bottom: 0;"
           >
             <div
               class="bg-white dark:bg-gray-800 p-3 rounded-full shadow-sm dark:shadow-[0_2px_8px_rgba(0,0,0,0.6)] mb-3 ring-1 ring-gray-100 dark:ring-gray-700"
@@ -390,11 +398,16 @@
                   <span class="text-2xl font-bold text-gray-400 ml-1">%</span>
                 </div>
               </div>
-              <div
-                id="score-badge"
-                class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300"
-              >
-                READY
+              <div class="flex flex-col items-end gap-1">
+                <div
+                  id="score-badge"
+                  class="px-3 py-1.5 rounded-full text-[10px] font-bold bg-gray-100 text-gray-400 dark:bg-gray-700 dark:text-gray-500 tracking-wide transition-colors duration-300"
+                >
+                  READY
+                </div>
+                <span class="text-[8px] font-medium text-gray-400 dark:text-gray-500 uppercase tracking-wider">
+                  Coming Soon
+                </span>
               </div>
             </div>
 
@@ -972,6 +985,7 @@
         textAccVal: document.getElementById("text-acc-val"),
         barAcc: document.getElementById("bar-acc"),
         impactChart: document.getElementById("impactChart"),
+        swingLabel: document.getElementById("swing-label"),
       };
 
       // --- Theme ---
@@ -1099,6 +1113,8 @@
         ui.helpCard.classList.add("scale-95");
         setTimeout(() => {
           ui.helpModal.classList.add("invisible");
+          // Force reflow to prevent rendering artifacts on mobile
+          void ui.helpModal.offsetHeight;
         }, 300);
       }
       ui.btnHelp.addEventListener("click", openHelp);
@@ -1459,8 +1475,8 @@
       });
 
       function beginRecording() {
-        // Clear previous data to free memory
-        csvData = [];
+        // Clear previous data to free memory (optimized for weaker devices)
+        csvData.length = 0; // More efficient than reassignment
         if (window.lastRecordingBlob) {
           window.URL.revokeObjectURL(window.lastRecordingBlob);
           window.lastRecordingBlob = null;
@@ -1470,8 +1486,9 @@
           impactChart.destroy();
           impactChart = null;
         }
-        currentChunk = [];
-        chunkBlobs = [];
+        // Clear chunk arrays efficiently
+        currentChunk.length = 0;
+        chunkBlobs.length = 0;
         isRecording = true;
         recordingStartTime = Date.now();
         if (recordingTimerInterval) clearInterval(recordingTimerInterval);
@@ -1537,6 +1554,7 @@
         if (overall > 20) {
           swingCount++;
           ui.count.innerText = swingCount;
+          ui.swingLabel.textContent = swingCount === 1 ? "Swing" : "Swings";
           saveFile();
           // Analyze acceleration data
           if (window.lastRecordingBlob) {
@@ -1726,19 +1744,28 @@
       // Create/update impact chart
       function updateImpactChart(netAccData, peakTime) {
         const windowData = getTimeWindowData(netAccData, peakTime, 2);
+        if (windowData.length === 0) return;
+        
         const labels = windowData.map((d) => (d.time - peakTime).toFixed(2));
         const accValues = windowData.map((d) => d.netAcc);
 
         // Destroy existing chart if it exists
         if (impactChart) {
           impactChart.destroy();
+          impactChart = null;
         }
 
         // Determine if dark mode is active
         const isDark = ui.html.classList.contains("dark");
         const textColor = isDark ? "#e5e7eb" : "#1f2937";
-        const gridColor = isDark ? "rgba(75, 85, 99, 0.3)" : "rgba(0, 0, 0, 0.1)";
+        const gridColor = isDark ? "rgba(75, 85, 99, 0.2)" : "rgba(0, 0, 0, 0.08)";
         const lineColor = isDark ? "#10b981" : "#059669";
+
+        // Calculate min/max for better scaling
+        const minAcc = Math.min(...accValues);
+        const maxAcc = Math.max(...accValues);
+        const accRange = maxAcc - minAcc;
+        const padding = accRange * 0.1; // 10% padding
 
         impactChart = new Chart(ui.impactChart, {
           type: "line",
@@ -1750,19 +1777,25 @@
                 data: accValues,
                 borderColor: lineColor,
                 backgroundColor: isDark
-                  ? "rgba(16, 185, 129, 0.1)"
-                  : "rgba(5, 150, 105, 0.1)",
-                borderWidth: 2,
+                  ? "rgba(16, 185, 129, 0.15)"
+                  : "rgba(5, 150, 105, 0.15)",
+                borderWidth: 2.5,
                 fill: true,
-                tension: 0.4,
+                tension: 0.5,
                 pointRadius: 0,
-                pointHoverRadius: 4,
+                pointHoverRadius: 5,
+                pointHoverBorderWidth: 2,
+                pointHoverBackgroundColor: lineColor,
               },
             ],
           },
           options: {
             responsive: true,
             maintainAspectRatio: false,
+            interaction: {
+              intersect: false,
+              mode: "index",
+            },
             plugins: {
               legend: {
                 display: false,
@@ -1770,11 +1803,18 @@
               tooltip: {
                 mode: "index",
                 intersect: false,
-                backgroundColor: isDark ? "rgba(17, 24, 39, 0.9)" : "rgba(255, 255, 255, 0.9)",
+                backgroundColor: isDark ? "rgba(17, 24, 39, 0.95)" : "rgba(255, 255, 255, 0.95)",
                 titleColor: textColor,
                 bodyColor: textColor,
                 borderColor: gridColor,
                 borderWidth: 1,
+                padding: 10,
+                displayColors: false,
+                callbacks: {
+                  label: function(context) {
+                    return `Acceleration: ${context.parsed.y.toFixed(2)} m/s²`;
+                  },
+                },
               },
             },
             scales: {
@@ -1784,17 +1824,21 @@
                   text: "Time (s) relative to impact",
                   color: textColor,
                   font: {
-                    size: 10,
+                    size: 11,
+                    weight: "600",
                   },
+                  padding: { top: 8, bottom: 4 },
                 },
                 ticks: {
                   color: textColor,
                   font: {
                     size: 9,
                   },
+                  maxTicksLimit: 8,
                 },
                 grid: {
                   color: gridColor,
+                  drawBorder: false,
                 },
               },
               y: {
@@ -1803,8 +1847,10 @@
                   text: "Acceleration (m/s²)",
                   color: textColor,
                   font: {
-                    size: 10,
+                    size: 11,
+                    weight: "600",
                   },
+                  padding: { left: 8, right: 4 },
                 },
                 ticks: {
                   color: textColor,
@@ -1814,7 +1860,10 @@
                 },
                 grid: {
                   color: gridColor,
+                  drawBorder: false,
                 },
+                min: Math.max(0, minAcc - padding),
+                max: maxAcc + padding,
               },
             },
           },
@@ -1833,7 +1882,9 @@
 
           // Calculate net acceleration
           const netAccData = calculateNetAcceleration(rawData);
-          csvData = netAccData; // Store for potential future use
+          // Only store if needed, otherwise clear immediately for memory
+          csvData.length = 0;
+          csvData.push(...netAccData.slice()); // Store copy for potential future use
 
           // Calculate net jerk
           const jerkData = calculateNetJerk(netAccData);
