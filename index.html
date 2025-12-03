@@ -961,8 +961,6 @@
       let recordingCalendarTime = null; // Calendar timestamp when user clicks start
       let recordingTimerInterval;
       let notifications = [];
-      // Expose notifications to window for debugging
-      window.swingpalNotifications = notifications;
       let impactChart = null; // Chart.js instance
       let csvData = []; // Store parsed CSV data for analysis
       const CSV_HEADER =
@@ -1029,16 +1027,13 @@
       // --- NOTIFICATIONS ---
       function updateNotificationDot() {
         // Show dot if there are notifications, hide if empty
-        const currentNotifications = window.swingpalNotifications || notifications;
-        if (currentNotifications && currentNotifications.length > 0) {
+        if (notifications.length > 0) {
           ui.notifyDot.classList.remove("hidden");
         } else {
           ui.notifyDot.classList.add("hidden");
         }
       }
       function openNotify() {
-        // Force re-render with current notifications state
-        console.log("Opening notification center, current notifications:", notifications.length);
         renderNotifications();
         // Hide dot when notification center is opened (user has seen notifications)
         ui.notifyDot.classList.add("hidden");
@@ -1048,8 +1043,6 @@
           ui.notifyModal.classList.remove("opacity-0");
           ui.notifyCard.classList.remove("scale-95");
           ui.notifyCard.classList.add("scale-100");
-          // Re-render one more time after animation to ensure latest state
-          setTimeout(() => renderNotifications(), 50);
         });
       }
       function closeNotify() {
@@ -1065,10 +1058,7 @@
       function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null, calendarTime = null) {
         const notification = { msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() };
         notifications.unshift(notification);
-        // Keep window reference in sync
-        window.swingpalNotifications = notifications;
         console.log("Added notification:", notification, "Total notifications:", notifications.length);
-        console.log("Full notifications array:", JSON.stringify(notifications, null, 2));
         // Always refresh the notification list, even if modal is already open
         renderNotifications();
         // Update the notification dot
@@ -1081,23 +1071,14 @@
           return;
         }
         
-        // Use window reference if available, otherwise use local
-        const currentNotifications = window.swingpalNotifications || notifications;
+        console.log("Rendering notifications, count:", notifications.length);
         
-        console.log("Rendering notifications, count:", currentNotifications.length);
-        console.log("Notifications array:", currentNotifications);
-        console.log("Local notifications array:", notifications);
-        console.log("Window notifications array:", window.swingpalNotifications);
-        
-        // Force a fresh check - sometimes the array might be empty due to timing
-        if (!currentNotifications || currentNotifications.length === 0) {
+        if (notifications.length === 0) {
           ui.notifyList.innerHTML =
             '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div>';
           return;
         }
-        
-        // Use currentNotifications for rendering
-        ui.notifyList.innerHTML = currentNotifications
+        ui.notifyList.innerHTML = notifications
           .map((n) => {
             let icon = "",
               action = "";
@@ -1175,8 +1156,7 @@
       }
       function downloadAllHistory() {
         // 1. Find all notifications that have files attached
-        const currentNotifications = window.swingpalNotifications || notifications;
-        const validDownloads = currentNotifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
+        const validDownloads = notifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
 
         if (validDownloads.length === 0) {
           showToast("No recordings found to download.", "error");
