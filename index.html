@@ -27,6 +27,8 @@
     <!-- Graphs-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- ZIP Library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
 
     <!-- Font: Inter (Apple-like standard font) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -289,8 +291,30 @@
         <!-- Scrollable Content (Inside the card) -->
         <div
           id="scrollable-content"
-          class="flex-1 overflow-y-auto overscroll-y-auto no-scrollbar px-6 pb-6 relative z-10"
+          class="flex-1 overflow-y-auto overscroll-y-auto px-6 pb-6 relative z-10"
+          style="scrollbar-width: thin; scrollbar-color: rgba(156, 163, 175, 0.5) transparent;"
         >
+          <style>
+            #scrollable-content::-webkit-scrollbar {
+              width: 4px;
+            }
+            #scrollable-content::-webkit-scrollbar-track {
+              background: transparent;
+            }
+            #scrollable-content::-webkit-scrollbar-thumb {
+              background-color: rgba(156, 163, 175, 0.5);
+              border-radius: 2px;
+            }
+            #scrollable-content::-webkit-scrollbar-thumb:hover {
+              background-color: rgba(156, 163, 175, 0.7);
+            }
+            .dark #scrollable-content::-webkit-scrollbar-thumb {
+              background-color: rgba(107, 114, 128, 0.5);
+            }
+            .dark #scrollable-content::-webkit-scrollbar-thumb:hover {
+              background-color: rgba(107, 114, 128, 0.7);
+            }
+          </style>
           <!-- OVERLAYS (Inside Scroll Area but absolutely positioned to cover it) -->
 
           <!-- 1. GREY OUT OVERLAY -->
@@ -387,7 +411,7 @@
           </div>
 
           <!-- CONTENT -->
-          <div class="flex flex-col gap-6 pt-6">
+          <div class="flex flex-col gap-6 pt-8">
             <!-- Mastery Score -->
             <div
               class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4 opacity-60 grayscale"
@@ -1131,7 +1155,7 @@
           })
           .join("");
       }
-      function downloadAllHistory() {
+      async function downloadAllHistory() {
         // 1. Find all notifications that have files attached
         const validDownloads = notifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
 
@@ -1140,8 +1164,9 @@
           return;
         }
 
-        // 2. Create new blob URLs for each download to avoid network errors
-        let downloadIndex = 0;
+        // Show loading toast
+        showToast("Preparing ZIP file...", "download");
+
         const formatTimestamp = (date) => {
           if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
           const d = date instanceof Date ? date : new Date(date);
@@ -1153,75 +1178,76 @@
           const seconds = String(d.getSeconds()).padStart(2, "0");
           return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
         };
-        
-        validDownloads.forEach((n) => {
-          const timestamp = formatTimestamp(n.calendarTime || n.time);
-          
-          if (n.downloadUrl) {
-            setTimeout(() => {
-              // Create a fresh blob URL from the stored blob
-              fetch(n.downloadUrl)
-                .then(res => {
-                  if (!res.ok) throw new Error("Network error");
-                  return res.blob();
-                })
-                .then(blob => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `swing_${timestamp}.csv`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                })
-                .catch((err) => {
-                  console.error("CSV download error:", err);
-                  // Fallback: try direct download
-                  const a = document.createElement("a");
-                  a.href = n.downloadUrl;
-                  a.download = `swing_${timestamp}.csv`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                });
-            }, downloadIndex * 2000);
-            downloadIndex++;
-          }
-          
-          if (n.downloadPngUrl) {
-            setTimeout(() => {
-              fetch(n.downloadPngUrl)
-                .then(res => {
-                  if (!res.ok) throw new Error("Network error");
-                  return res.blob();
-                })
-                .then(blob => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `swing_graphs_${timestamp}.png`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                })
-                .catch((err) => {
-                  console.error("PNG download error:", err);
-                  // Fallback: try direct download
-                  const a = document.createElement("a");
-                  a.href = n.downloadPngUrl;
-                  a.download = `swing_graphs_${timestamp}.png`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                });
-            }, downloadIndex * 2000);
-            downloadIndex++;
-          }
-        });
 
-        showToast(`Downloading ${downloadIndex} file${downloadIndex !== 1 ? 's' : ''}...`, "download");
+        try {
+          // Check if JSZip is available
+          if (typeof JSZip === "undefined") {
+            throw new Error("JSZip library not loaded");
+          }
+
+          const zip = new JSZip();
+
+          // Fetch all files and add them to the ZIP
+          const fetchPromises = [];
+          validDownloads.forEach((n) => {
+            const timestamp = formatTimestamp(n.calendarTime || n.time);
+            
+            if (n.downloadUrl) {
+              fetchPromises.push(
+                fetch(n.downloadUrl)
+                  .then(res => {
+                    if (!res.ok) throw new Error(`Failed to fetch CSV: ${res.status}`);
+                    return res.blob();
+                  })
+                  .then(blob => {
+                    zip.file(`swing_${timestamp}.csv`, blob);
+                  })
+                  .catch(err => {
+                    console.error(`Error fetching CSV for ${timestamp}:`, err);
+                  })
+              );
+            }
+            
+            if (n.downloadPngUrl) {
+              fetchPromises.push(
+                fetch(n.downloadPngUrl)
+                  .then(res => {
+                    if (!res.ok) throw new Error(`Failed to fetch PNG: ${res.status}`);
+                    return res.blob();
+                  })
+                  .then(blob => {
+                    zip.file(`swing_graphs_${timestamp}.png`, blob);
+                  })
+                  .catch(err => {
+                    console.error(`Error fetching PNG for ${timestamp}:`, err);
+                  })
+              );
+            }
+          });
+
+          // Wait for all files to be fetched
+          await Promise.all(fetchPromises);
+
+          // Generate ZIP file
+          const zipBlob = await zip.generateAsync({ type: "blob" });
+          
+          // Create download link
+          const url = window.URL.createObjectURL(zipBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `swingpal_recordings_${new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19)}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          
+          // Cleanup
+          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+          
+          showToast(`Downloaded ${validDownloads.length} recording(s) as ZIP file.`, "success");
+        } catch (error) {
+          console.error("ZIP creation error:", error);
+          showToast("Failed to create ZIP file. Please try downloading individually.", "error");
+        }
       }
       ui.btnNotify.addEventListener("click", openNotify);
       ui.notifyBackdrop.addEventListener("click", closeNotify);
