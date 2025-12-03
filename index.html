@@ -1047,6 +1047,7 @@
       function addNotification(msg, type, downloadUrl = null, downloadPngUrl = null, calendarTime = null) {
         notifications.unshift({ msg, type, downloadUrl, downloadPngUrl, time: new Date(), calendarTime: calendarTime || new Date() });
         ui.notifyDot.classList.remove("hidden");
+        // Always refresh the notification list, even if modal is already open
         renderNotifications();
       }
       function renderNotifications() {
