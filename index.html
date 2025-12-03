@@ -295,6 +295,9 @@
           style="scrollbar-width: thin; scrollbar-color: rgba(156, 163, 175, 0.5) transparent;"
         >
           <style>
+            #scrollable-content {
+              scrollbar-gutter: stable;
+            }
             #scrollable-content::-webkit-scrollbar {
               width: 4px;
             }
@@ -307,6 +310,9 @@
             }
             #scrollable-content::-webkit-scrollbar-thumb:hover {
               background-color: rgba(156, 163, 175, 0.7);
+            }
+            #scrollable-content::-webkit-scrollbar-button {
+              display: none;
             }
             .dark #scrollable-content::-webkit-scrollbar-thumb {
               background-color: rgba(107, 114, 128, 0.5);
@@ -1997,8 +2003,10 @@
 
 
       // Create/update impact chart
-      function updateImpactChart(netAccData, peakTime, peakAcc = null, peakAccTime = null) {
-        const windowData = getTimeWindowData(netAccData, peakTime, 2);
+      function updateImpactChart(netAccData, centerTime, peakAcc = null, peakAccTime = null) {
+        // Center the graph at peakAccTime + 2 seconds
+        const graphCenterTime = peakAccTime !== null ? peakAccTime + 2 : centerTime;
+        const windowData = getTimeWindowData(netAccData, graphCenterTime, 2);
         const graphWrapper = document.getElementById("graph-container-wrapper");
         
         if (windowData.length === 0) {
@@ -2009,7 +2017,7 @@
         // Show graph container
         if (graphWrapper) graphWrapper.style.display = "block";
         
-        const labels = windowData.map((d) => (d.time - peakTime).toFixed(2));
+        const labels = windowData.map((d) => (d.time - graphCenterTime).toFixed(2));
         const accValues = windowData.map((d) => d.netAcc);
 
         // Destroy existing chart if it exists
@@ -2028,7 +2036,7 @@
         // Find peak acceleration point in window data if provided
         let peakPoint = null;
         if (peakAcc !== null && peakAccTime !== null) {
-          const peakTimeRelative = peakAccTime - peakTime;
+          const peakTimeRelative = peakAccTime - graphCenterTime;
           const peakIndex = labels.findIndex((label, idx) => {
             const labelTime = parseFloat(label);
             return Math.abs(labelTime - peakTimeRelative) < 0.01;
@@ -2133,7 +2141,7 @@
               x: {
                 title: {
                   display: true,
-                  text: "Time (s) relative to impact",
+                  text: "Time (s) relative to peak acceleration + 2s",
                   color: textColor,
                   font: {
                     size: 11,
