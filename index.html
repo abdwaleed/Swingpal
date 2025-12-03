@@ -251,7 +251,7 @@
         <!-- HEADER: Swing Analysis (Beautiful Grey Title) -->
         <!-- Placed at top of card, z-30 to sit above overlay -->
         <div
-          class="relative z-30 flex items-center justify-between px-6 pt-6 pb-4 bg-white dark:bg-gray-800 border-b border-gray-100 dark:border-gray-700/50 flex-shrink-0"
+          class="relative z-30 flex items-center justify-between px-6 pt-6 pb-4 bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700 flex-shrink-0"
         >
           <div class="flex items-center gap-2">
             <div
@@ -419,22 +419,31 @@
             <!-- Metrics -->
             <div class="flex flex-col gap-6 pt-2">
               <!-- Circular Icons Row -->
-              <div class="flex justify-center items-center gap-10 px-1">
+              <div class="flex justify-center items-center gap-6 px-1">
                 <div class="flex flex-col items-center gap-3">
-                  <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-2 border-emerald-500 dark:border-emerald-600 shadow-md">
-                    <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">--</span>
+                  <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-4 border-emerald-500 dark:border-emerald-600 shadow-md">
+                    <div class="flex items-baseline gap-1">
+                      <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">--</span>
+                      <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">m/s²</span>
+                    </div>
                   </div>
                   <span class="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Peak Acceleration</span>
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
-                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600 shadow-md">
-                    <span class="text-2xl font-black text-gray-400">--</span>
+                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-2xl font-black text-gray-400">--</span>
+                      <span class="text-[10px] font-medium text-gray-400">%</span>
+                    </div>
                   </div>
                   <span class="text-xs font-bold text-gray-500 text-center">Swing Form</span>
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
-                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-2 border-gray-300 dark:border-gray-600 shadow-md">
-                    <span class="text-2xl font-black text-gray-400">--</span>
+                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-2xl font-black text-gray-400">--</span>
+                      <span class="text-[10px] font-medium text-gray-400">%</span>
+                    </div>
                   </div>
                   <span class="text-xs font-bold text-gray-500 text-center">Wrist Looseness</span>
                 </div>
@@ -1053,12 +1062,27 @@
             const swingMatch = n.msg.match(/(\d+)(?:st|nd|rd|th) Swing/);
             const swingNum = swingMatch ? swingMatch[1] : "";
             
+            // Format timestamp for filename (YYYY-MM-DD_HH-MM-SS)
+            const formatTimestamp = (date) => {
+              if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+              const d = date instanceof Date ? date : new Date(date);
+              const year = d.getFullYear();
+              const month = String(d.getMonth() + 1).padStart(2, "0");
+              const day = String(d.getDate()).padStart(2, "0");
+              const hours = String(d.getHours()).padStart(2, "0");
+              const minutes = String(d.getMinutes()).padStart(2, "0");
+              const seconds = String(d.getSeconds()).padStart(2, "0");
+              return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+            };
+            const fileTimestamp = formatTimestamp(n.calendarTime);
+            
             let downloadBoxes = "";
             if (n.downloadUrl || n.downloadPngUrl) {
               downloadBoxes = '<div class="flex gap-2 mt-3">';
               if (n.downloadUrl) {
+                const csvFilename = `swing_${fileTimestamp}.csv`;
                 downloadBoxes += `
-                  <a href="${n.downloadUrl}" download="swing.csv" class="flex-1 flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                  <a href="${n.downloadUrl}" download="${csvFilename}" class="flex-1 flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                     </svg>
@@ -1066,12 +1090,13 @@
                   </a>`;
               }
               if (n.downloadPngUrl) {
+                const pngFilename = `swing_graphs_${fileTimestamp}.png`;
                 downloadBoxes += `
-                  <a href="${n.downloadPngUrl}" download="swing_graphs.png" class="flex-1 flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                  <a href="${n.downloadPngUrl}" download="${pngFilename}" class="flex-1 flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                     </svg>
-                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Graphs</span>
+                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">PNG</span>
                   </a>`;
               }
               downloadBoxes += '</div>';
@@ -1599,6 +1624,9 @@
           impactChart.destroy();
           impactChart = null;
         }
+        // Hide graph container
+        const graphWrapper = document.getElementById("graph-container-wrapper");
+        if (graphWrapper) graphWrapper.style.display = "none";
         // Clear chunk arrays efficiently
         currentChunk.length = 0;
         chunkBlobs.length = 0;
@@ -2098,7 +2126,11 @@
 
           // Update circular icon
           if (ui.circularPeakAcc) {
-            ui.circularPeakAcc.textContent = Math.round(peakAcc);
+            // Find the parent div and update the number, keeping the m/s² label
+            const parentDiv = ui.circularPeakAcc.parentElement;
+            if (parentDiv) {
+              ui.circularPeakAcc.textContent = Math.round(peakAcc);
+            }
           }
 
           // Update chart (only if canvas exists)
