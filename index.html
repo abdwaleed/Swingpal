@@ -10,6 +10,16 @@
     <style>
       * {
         touch-action: manipulation;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+      }
+      input, textarea {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
       }
     </style>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -377,7 +387,7 @@
           </div>
 
           <!-- CONTENT -->
-          <div class="flex flex-col gap-6 pt-2">
+          <div class="flex flex-col gap-6 pt-6">
             <!-- Mastery Score -->
             <div
               class="flex justify-between items-end border-b border-gray-100 dark:border-gray-700/50 pb-4 opacity-60 grayscale"
@@ -417,12 +427,12 @@
             </div>
 
             <!-- Metrics -->
-            <div class="flex flex-col gap-6 pt-2">
+            <div class="flex flex-col gap-6 pt-4">
               <!-- Circular Icons Row -->
               <div class="flex justify-center items-center gap-6 px-1">
                 <div class="flex flex-col items-center gap-3">
                   <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-4 border-emerald-500 dark:border-emerald-600 shadow-md">
-                    <div class="flex items-baseline gap-1">
+                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
                       <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400">--</span>
                       <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400">m/s²</span>
                     </div>
@@ -431,7 +441,7 @@
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
                   <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex items-baseline gap-1">
+                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
                       <span class="text-2xl font-black text-gray-400">--</span>
                       <span class="text-[10px] font-medium text-gray-400">%</span>
                     </div>
@@ -440,7 +450,7 @@
                 </div>
                 <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
                   <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex items-baseline gap-1">
+                    <div class="flex items-baseline gap-1 justify-center" style="min-width: 60px; text-align: center;">
                       <span class="text-2xl font-black text-gray-400">--</span>
                       <span class="text-[10px] font-medium text-gray-400">%</span>
                     </div>
@@ -563,12 +573,13 @@
                     >Insights</span
                   >
                 </div>
-                <p
-                  id="coach-feedback"
-                  class="text-sm text-gray-600 dark:text-gray-300 leading-relaxed font-medium pl-7 transition-colors duration-500"
-                >
-                  Coming soon...
-                </p>
+                <div class="pl-7">
+                  <div class="inline-block px-3 py-2 rounded-lg bg-gray-100 dark:bg-gray-700/50 border border-gray-200 dark:border-gray-600">
+                    <p class="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                      Coming soon...
+                    </p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -1150,7 +1161,10 @@
             setTimeout(() => {
               // Create a fresh blob URL from the stored blob
               fetch(n.downloadUrl)
-                .then(res => res.blob())
+                .then(res => {
+                  if (!res.ok) throw new Error("Network error");
+                  return res.blob();
+                })
                 .then(blob => {
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement("a");
@@ -1161,7 +1175,8 @@
                   document.body.removeChild(a);
                   setTimeout(() => window.URL.revokeObjectURL(url), 100);
                 })
-                .catch(() => {
+                .catch((err) => {
+                  console.error("CSV download error:", err);
                   // Fallback: try direct download
                   const a = document.createElement("a");
                   a.href = n.downloadUrl;
@@ -1170,14 +1185,17 @@
                   a.click();
                   document.body.removeChild(a);
                 });
-            }, downloadIndex * 1500);
+            }, downloadIndex * 2000);
             downloadIndex++;
           }
           
           if (n.downloadPngUrl) {
             setTimeout(() => {
               fetch(n.downloadPngUrl)
-                .then(res => res.blob())
+                .then(res => {
+                  if (!res.ok) throw new Error("Network error");
+                  return res.blob();
+                })
                 .then(blob => {
                   const url = window.URL.createObjectURL(blob);
                   const a = document.createElement("a");
@@ -1188,7 +1206,9 @@
                   document.body.removeChild(a);
                   setTimeout(() => window.URL.revokeObjectURL(url), 100);
                 })
-                .catch(() => {
+                .catch((err) => {
+                  console.error("PNG download error:", err);
+                  // Fallback: try direct download
                   const a = document.createElement("a");
                   a.href = n.downloadPngUrl;
                   a.download = `swing_graphs_${timestamp}.png`;
@@ -1196,7 +1216,7 @@
                   a.click();
                   document.body.removeChild(a);
                 });
-            }, downloadIndex * 1500);
+            }, downloadIndex * 2000);
             downloadIndex++;
           }
         });
@@ -1951,9 +1971,17 @@
 
 
       // Create/update impact chart
-      function updateImpactChart(netAccData, peakTime) {
+      function updateImpactChart(netAccData, peakTime, peakAcc = null, peakAccTime = null) {
         const windowData = getTimeWindowData(netAccData, peakTime, 2);
-        if (windowData.length === 0) return;
+        const graphWrapper = document.getElementById("graph-container-wrapper");
+        
+        if (windowData.length === 0) {
+          if (graphWrapper) graphWrapper.style.display = "none";
+          return;
+        }
+        
+        // Show graph container
+        if (graphWrapper) graphWrapper.style.display = "block";
         
         const labels = windowData.map((d) => (d.time - peakTime).toFixed(2));
         const accValues = windowData.map((d) => d.netAcc);
@@ -1966,9 +1994,27 @@
 
         // Determine if dark mode is active
         const isDark = ui.html.classList.contains("dark");
-        const textColor = isDark ? "#e5e7eb" : "#1f2937";
+        const textColor = isDark ? "#e5e7eb" : "#111827"; // Darker text for light mode
         const gridColor = isDark ? "rgba(75, 85, 99, 0.2)" : "rgba(0, 0, 0, 0.08)";
         const lineColor = isDark ? "#10b981" : "#059669";
+        const peakLineColor = isDark ? "#f59e0b" : "#d97706"; // Orange for peak line
+        
+        // Find peak acceleration point in window data if provided
+        let peakPoint = null;
+        if (peakAcc !== null && peakAccTime !== null) {
+          const peakTimeRelative = peakAccTime - peakTime;
+          const peakIndex = labels.findIndex((label, idx) => {
+            const labelTime = parseFloat(label);
+            return Math.abs(labelTime - peakTimeRelative) < 0.01;
+          });
+          if (peakIndex >= 0 && peakIndex < accValues.length) {
+            peakPoint = {
+              x: peakIndex,
+              y: peakAcc,
+              time: peakTimeRelative,
+            };
+          }
+        }
 
         // Calculate min/max for better scaling
         const minAcc = Math.min(...accValues);
@@ -1976,27 +2022,53 @@
         const accRange = maxAcc - minAcc;
         const padding = accRange * 0.1; // 10% padding
 
+        const datasets = [
+          {
+            label: "Net Acceleration",
+            data: accValues,
+            borderColor: lineColor,
+            backgroundColor: isDark
+              ? "rgba(16, 185, 129, 0.15)"
+              : "rgba(5, 150, 105, 0.15)",
+            borderWidth: 2.5,
+            fill: true,
+            tension: 0.5,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBorderWidth: 2,
+            pointHoverBackgroundColor: lineColor,
+          },
+        ];
+        
+        // Add vertical line at peak acceleration if available
+        if (peakPoint) {
+          const verticalLineData = labels.map((label, idx) => {
+            if (idx === peakPoint.x) return peakPoint.y;
+            return null;
+          });
+          
+          datasets.push({
+            label: "Peak Acceleration",
+            data: verticalLineData,
+            borderColor: peakLineColor,
+            backgroundColor: "transparent",
+            borderWidth: 2,
+            borderDash: [5, 5],
+            pointRadius: 6,
+            pointBackgroundColor: peakLineColor,
+            pointBorderColor: isDark ? "#1f2937" : "#ffffff",
+            pointBorderWidth: 2,
+            pointHoverRadius: 8,
+            fill: false,
+            tension: 0,
+          });
+        }
+        
         impactChart = new Chart(ui.impactChart, {
           type: "line",
           data: {
             labels: labels,
-            datasets: [
-              {
-                label: "Net Acceleration",
-                data: accValues,
-                borderColor: lineColor,
-                backgroundColor: isDark
-                  ? "rgba(16, 185, 129, 0.15)"
-                  : "rgba(5, 150, 105, 0.15)",
-                borderWidth: 2.5,
-                fill: true,
-                tension: 0.5,
-                pointRadius: 0,
-                pointHoverRadius: 5,
-                pointHoverBorderWidth: 2,
-                pointHoverBackgroundColor: lineColor,
-              },
-            ],
+            datasets: datasets,
           },
           options: {
             responsive: true,
@@ -2015,13 +2087,18 @@
                 backgroundColor: isDark ? "rgba(17, 24, 39, 0.95)" : "rgba(255, 255, 255, 0.95)",
                 titleColor: textColor,
                 bodyColor: textColor,
-                borderColor: gridColor,
+                borderColor: isDark ? "rgba(75, 85, 99, 0.5)" : "rgba(0, 0, 0, 0.1)",
                 borderWidth: 1,
                 padding: 10,
                 displayColors: false,
                 callbacks: {
                   label: function(context) {
-                    return `Acceleration: ${context.parsed.y.toFixed(2)} m/s²`;
+                    if (context.datasetIndex === 0) {
+                      return `Acceleration: ${context.parsed.y.toFixed(2)} m/s²`;
+                    } else if (context.datasetIndex === 1 && peakPoint) {
+                      return `Peak: (${peakPoint.time.toFixed(2)}s, ${peakPoint.y.toFixed(2)} m/s²)`;
+                    }
+                    return "";
                   },
                 },
               },
@@ -2135,7 +2212,7 @@
 
           // Update chart (only if canvas exists)
           if (ui.impactChart && ui.impactChart.getContext) {
-            updateImpactChart(netAccData, peakJerk.time);
+            updateImpactChart(netAccData, peakJerk.time, peakAcc, peakAccTime);
           } else {
             console.warn("Impact chart canvas not found");
           }
