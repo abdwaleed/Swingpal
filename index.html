@@ -1173,41 +1173,52 @@
         // Force a fresh check - sometimes the array might be empty due to timing
         if (!currentNotifications || currentNotifications.length === 0) {
           ui.notifyList.innerHTML =
-            '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No swings recorded yet.</div>';
+            '<div class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm">No recordings yet</div>';
           return;
         }
+        
+        // Format timestamp for filename (YYYY-MM-DD_HH-MM-SS)
+        const formatTimestamp = (date) => {
+          if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
+          const d = date instanceof Date ? date : new Date(date);
+          const year = d.getFullYear();
+          const month = String(d.getMonth() + 1).padStart(2, "0");
+          const day = String(d.getDate()).padStart(2, "0");
+          const hours = String(d.getHours()).padStart(2, "0");
+          const minutes = String(d.getMinutes()).padStart(2, "0");
+          const seconds = String(d.getSeconds()).padStart(2, "0");
+          return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
+        };
         
         // Use currentNotifications for rendering
         ui.notifyList.innerHTML = currentNotifications
           .map((n) => {
-            let icon = "",
-              action = "";
             const time = n.time.toLocaleTimeString([], {
               hour: "2-digit",
               minute: "2-digit",
             });
-            if (n.type === "error")
-              icon = `<span class="h-8 w-8 rounded-full bg-rose-100 text-rose-500 flex items-center justify-center flex-shrink-0">⚠️</span>`;
-            else if (n.type === "download")
-              icon = `<span class="h-8 w-8 rounded-full bg-blue-100 text-blue-500 flex items-center justify-center flex-shrink-0">💾</span>`;
-            else
-              icon = `<span class="h-8 w-8 rounded-full bg-emerald-100 text-emerald-500 flex items-center justify-center flex-shrink-0">✓</span>`;
-            // Extract swing number from message (handles "Xth Swing" format)
-            const swingMatch = n.msg.match(/(\d+)(?:st|nd|rd|th) Swing/);
-            const swingNum = swingMatch ? swingMatch[1] : "";
             
-            // Format timestamp for filename (YYYY-MM-DD_HH-MM-SS)
-            const formatTimestamp = (date) => {
-              if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
-              const d = date instanceof Date ? date : new Date(date);
-              const year = d.getFullYear();
-              const month = String(d.getMonth() + 1).padStart(2, "0");
-              const day = String(d.getDate()).padStart(2, "0");
-              const hours = String(d.getHours()).padStart(2, "0");
-              const minutes = String(d.getMinutes()).padStart(2, "0");
-              const seconds = String(d.getSeconds()).padStart(2, "0");
-              return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
-            };
+            // Handle error notifications
+            if (n.type === "error") {
+              return `
+                <div class="bg-rose-50 dark:bg-rose-900/20 rounded-xl border border-rose-200 dark:border-rose-800 p-4 shadow-sm">
+                  <div class="flex items-center gap-3">
+                    <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-rose-500 to-rose-600 flex items-center justify-center text-white shadow-md flex-shrink-0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                      </svg>
+                    </div>
+                    <div class="flex-grow min-w-0">
+                      <p class="text-sm font-semibold text-rose-700 dark:text-rose-300 truncate">${n.msg}</p>
+                      <p class="text-xs text-rose-500 dark:text-rose-400">${time}</p>
+                    </div>
+                  </div>
+                </div>`;
+            }
+            
+            // Extract swing number from message
+            const swingMatch = n.msg.match(/(\d+)(?:st|nd|rd|th)/);
+            const swingNum = swingMatch ? swingMatch[1] : "";
             const fileTimestamp = formatTimestamp(n.calendarTime);
             
             let downloadBoxes = "";
@@ -1216,9 +1227,9 @@
               if (n.downloadUrl) {
                 const csvFilename = `swing_${fileTimestamp}.csv`;
                 downloadBoxes += `
-                  <a href="${n.downloadUrl}" download="${csvFilename}" class="flex-1 flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
+                  <a href="${n.downloadUrl}" download="${csvFilename}" onclick="handleDownloadClick(event, '${n.downloadUrl}', '${csvFilename}')" class="flex-1 flex items-center justify-center gap-2 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800 hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
                     <span class="text-xs font-bold text-blue-600 dark:text-blue-400">CSV</span>
                   </a>`;
@@ -1226,11 +1237,11 @@
               if (n.downloadPngUrl) {
                 const pngFilename = `swing_graphs_${fileTimestamp}.png`;
                 downloadBoxes += `
-                  <a href="${n.downloadPngUrl}" download="${pngFilename}" class="flex-1 flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
+                  <a href="${n.downloadPngUrl}" download="${pngFilename}" onclick="handleDownloadClick(event, '${n.downloadPngUrl}', '${pngFilename}')" class="flex-1 flex items-center justify-center gap-2 p-3 bg-emerald-50 dark:bg-emerald-900/20 rounded-lg border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/30 transition-colors">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-emerald-600 dark:text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
                     </svg>
-                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">PNG</span>
+                    <span class="text-xs font-bold text-emerald-600 dark:text-emerald-400">Graph</span>
                   </a>`;
               }
               downloadBoxes += '</div>';
@@ -1238,11 +1249,9 @@
             
             return `
               <div class="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 p-4 shadow-sm">
-                <div class="flex items-center gap-3 mb-2">
-                  <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center text-white font-bold text-sm shadow-md relative">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-                    </svg>
+                <div class="flex items-center gap-3">
+                  <div class="h-10 w-10 rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 flex items-center justify-center text-white font-bold text-lg shadow-md flex-shrink-0">
+                    ${swingNum || "?"}
                   </div>
                   <div class="flex-grow">
                     <p class="text-sm font-bold text-gray-900 dark:text-white">Swing ${swingNum || ""}</p>
@@ -1260,17 +1269,17 @@
         const validDownloads = currentNotifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
 
         if (validDownloads.length === 0) {
-          showToast("No recordings found to download.", "error");
+          showToast("No recordings yet", "error");
           return;
         }
 
         // Check if JSZip is available
         if (typeof JSZip === "undefined") {
-          showToast("ZIP library not loaded. Please refresh.", "error");
+          showToast("Please refresh the page", "error");
           return;
         }
 
-        showToast("Creating ZIP file...", "download");
+        showToast("Creating ZIP...", "download");
 
         const zip = new JSZip();
         const formatTimestamp = (date) => {
@@ -1340,10 +1349,11 @@
           document.body.removeChild(a);
           setTimeout(() => window.URL.revokeObjectURL(url), 100);
 
-          showToast(`Downloaded ${fileCount} file${fileCount !== 1 ? 's' : ''} as ZIP`, "download");
+          showToast(`ZIP ready (${fileCount} files)`, "download");
         } catch (err) {
           console.error("ZIP generation error:", err);
-          showToast("Failed to create ZIP file.", "error");
+          showToast("ZIP failed", "error");
+          addNotification("Could not create ZIP", "error");
         }
       }
       ui.btnNotify.addEventListener("click", openNotify);
@@ -1352,6 +1362,37 @@
       
       // Initialize notification dot state on page load
       updateNotificationDot();
+      
+      // Detect iOS for download handling
+      const isIOSDevice = (() => {
+        const ua = navigator.userAgent || navigator.vendor || window.opera;
+        const isIPad = (/Macintosh/i.test(ua) && navigator.maxTouchPoints && navigator.maxTouchPoints > 1) || /iPad/.test(ua);
+        return (/iPad|iPhone|iPod/.test(ua) && !window.MSStream) || isIPad;
+      })();
+      
+      // Handle download clicks with iOS fallback
+      window.handleDownloadClick = function(event, url, filename) {
+        if (isIOSDevice) {
+          event.preventDefault();
+          // On iOS, open in new tab since direct download often fails
+          try {
+            fetch(url)
+              .then(res => res.blob())
+              .then(blob => {
+                const blobUrl = URL.createObjectURL(blob);
+                window.open(blobUrl, '_blank');
+                showToast("File opened — long-press to save", "success");
+              })
+              .catch(() => {
+                window.open(url, '_blank');
+                addNotification("Download may have failed on iOS", "error");
+              });
+          } catch (e) {
+            window.open(url, '_blank');
+          }
+        }
+        // On non-iOS, let default download behavior happen
+      };
 
       // --- HELP MODAL ---
       function openHelp() {
@@ -1365,12 +1406,43 @@
           /iPad/.test(ua);
         const isIOS = isiPhone || isIPad;
         const isAndroid = /android/i.test(ua);
+        const howToUse = `
+          <div class="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+            <p class="font-bold text-gray-700 dark:text-gray-300 mb-2">🎾 How to Record</p>
+            <ol class="list-decimal pl-5 space-y-1 text-gray-600 dark:text-gray-400">
+              <li><strong>Connect</strong> your sensor</li>
+              <li>Tap <strong>Start</strong> — 3-second countdown begins</li>
+              <li><strong>Swing</strong> your racket</li>
+              <li>Tap <strong>Stop</strong> to save</li>
+            </ol>
+            <p class="text-xs text-gray-400 dark:text-gray-500 mt-2">Your data appears in History (bell icon)</p>
+          </div>`;
+        
         if (isIOS)
-          content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p><p class="text-red-500 font-bold mb-2">⚠️ Safari & Chrome do NOT work.</p><p>Apple blocks Bluetooth on standard browsers. You must:</p><ol class="list-decimal pl-5 space-y-2 mt-2"><li>Download the free <strong>"Bluefy"</strong> app from the App Store.</li><li>Open this website <em>inside</em> the Bluefy app.</li><li>Tap <strong>"Tap to Connect"</strong> below.</li></ol>`;
+          content = `<p class="font-bold text-blue-600 dark:text-blue-400">📱 iOS Setup</p>
+            <p class="text-red-500 font-semibold text-sm mb-2">⚠️ Safari & Chrome won't work</p>
+            <ol class="list-decimal pl-5 space-y-1">
+              <li>Get <strong>"Bluefy"</strong> (free) from App Store</li>
+              <li>Open this site <em>inside</em> Bluefy</li>
+              <li>Tap <strong>"Tap to Connect"</strong></li>
+            </ol>
+            <p class="text-xs text-amber-600 dark:text-amber-400 mt-3">💡 iOS limits downloads — files open in new tabs. Long-press to save.</p>
+            ${howToUse}`;
         else if (isAndroid)
-          content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Samsung Internet</strong>.</li><li>Ensure <strong>Bluetooth</strong> & <strong>Location</strong> are on.</li><li>Tap the <strong>"Tap to Connect"</strong> card to pair.</li></ul>`;
+          content = `<p class="font-bold text-green-600 dark:text-green-400">🤖 Android Setup</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Use <strong>Chrome</strong> or <strong>Samsung Internet</strong></li>
+              <li>Turn on <strong>Bluetooth</strong> & <strong>Location</strong></li>
+              <li>Tap <strong>"Tap to Connect"</strong></li>
+            </ul>
+            ${howToUse}`;
         else
-          content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p><ul class="list-disc pl-5 space-y-2"><li>Use <strong>Google Chrome</strong> or <strong>Edge</strong>.</li><li>Click the <strong>"Tap to Connect"</strong> card.</li></ul>`;
+          content = `<p class="font-bold text-purple-600 dark:text-purple-400">💻 Desktop Setup</p>
+            <ul class="list-disc pl-5 space-y-1">
+              <li>Use <strong>Chrome</strong> or <strong>Edge</strong></li>
+              <li>Click <strong>"Tap to Connect"</strong></li>
+            </ul>
+            ${howToUse}`;
         ui.helpContent.innerHTML = content;
         ui.helpModal.classList.remove("invisible", "pointer-events-none");
         // Use requestAnimationFrame for smoother animation
@@ -1603,7 +1675,7 @@
           ui.deviceName.style.opacity = "1";
           ui.statusIndicator.className =
             "h-2.5 w-2.5 rounded-full bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.6)]";
-          showToast("Connected successfully!", "success");
+          showToast("Connected!", "success");
           isConnected = true;
         }
       }
@@ -1640,7 +1712,7 @@
         }
         const isAvailable = await navigator.bluetooth.getAvailability();
         if (!isAvailable) {
-          showToast("Bluetooth is off or no adapter found.", "error");
+          showToast("Bluetooth is off", "error");
           return;
         }
         try {
@@ -1662,7 +1734,7 @@
           if (error.message.includes("User cancelled")) return;
           switch (error.name) {
             case "NotFoundError":
-              showToast("No SwingPal sensor found. Is it powered on?", "error");
+              showToast("Sensor not found. Is it on?", "error");
               break;
             case "NotSupportedError":
               showToast(
@@ -1677,25 +1749,19 @@
               );
               break;
             case "NetworkError":
-              showToast(
-                "Connection lost. Try moving closer to the sensor.",
-                "error"
-              );
+              showToast("Connection lost. Move closer.", "error");
               break;
             case "NotAllowedError":
-              showToast(
-                "Bluetooth permission denied. Please allow access.",
-                "error"
-              );
+              showToast("Bluetooth access denied", "error");
               break;
             case "InvalidStateError":
-              showToast("Bluetooth is busy. Try restarting the app.", "error");
+              showToast("Bluetooth busy. Restart app.", "error");
               break;
             default:
               showToast(
                 error.message.includes("Connection failed")
-                  ? "Connection failed. Is another app using the sensor?"
-                  : "Oops! Connection error. Please try again.",
+                  ? "Connection failed. Close other apps."
+                  : "Connection error. Try again.",
                 "error"
               );
           }
@@ -1707,7 +1773,8 @@
         ui.btnStart.disabled = true;
         ui.btnStop.disabled = true;
         isRecording = false;
-        showToast("Sensor disconnected. Please reconnect.", "error");
+        showToast("Sensor disconnected", "error");
+        addNotification("Sensor lost connection", "error");
         if (wakeLock) wakeLock.release();
       }
 
@@ -1727,11 +1794,11 @@
         } catch (e) {
           console.error("Stream Error", e);
           showToast(
-            e.name === "NotSupportedError"
-              ? "Sensor error: Data stream not supported."
-              : "Could not wake sensor. Try reconnecting.",
-            "error"
-          );
+                e.name === "NotSupportedError"
+                  ? "Sensor error"
+                  : "Sensor not responding. Reconnect.",
+                "error"
+              );
           ui.btnStart.disabled = false;
           recordingCalendarTime = null;
           return;
@@ -1793,7 +1860,8 @@
         safetyTimer = setTimeout(() => {
           if (isRecording) {
             ui.btnStop.click();
-            showToast("Auto-stopped (Time Limit)", "error");
+            showToast("Auto-stopped (10 min limit)", "error");
+            addNotification("Recording auto-stopped", "error");
           }
         }, MAX_RECORDING_TIME_MS);
         ui.iconBg.className =
@@ -1801,7 +1869,7 @@
         ui.statusIndicator.className =
           "h-2.5 w-2.5 rounded-full bg-rose-600 animate-pulse";
         ui.btnStop.disabled = false;
-        showToast("Recording Started", "success");
+        showToast("Recording — swing now!", "success");
 
         ui.recordingOverlay.classList.remove("hidden");
       }
@@ -1854,7 +1922,6 @@
           const currentSwingCount = swingCount;
           const currentCsvUrl = pendingDownloadUrl;
           const currentCalendarTime = window.lastRecordingCalendarTime || recordingCalendarTime;
-          const swingName = `${getOrdinal(currentSwingCount)} Swing`;
           
           // Immediately add notification with CSV (PNG will be null initially)
           // This ensures the CSV is ALWAYS in the history
@@ -1862,7 +1929,7 @@
             // Create a notification entry that we'll update with PNG later
             const notificationIndex = notifications.length;
             addNotification(
-              `Analysis Ready: ${swingName}`,
+              `${getOrdinal(currentSwingCount)} recorded`,
               "download",
               currentCsvUrl,
               null, // PNG will be added later if available
@@ -1916,9 +1983,10 @@
             showAnalysis(accScore, wristScore, formScore, overall);
           }
           
-          showToast("Analysis Ready. Check notifications for downloads.", "download");
+          showToast("Swing saved! Tap 🔔 to download.", "download");
         } else {
-          showToast("False Start Detected (Ignored)", "error");
+          showToast("No data recorded. Try again.", "error");
+          addNotification("No sensor data — check connection", "error");
           chunkBlobs = [];
           currentChunk = [];
           showAnalysis(accScore, wristScore, formScore, overall);
