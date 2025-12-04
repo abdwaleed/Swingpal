@@ -27,6 +27,8 @@
     <!-- Graphs-->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <!-- ZIP file generation -->
+    <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 
     <!-- Font: Inter (Apple-like standard font) -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -107,6 +109,86 @@
       .no-scrollbar {
         -ms-overflow-style: none;
         scrollbar-width: none;
+      }
+
+      /* Apple-style sleek scrollbar */
+      .sleek-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .sleek-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .sleek-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+      .sleek-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(0, 0, 0, 0.35);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+      .dark .sleek-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+      .dark .sleek-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: rgba(255, 255, 255, 0.35);
+        border: 2px solid transparent;
+        background-clip: padding-box;
+      }
+      .sleek-scrollbar {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+      }
+      .dark .sleek-scrollbar {
+        scrollbar-color: rgba(255, 255, 255, 0.2) transparent;
+      }
+
+      /* Responsive circular metrics */
+      .metrics-row {
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        gap: 1rem;
+        padding: 0 0.25rem;
+      }
+      .metric-circle-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.75rem;
+        flex: 1;
+        min-width: 0;
+        max-width: 120px;
+      }
+      .metric-circle {
+        width: 100%;
+        aspect-ratio: 1;
+        max-width: 96px;
+        min-width: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-width: 4px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+      @media (max-width: 380px) {
+        .metric-circle {
+          border-width: 3px;
+        }
+        .metric-circle .metric-value {
+          font-size: 1.125rem !important;
+        }
+        .metric-circle .metric-unit {
+          font-size: 8px !important;
+        }
+        .metric-label {
+          font-size: 10px !important;
+        }
       }
 
       * {
@@ -289,7 +371,7 @@
         <!-- Scrollable Content (Inside the card) -->
         <div
           id="scrollable-content"
-          class="flex-1 overflow-y-auto overscroll-y-auto no-scrollbar px-6 pb-6 relative z-10"
+          class="flex-1 overflow-y-auto overscroll-y-auto sleek-scrollbar px-6 pb-6 relative z-10"
         >
           <!-- OVERLAYS (Inside Scroll Area but absolutely positioned to cover it) -->
 
@@ -429,33 +511,33 @@
             <!-- Metrics -->
             <div class="flex flex-col gap-6 pt-4">
               <!-- Circular Icons Row -->
-              <div class="flex justify-center items-start gap-6 px-1">
-                <div class="flex flex-col items-center gap-3">
-                  <div class="w-24 h-24 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-4 border-emerald-500 dark:border-emerald-600 shadow-md">
-                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
-                      <span id="circular-peak-acc" class="text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">--</span>
-                      <span class="text-[10px] font-medium text-emerald-600 dark:text-emerald-400 leading-none">m/s²</span>
+              <div class="metrics-row">
+                <div class="metric-circle-wrapper">
+                  <div class="metric-circle bg-emerald-100 dark:bg-emerald-900/30 border-emerald-500 dark:border-emerald-600">
+                    <div class="flex flex-col items-center justify-center">
+                      <span id="circular-peak-acc" class="metric-value text-xl sm:text-2xl font-black text-emerald-600 dark:text-emerald-400 leading-none">--</span>
+                      <span class="metric-unit text-[9px] sm:text-[10px] font-medium text-emerald-600 dark:text-emerald-400 leading-none">m/s²</span>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-gray-700 dark:text-gray-300 text-center">Peak Acceleration</span>
+                  <span class="metric-label text-[11px] sm:text-xs font-bold text-gray-700 dark:text-gray-300 text-center leading-tight">Peak Acceleration</span>
                 </div>
-                <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
-                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
-                      <span class="text-2xl font-black text-gray-400 leading-none">--</span>
-                      <span class="text-[10px] font-medium text-gray-400 leading-none">%</span>
+                <div class="metric-circle-wrapper opacity-60 grayscale">
+                  <div class="metric-circle bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    <div class="flex flex-col items-center justify-center">
+                      <span class="metric-value text-xl sm:text-2xl font-black text-gray-400 leading-none">--</span>
+                      <span class="metric-unit text-[9px] sm:text-[10px] font-medium text-gray-400 leading-none">%</span>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-gray-500 text-center">Swing Form</span>
+                  <span class="metric-label text-[11px] sm:text-xs font-bold text-gray-500 text-center leading-tight">Swing Form</span>
                 </div>
-                <div class="flex flex-col items-center gap-3 opacity-60 grayscale">
-                  <div class="w-24 h-24 rounded-full bg-gray-100 dark:bg-gray-700 flex items-center justify-center border-4 border-gray-300 dark:border-gray-600 shadow-md">
-                    <div class="flex flex-col items-center justify-center" style="min-width: 60px; text-align: center;">
-                      <span class="text-2xl font-black text-gray-400 leading-none">--</span>
-                      <span class="text-[10px] font-medium text-gray-400 leading-none">%</span>
+                <div class="metric-circle-wrapper opacity-60 grayscale">
+                  <div class="metric-circle bg-gray-100 dark:bg-gray-700 border-gray-300 dark:border-gray-600">
+                    <div class="flex flex-col items-center justify-center">
+                      <span class="metric-value text-xl sm:text-2xl font-black text-gray-400 leading-none">--</span>
+                      <span class="metric-unit text-[9px] sm:text-[10px] font-medium text-gray-400 leading-none">%</span>
                     </div>
                   </div>
-                  <span class="text-xs font-bold text-gray-500 text-center">Wrist Looseness</span>
+                  <span class="metric-label text-[11px] sm:text-xs font-bold text-gray-500 text-center leading-tight">Wrist Looseness</span>
                 </div>
               </div>
 
@@ -791,7 +873,7 @@
         </div>
         <div
           id="notify-list"
-          class="flex-1 overflow-y-auto no-scrollbar space-y-3"
+          class="flex-1 overflow-y-auto sleek-scrollbar space-y-3"
         >
           <div
             class="text-center text-gray-400 dark:text-gray-600 py-8 text-sm"
@@ -1173,7 +1255,7 @@
           })
           .join("");
       }
-      function downloadAllHistory() {
+      async function downloadAllHistory() {
         // 1. Find all notifications that have files attached
         const currentNotifications = window.swingpalNotifications || notifications;
         const validDownloads = currentNotifications.filter((n) => n.downloadUrl || n.downloadPngUrl);
@@ -1183,8 +1265,15 @@
           return;
         }
 
-        // 2. Create new blob URLs for each download to avoid network errors
-        let downloadIndex = 0;
+        // Check if JSZip is available
+        if (typeof JSZip === "undefined") {
+          showToast("ZIP library not loaded. Please refresh.", "error");
+          return;
+        }
+
+        showToast("Creating ZIP file...", "download");
+
+        const zip = new JSZip();
         const formatTimestamp = (date) => {
           if (!date) return new Date().toISOString().replace(/[:.]/g, "-").slice(0, 19);
           const d = date instanceof Date ? date : new Date(date);
@@ -1196,75 +1285,67 @@
           const seconds = String(d.getSeconds()).padStart(2, "0");
           return `${year}-${month}-${day}_${hours}-${minutes}-${seconds}`;
         };
-        
-        validDownloads.forEach((n) => {
-          const timestamp = formatTimestamp(n.calendarTime || n.time);
-          
-          if (n.downloadUrl) {
-            setTimeout(() => {
-              // Create a fresh blob URL from the stored blob
-              fetch(n.downloadUrl)
-                .then(res => {
-                  if (!res.ok) throw new Error("Network error");
-                  return res.blob();
-                })
-                .then(blob => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `swing_${timestamp}.csv`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                })
-                .catch((err) => {
-                  console.error("CSV download error:", err);
-                  // Fallback: try direct download
-                  const a = document.createElement("a");
-                  a.href = n.downloadUrl;
-                  a.download = `swing_${timestamp}.csv`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                });
-            }, downloadIndex * 2000);
-            downloadIndex++;
-          }
-          
-          if (n.downloadPngUrl) {
-            setTimeout(() => {
-              fetch(n.downloadPngUrl)
-                .then(res => {
-                  if (!res.ok) throw new Error("Network error");
-                  return res.blob();
-                })
-                .then(blob => {
-                  const url = window.URL.createObjectURL(blob);
-                  const a = document.createElement("a");
-                  a.href = url;
-                  a.download = `swing_graphs_${timestamp}.png`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                  setTimeout(() => window.URL.revokeObjectURL(url), 100);
-                })
-                .catch((err) => {
-                  console.error("PNG download error:", err);
-                  // Fallback: try direct download
-                  const a = document.createElement("a");
-                  a.href = n.downloadPngUrl;
-                  a.download = `swing_graphs_${timestamp}.png`;
-                  document.body.appendChild(a);
-                  a.click();
-                  document.body.removeChild(a);
-                });
-            }, downloadIndex * 2000);
-            downloadIndex++;
-          }
-        });
 
-        showToast(`Downloading ${downloadIndex} file${downloadIndex !== 1 ? 's' : ''}...`, "download");
+        // Collect all file fetch promises
+        const fetchPromises = [];
+        let fileCount = 0;
+
+        for (const n of validDownloads) {
+          const timestamp = formatTimestamp(n.calendarTime || n.time);
+
+          if (n.downloadUrl) {
+            fileCount++;
+            fetchPromises.push(
+              fetch(n.downloadUrl)
+                .then(res => res.ok ? res.blob() : null)
+                .then(blob => {
+                  if (blob) {
+                    zip.file(`swing_${timestamp}.csv`, blob);
+                  }
+                })
+                .catch(err => console.error("CSV fetch error:", err))
+            );
+          }
+
+          if (n.downloadPngUrl) {
+            fileCount++;
+            fetchPromises.push(
+              fetch(n.downloadPngUrl)
+                .then(res => res.ok ? res.blob() : null)
+                .then(blob => {
+                  if (blob) {
+                    zip.file(`swing_graphs_${timestamp}.png`, blob);
+                  }
+                })
+                .catch(err => console.error("PNG fetch error:", err))
+            );
+          }
+        }
+
+        try {
+          // Wait for all files to be fetched
+          await Promise.all(fetchPromises);
+
+          // Generate the ZIP file
+          const zipBlob = await zip.generateAsync({ type: "blob" });
+          
+          // Create download link
+          const url = window.URL.createObjectURL(zipBlob);
+          const a = document.createElement("a");
+          a.href = url;
+          const now = new Date();
+          const zipTimestamp = formatTimestamp(now);
+          a.download = `swingpal_recordings_${zipTimestamp}.zip`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => window.URL.revokeObjectURL(url), 100);
+
+          showToast(`Downloaded ${fileCount} file${fileCount !== 1 ? 's' : ''} as ZIP`, "download");
+        } catch (err) {
+          console.error("ZIP generation error:", err);
+          showToast("Failed to create ZIP file.", "error");
+        }
       }
       ui.btnNotify.addEventListener("click", openNotify);
       ui.notifyBackdrop.addEventListener("click", closeNotify);
