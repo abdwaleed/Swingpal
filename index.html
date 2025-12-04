@@ -1849,118 +1849,73 @@
           ui.count.innerText = getOrdinal(swingCount);
           ui.swingLabel.textContent = "Swing";
           saveFile();
-          // Analyze acceleration data
-          if (window.lastRecordingBlob) {
-            analyzeAccelerationData(window.lastRecordingBlob).then((result) => {
-              if (result) {
-                console.log("Impact acceleration:", result.acceleration, "m/s² at time", result.time, "s");
-                // Use real acceleration for scoring
-                // Convert acceleration to score (0-100 scale)
-                // Assuming max acceleration of 200 m/s² = 100 score
-                const maxAcc = 200;
-                const realAccScore = Math.min(
-                  Math.round((result.acceleration / maxAcc) * 100),
-                  100
-                );
-                const updatedOverall = Math.floor(
-                  realAccScore * 0.3 + wristScore * 0.3 + formScore * 0.4
-                );
-                showAnalysis(realAccScore, wristScore, formScore, updatedOverall);
-                
-                // Generate graphs PNG and add notification
-                setTimeout(() => {
-                  if (pendingDownloadUrl) {
-                    const getOrdinal = (n) => {
-                      const s = ["th", "st", "nd", "rd"];
-                      const v = n % 100;
-                      return n + (s[(v - 20) % 10] || s[v] || s[0]);
-                    };
-                    const swingName = `${getOrdinal(swingCount)} Swing`;
-                    // Generate graphs PNG
+          
+          // Store current swing info for notification
+          const currentSwingCount = swingCount;
+          const currentCsvUrl = pendingDownloadUrl;
+          const currentCalendarTime = window.lastRecordingCalendarTime || recordingCalendarTime;
+          const swingName = `${getOrdinal(currentSwingCount)} Swing`;
+          
+          // Immediately add notification with CSV (PNG will be null initially)
+          // This ensures the CSV is ALWAYS in the history
+          if (currentCsvUrl) {
+            // Create a notification entry that we'll update with PNG later
+            const notificationIndex = notifications.length;
+            addNotification(
+              `Analysis Ready: ${swingName}`,
+              "download",
+              currentCsvUrl,
+              null, // PNG will be added later if available
+              currentCalendarTime
+            );
+            
+            // Analyze acceleration data and optionally update with PNG
+            if (window.lastRecordingBlob) {
+              analyzeAccelerationData(window.lastRecordingBlob).then((result) => {
+                if (result) {
+                  console.log("Impact acceleration:", result.acceleration, "m/s² at time", result.time, "s");
+                  const maxAcc = 200;
+                  const realAccScore = Math.min(
+                    Math.round((result.acceleration / maxAcc) * 100),
+                    100
+                  );
+                  const updatedOverall = Math.floor(
+                    realAccScore * 0.3 + wristScore * 0.3 + formScore * 0.4
+                  );
+                  showAnalysis(realAccScore, wristScore, formScore, updatedOverall);
+                  
+                  // Try to generate PNG and update the notification
+                  setTimeout(() => {
                     generateGraphsPNG(
                       result.rawData,
                       result.netAccData,
                       result.jerkData,
                       result.angleDerivatives
                     ).then((pngUrl) => {
-                      addNotification(
-                        `Analysis Ready: ${swingName}`,
-                        "download",
-                        pendingDownloadUrl,
-                        pngUrl,
-                        window.lastRecordingCalendarTime || recordingCalendarTime
-                      );
-                    }).catch(() => {
-                      addNotification(
-                        `Analysis Ready: ${swingName}`,
-                        "download",
-                        pendingDownloadUrl,
-                        null,
-                        window.lastRecordingCalendarTime || recordingCalendarTime
-                      );
+                      if (pngUrl && notifications[0]) {
+                        // Update the most recent notification with PNG
+                        notifications[0].downloadPngUrl = pngUrl;
+                        window.swingpalNotifications = notifications;
+                        renderNotifications();
+                      }
+                    }).catch((err) => {
+                      console.log("PNG generation failed:", err);
                     });
-                  }
-                }, 200);
-              } else {
-                showAnalysis(accScore, wristScore, formScore, overall);
-                setTimeout(() => {
-                  if (pendingDownloadUrl) {
-                    const getOrdinal = (n) => {
-                      const s = ["th", "st", "nd", "rd"];
-                      const v = n % 100;
-                      return n + (s[(v - 20) % 10] || s[v] || s[0]);
-                    };
-                    const swingName = `${getOrdinal(swingCount)} Swing`;
-                    addNotification(
-                      `Analysis Ready: ${swingName}`,
-                      "download",
-                      pendingDownloadUrl,
-                      null,
-                      window.lastRecordingCalendarTime || recordingCalendarTime
-                    );
-                  }
-                }, 200);
-              }
-            }).catch(() => {
-              showAnalysis(accScore, wristScore, formScore, overall);
-              setTimeout(() => {
-                if (pendingDownloadUrl) {
-                  const getOrdinal = (n) => {
-                    const s = ["th", "st", "nd", "rd"];
-                    const v = n % 100;
-                    return n + (s[(v - 20) % 10] || s[v] || s[0]);
-                  };
-                  const swingName = `${getOrdinal(swingCount)} Swing`;
-                  addNotification(
-                    `Analysis Ready: ${swingName}`,
-                    "download",
-                    pendingDownloadUrl,
-                    null,
-                    window.lastRecordingCalendarTime || recordingCalendarTime
-                  );
+                  }, 200);
+                } else {
+                  showAnalysis(accScore, wristScore, formScore, overall);
                 }
-              }, 200);
-            });
+              }).catch(() => {
+                showAnalysis(accScore, wristScore, formScore, overall);
+              });
+            } else {
+              showAnalysis(accScore, wristScore, formScore, overall);
+            }
           } else {
+            // No CSV data was recorded
             showAnalysis(accScore, wristScore, formScore, overall);
-            setTimeout(() => {
-              if (pendingDownloadUrl) {
-                const getOrdinal = (n) => {
-                  const s = ["th", "st", "nd", "rd"];
-                  const v = n % 100;
-                  return n + (s[(v - 20) % 10] || s[v] || s[0]);
-                };
-                const swingName = `${getOrdinal(swingCount)} Swing`;
-                addNotification(
-                  `Analysis Ready: ${swingName}`,
-                  "download",
-                  pendingDownloadUrl,
-                  null,
-                  window.lastRecordingCalendarTime || recordingCalendarTime
-                );
-              }
-            }, 200);
           }
+          
           showToast("Analysis Ready. Check notifications for downloads.", "download");
         } else {
           showToast("False Start Detected (Ignored)", "error");
